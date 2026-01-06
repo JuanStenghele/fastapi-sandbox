@@ -1,4 +1,4 @@
-# Python Sandbox
+# FastAPI Sandbox
 
 Example web API for testing and learning new stuff. Developed in Python 3.10 using FastAPI.
 
@@ -100,3 +100,4 @@ Now `kubectl` can be used:
 ```bash
 kubectl cluster-info
 ```
+
