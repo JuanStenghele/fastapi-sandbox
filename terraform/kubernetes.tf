@@ -16,11 +16,11 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
-data "kubernetes_service" "python_sandbox_service" {
+data "kubernetes_service" "fastapi_sandbox_service" {
   depends_on = [module.eks]
 
   metadata {
-    name      = "python-sandbox-service"
+    name      = "fastapi-sandbox-service"
     namespace = "default"
   }
 }

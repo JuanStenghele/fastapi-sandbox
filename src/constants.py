@@ -15,7 +15,7 @@ POSTGRES_HOST_DEFAULT = "postgres"
 POSTGRES_PORT_DEFAULT = 5432
 
 # Logger
-LOGGER_NAME = "python-sandbox"
+LOGGER_NAME = "fastapi-sandbox"
 
 class Tags(Enum):
   HEALTH_CHECK = "Health check"

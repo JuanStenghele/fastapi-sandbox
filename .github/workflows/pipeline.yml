@@ -44,11 +44,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/juans-python-sandbox:latest .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/juans-fastapi-sandbox:latest .
 
       - name: Push image to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/juans-python-sandbox:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/juans-fastapi-sandbox:latest
 
   deploy:
     needs: build
@@ -65,7 +65,7 @@ jobs:
 
       - name: Update kubeconfig for EKS
         run: |
-          aws eks update-kubeconfig --name juans-python-sandbox-eks --region ${{ vars.AWS_REGION }}
+          aws eks update-kubeconfig --name juans-fastapi-sandbox-eks --region ${{ vars.AWS_REGION }}
 
       - name: Verify kubectl connection
         run: |
@@ -77,7 +77,7 @@ jobs:
           export POSTGRES_USER="${{ secrets.POSTGRES_USER }}"
           export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
           envsubst < kubernetes/postgres-db/postgres-db-secrets.template.yml > kubernetes/postgres-db/postgres-db-secrets.yml
-          envsubst < kubernetes/api/python-sandbox-secrets.template.yml > kubernetes/api/python-sandbox-secrets.yml
+          envsubst < kubernetes/api/fastapi-sandbox-secrets.template.yml > kubernetes/api/fastapi-sandbox-secrets.yml
 
       - name: Deploy to EKS
         run: |

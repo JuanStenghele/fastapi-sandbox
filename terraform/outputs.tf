@@ -24,6 +24,6 @@ output "hosted_zone_name_servers" {
 }
 
 output "application_url" {
-  description = "URL to access python-sandbox application"
-  value       = "http://${var.python_sandbox_subdomain_name}.${var.main_domain_name}"
+  description = "URL to access fastapi-sandbox application"
+  value       = "http://${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
 }

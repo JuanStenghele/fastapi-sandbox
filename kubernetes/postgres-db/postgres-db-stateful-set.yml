@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: python-sandbox-postgres
+  name: fastapi-sandbox-postgres
 spec:
   serviceName: "postgres"
   selector:
     matchLabels:
-      app: python-sandbox-postgres
+      app: fastapi-sandbox-postgres
   template:
     metadata:
       labels:
-        app: python-sandbox-postgres
+        app: fastapi-sandbox-postgres
     spec:
       containers:
       - name: db
         image: postgres:15.3-alpine
         envFrom:
         - secretRef:
-            name: python-sandbox-postgres-secrets
+            name: fastapi-sandbox-postgres-secrets
         - configMapRef:
-            name: python-sandbox-postgres-config-map
+            name: fastapi-sandbox-postgres-config-map
         ports:
         - containerPort: 5432
         volumeMounts:
@@ -35,4 +35,4 @@ spec:
       volumes:
       - name: postgres-data
         persistentVolumeClaim:
-          claimName: python-sandbox-postgres-pvc
+          claimName: fastapi-sandbox-postgres-pvc

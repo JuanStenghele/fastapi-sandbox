@@ -1,7 +1,7 @@
 {
-	"name": "Python Sandbox Dev Container",
+	"name": "FastAPI Sandbox Dev Container",
 	// Change name of the container
-	"runArgs": ["--name", "dev-python-sandbox"],
+	"runArgs": ["--name", "dev-fastapi-sandbox"],
 	// Add the Dev Container Dockerfile
 	"build": {
 		"dockerfile": "Dockerfile"
@@ -15,7 +15,9 @@
 		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/dev/.ssh,readonly,type=bind"
 	],
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"moby": false
+		},
 		"ghcr.io/devcontainers/features/terraform:1": {},
 		"ghcr.io/devcontainers/features/aws-cli:1": {},
 		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
@@ -26,7 +28,8 @@
 			"extensions": [
 				"ms-python.python",
 				"4ops.terraform",
-				"ms-kubernetes-tools.vscode-kubernetes-tools"
+				"ms-kubernetes-tools.vscode-kubernetes-tools",
+				"anthropic.claude-code"
 			]
 		}
 	}

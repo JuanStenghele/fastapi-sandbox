@@ -1,7 +1,7 @@
 variable "app_name" {
   description = "Application Name"
   type        = string
-  default     = "juans-python-sandbox"
+  default     = "juans-fastapi-sandbox"
 }
 
 variable "aws_region" {
@@ -16,8 +16,8 @@ variable "main_domain_name" {
   default     = "25101999.xyz"
 }
 
-variable "python_sandbox_subdomain_name" {
-  description = "Subdomain for the python-sandbox service"
+variable "fastapi_sandbox_subdomain_name" {
+  description = "Subdomain for the fastapi-sandbox service"
   type        = string
-  default     = "python-sandbox"
+  default     = "fastapi-sandbox"
 }

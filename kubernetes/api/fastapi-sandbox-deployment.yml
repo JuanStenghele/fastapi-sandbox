@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-sandbox-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastapi-sandbox
+  template:
+    metadata:
+      labels:
+        app: fastapi-sandbox
+    spec:
+      containers:
+      - name: fastapi-sandbox
+        image: jstenghele/juans-fastapi-sandbox:latest
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: fastapi-sandbox-secrets
+        - configMapRef:
+            name: fastapi-sandbox-config-map
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8000

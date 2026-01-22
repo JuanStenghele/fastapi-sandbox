@@ -30,13 +30,13 @@ minikube start --driver=docker
 Build API Docker image:
 
 ```bash
-docker build . -t python-sandbox
+docker build . -t fastapi-sandbox
 ```
 
 Upload to Minikube the docker image:
 
 ```bash
-minikube image load python-sandbox
+minikube image load fastapi-sandbox
 ```
 
 Add the required secrets by moving the `.template.yml` into `.yml` files and replace the `${ENV_VARS}` with the custom credentials.
@@ -64,7 +64,7 @@ And accessing `http://localhost/docs`
 Forward API to local:
 
 ```bash
-minikube service python-sandbox-service
+minikube service fastapi-sandbox-service
 ```
 
 Restart deployments:
@@ -92,7 +92,7 @@ aws configure
 Add EKS context:
 
 ```bash
-aws eks --region us-east-1 update-kubeconfig --name juans-python-sandbox-eks
+aws eks --region us-east-1 update-kubeconfig --name juans-fastapi-sandbox-eks
 ```
 
 Now `kubectl` can be used:

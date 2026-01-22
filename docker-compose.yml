@@ -2,13 +2,13 @@ version: '3'
 
 services:
   api:
-    container_name: python-sandbox
+    container_name: fastapi-sandbox
     depends_on: 
       - postgres
     build:
       context: ./
     volumes:
-      - ./src:/python-sandbox/src
+      - ./src:/fastapi-sandbox/src
     ports:
       - 8000:8000
     restart: on-failure:5
