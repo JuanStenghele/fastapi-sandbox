@@ -19,5 +19,5 @@ if os.getenv(ENV) != ENV_TESTING:
   db: Database = getattr(app, 'container').db()
   db.create_database()
 
-app.include_router(book_router)
-app.include_router(health_check_router)
+app.include_router(book_router, prefix = "/v1")
+app.include_router(health_check_router, prefix = "/v1")
