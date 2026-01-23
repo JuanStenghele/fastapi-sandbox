@@ -20,7 +20,10 @@
 		},
 		"ghcr.io/devcontainers/features/terraform:1": {},
 		"ghcr.io/devcontainers/features/aws-cli:1": {},
-		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
+		// Required by Claude Code
+	    "ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
 	},
 	// Add extensions
 	"customizations": {
@@ -28,8 +31,7 @@
 			"extensions": [
 				"ms-python.python",
 				"4ops.terraform",
-				"ms-kubernetes-tools.vscode-kubernetes-tools",
-				"anthropic.claude-code"
+				"ms-kubernetes-tools.vscode-kubernetes-tools"
 			]
 		}
 	}
