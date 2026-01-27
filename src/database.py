@@ -1,4 +1,4 @@
-from sqlmodel import create_engine, SQLModel
+from sqlmodel import create_engine
 from logging import Logger
 
 
@@ -7,7 +7,3 @@ class Database():
     self.logger: Logger = logger
     self.logger.info(f"Connecting to DB url: {url}")
     self.engine = create_engine(url)
-
-  def create_database(self) -> None:
-    SQLModel.metadata.create_all(self.engine)
-    self.logger.info("DB creation")

@@ -1,5 +1,4 @@
-import pytest
-
+import pytest, os
 
 from fastapi.testclient import TestClient
 from pytest import FixtureRequest
@@ -7,7 +6,8 @@ from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
 from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
 from utils.env_vars import build_env_vars_dict, set_env_vars
-from database import Database
+from alembic.config import Config
+from alembic import command
 
 
 db_name = "db"
@@ -49,15 +49,13 @@ def context(request: FixtureRequest):
 
   env_vars = build_env_vars_dict(db_host, db_port, db_name, db_user, db_password)
   with set_env_vars(env_vars):
-    from inject import Container
+    # Import app here to ensure env vars are set before app initialization
     from main import app
 
-    container = Container()
-
-    setattr(app, 'container', container)
-    db: Database = getattr(app, 'container').db()
-    db.create_database()
+    # Run DB migrations
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    alembic_ini_path = os.path.join(project_root, "alembic.ini")
+    alembic_cfg = Config(alembic_ini_path)
+    command.upgrade(alembic_cfg, "head")
 
     yield Context(TestClient(app), db_name, db_user, db_password, db_host, db_port)
-
-  container.unwire()
