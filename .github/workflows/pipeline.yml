@@ -79,6 +79,25 @@ jobs:
           envsubst < kubernetes/postgres-db/postgres-db-secrets.template.yml > kubernetes/postgres-db/postgres-db-secrets.yml
           envsubst < kubernetes/api/fastapi-sandbox-secrets.template.yml > kubernetes/api/fastapi-sandbox-secrets.yml
 
-      - name: Deploy to EKS
+      - name: Apply DB resources
         run: |
-          kubectl apply --recursive -f kubernetes/
+          kubectl apply -f kubernetes/postgres-db/
+
+      - name: Run DB migrations
+        run: |
+          kubectl delete job fastapi-sandbox-migration-job --ignore-not-found=true
+          kubectl apply -f kubernetes/api/fastapi-sandbox-migration-job.yml
+          kubectl wait --for=condition=complete --timeout=300s job/fastapi-sandbox-migration-job
+          kubectl logs -l job-name=fastapi-sandbox-migration-job
+
+          if kubectl get job fastapi-sandbox-migration-job -o jsonpath='{.status.failed}' | grep -q "1"; then
+            echo "Migration failed"
+            kubectl logs -l job-name=fastapi-sandbox-migration-job
+            exit 1
+          fi
+
+      - name: Deploy application
+        run: |
+          kubectl apply -f kubernetes/api/
+          kubectl rollout restart deployment/fastapi-sandbox-deployment
+          kubectl rollout status deployment/fastapi-sandbox-deployment --timeout=300s
