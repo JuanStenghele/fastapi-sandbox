@@ -1,3 +1,7 @@
 # AWS Credentials
 aws_access_key_id     = ""
 aws_secret_access_key = ""
+
+# RDS
+rds_username = ""
+rds_password = ""

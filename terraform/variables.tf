@@ -10,6 +10,7 @@ variable "aws_region" {
   default     = "sa-east-1"
 }
 
+# Route 53
 variable "main_domain_name" {
   description = "Kubernetes app domain name"
   type        = string
@@ -19,5 +20,12 @@ variable "main_domain_name" {
 variable "fastapi_sandbox_subdomain_name" {
   description = "Subdomain for the fastapi-sandbox service"
   type        = string
-  default     = "fastapi-sandbox"
+  default     = var.app_name
+}
+
+# RDS
+variable "rds_database_name" {
+  description = "Name of the database to create"
+  type        = string
+  default     = "${var.app_name}-db"
 }

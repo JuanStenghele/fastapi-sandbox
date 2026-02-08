@@ -27,3 +27,24 @@ output "application_url" {
   description = "URL to access fastapi-sandbox application"
   value       = "http://${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
 }
+
+# RDS
+output "rds_endpoint" {
+  description = "RDS PostgreSQL endpoint"
+  value       = aws_db_instance.main.endpoint
+}
+
+output "rds_address" {
+  description = "RDS PostgreSQL address"
+  value       = aws_db_instance.main.address
+}
+
+output "rds_port" {
+  description = "RDS PostgreSQL port"
+  value       = aws_db_instance.main.port
+}
+
+output "rds_database_name" {
+  description = "RDS database name"
+  value       = aws_db_instance.main.db_name
+}
