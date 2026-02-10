@@ -10,7 +10,7 @@ Example web API for testing and learning new stuff. Developed in Python 3.10 usi
 
 ### Docker compose
 
-This repository contains a `docker-compose.yml` to run the API and the Postgres DB. To do so, rename the `.env.example` file to `.env` and run:
+This repository contains a `docker-compose.yml` to run the API, the Postgres DB and DB migrations (automatically run). To do so, rename the `.env.example` file to `.env` and run:
 
 ```bash
 docker compose build
@@ -100,4 +100,3 @@ Now `kubectl` can be used:
 ```bash
 kubectl cluster-info
 ```
-
