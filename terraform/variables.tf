@@ -20,12 +20,12 @@ variable "main_domain_name" {
 variable "fastapi_sandbox_subdomain_name" {
   description = "Subdomain for the fastapi-sandbox service"
   type        = string
-  default     = var.app_name
+  default     = "juans-fastapi-sandbox"
 }
 
 # RDS
 variable "rds_database_name" {
   description = "Name of the database to create"
   type        = string
-  default     = "${var.app_name}-db"
+  default     = "juans-fastapi-sandbox-db"
 }

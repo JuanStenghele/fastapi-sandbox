@@ -73,6 +73,38 @@ Restart deployments:
 kubectl rollout restart deployments
 ```
 
+### Terraform
+
+Build the AWS infraestructure using Terraform. First, create the `.tfvars` file:
+
+```bash
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+```
+
+Then populate it with your own AWS credentials and choose a username and password for RDS service DB. Continue by initializing Terraform with: 
+
+```bash
+terraform init
+```
+
+Review the planned changes with:
+
+```bash
+terraform plan
+```
+
+Build the infraestructure with:
+
+```bash
+terraform apply
+```
+
+Delete everything with:
+
+```bash
+terraform destroy
+```
+
 ## Tests
 
 To run the tests execute:
