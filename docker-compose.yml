@@ -1,10 +1,11 @@
-version: '3'
-
 services:
   api:
     container_name: fastapi-sandbox
-    depends_on: 
-      - postgres
+    depends_on:
+      postgres:
+        condition: service_started
+      db-migrations:
+        condition: service_completed_successfully
     build:
       context: ./
     volumes:
@@ -14,6 +15,20 @@ services:
     restart: on-failure:5
     env_file:
       - .env
+
+  db-migrations:
+    container_name: fastapi-sandbox-db-migrations
+    depends_on:
+      - postgres
+    build:
+      context: ./
+    command: /fastapi-sandbox/scripts/run_migrations.sh
+    restart: "no"
+    env_file:
+      - .env
+    environment:
+      DB_MIGRATION_RETRIES: 5
+      DB_MIGRATION_SLEEP: 2
 
   postgres:
     container_name: postgres

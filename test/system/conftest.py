@@ -4,8 +4,8 @@ from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
-from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
-from utils.env_vars import build_env_vars_dict, set_env_vars
+from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_SSLMODE
+from utils.env_vars import set_env_vars
 from alembic.config import Config
 from alembic import command
 
@@ -13,6 +13,7 @@ from alembic import command
 db_name = "db"
 db_user = "dev"
 db_password = "kzxfngm5ckt2FBH3xef"
+db_sslmode = "disable"
 
 class Context():
   def __init__(self, client: TestClient, db_name: str, db_user: str, db_password: str, db_host: str, db_port: str):
@@ -47,8 +48,14 @@ def postgres_instance(request: FixtureRequest) -> tuple[str, str]:
 def context(request: FixtureRequest):
   db_host, db_port = postgres_instance(request)
 
-  env_vars = build_env_vars_dict(db_host, db_port, db_name, db_user, db_password)
-  with set_env_vars(env_vars):
+  with set_env_vars({
+    POSTGRES_DB: db_name,
+    POSTGRES_USER: db_user,
+    POSTGRES_PASSWORD: db_password,
+    POSTGRES_HOST: db_host,
+    POSTGRES_PORT: db_port,
+    POSTGRES_SSLMODE: db_sslmode
+  }):
     # Import app here to ensure env vars are set before app initialization
     from main import app
 

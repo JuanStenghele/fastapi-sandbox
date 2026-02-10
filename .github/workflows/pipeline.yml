@@ -76,12 +76,10 @@ jobs:
           export POSTGRES_DB="${{ secrets.POSTGRES_DB }}"
           export POSTGRES_USER="${{ secrets.POSTGRES_USER }}"
           export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
-          envsubst < kubernetes/postgres-db/postgres-db-secrets.template.yml > kubernetes/postgres-db/postgres-db-secrets.yml
+          export POSTGRES_HOST="${{ secrets.POSTGRES_HOST }}"
+          export POSTGRES_PORT="${{ secrets.POSTGRES_PORT }}"
+          export POSTGRES_SSLMODE="${{ secrets.POSTGRES_SSLMODE }}"
           envsubst < kubernetes/api/fastapi-sandbox-secrets.template.yml > kubernetes/api/fastapi-sandbox-secrets.yml
-
-      - name: Apply DB resources
-        run: |
-          kubectl apply -f kubernetes/postgres-db/
 
       - name: Run DB migrations
         run: |
@@ -91,7 +89,7 @@ jobs:
           kubectl logs -l job-name=fastapi-sandbox-migration-job
 
           if kubectl get job fastapi-sandbox-migration-job -o jsonpath='{.status.failed}' | grep -q "1"; then
-            echo "Migration failed"
+            echo "DB migration failed"
             kubectl logs -l job-name=fastapi-sandbox-migration-job
             exit 1
           fi

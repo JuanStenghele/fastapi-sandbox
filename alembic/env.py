@@ -10,7 +10,7 @@ from sqlmodel import SQLModel
 # Add src directory to Python path to access models and constants
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT
+from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT
 
 # This is the Alembic Config object, which provides access to the values within the .ini file in use.
 config = context.config
@@ -36,7 +36,12 @@ def get_url():
   host = os.getenv(POSTGRES_HOST, POSTGRES_HOST_DEFAULT)
   port = os.getenv(POSTGRES_PORT, str(POSTGRES_PORT_DEFAULT))
   db_name = os.getenv(POSTGRES_DB)
-  return f"postgresql+psycopg://{user}:{password}@{host}:{port}/{db_name}"
+  sslmode = os.getenv(POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT)
+
+  base_url = f"postgresql+psycopg://{user}:{password}@{host}:{port}/{db_name}"
+  if sslmode:
+    return f"{base_url}?sslmode={sslmode}"
+  return base_url
 
 
 def run_migrations_offline() -> None:
