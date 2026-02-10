@@ -4,3 +4,4 @@ metadata:
   name: fastapi-sandbox-config-map
 data:
   ENV: prod
+  POSTGRES_SSLMODE: prefer
