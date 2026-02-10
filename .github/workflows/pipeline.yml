@@ -78,7 +78,6 @@ jobs:
           export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
           export POSTGRES_HOST="${{ secrets.POSTGRES_HOST }}"
           export POSTGRES_PORT="${{ secrets.POSTGRES_PORT }}"
-          export POSTGRES_SSLMODE="${{ secrets.POSTGRES_SSLMODE }}"
           envsubst < kubernetes/api/fastapi-sandbox-secrets.template.yml > kubernetes/api/fastapi-sandbox-secrets.yml
 
       - name: Run DB migrations
