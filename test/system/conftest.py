@@ -26,7 +26,7 @@ class Context():
     self.db_url = f"postgresql+psycopg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
 
 def postgres_instance(request: FixtureRequest) -> tuple[str, str]:
-  postgres_container = DockerContainer("postgres:15.3-alpine")
+  postgres_container = DockerContainer("postgres:18.2-alpine")
   postgres_container.with_name("test-postgres-db")
 
   postgres_container.with_exposed_ports(5432)

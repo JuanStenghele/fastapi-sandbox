@@ -36,7 +36,7 @@ resource "aws_security_group" "rds" {
 resource "aws_db_instance" "main" {
   identifier     = "${var.app_name}-db"
   engine         = "postgres"
-  engine_version = "15.3"
+  engine_version = "18.2"
   instance_class = "db.t3.micro"
 
   allocated_storage     = 10
