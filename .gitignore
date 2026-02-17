@@ -6,7 +6,7 @@ config/config.json
 .DS_Store
 
 # Terraform
-terraform/*.tfvars
+*.tfvars
 .terraform
 .terraform.lock.hcl
 .terraform.tfstate.lock.info

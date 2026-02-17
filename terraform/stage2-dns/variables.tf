@@ -22,10 +22,3 @@ variable "fastapi_sandbox_subdomain_name" {
   type        = string
   default     = "juans-fastapi-sandbox"
 }
-
-# RDS
-variable "rds_database_name" {
-  description = "Name of the database to create"
-  type        = string
-  default     = "juans-fastapi-sandbox-db"
-}
