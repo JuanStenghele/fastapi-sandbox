@@ -39,8 +39,8 @@ resource "aws_db_instance" "main" {
   engine_version = "18.2"
   instance_class = "db.t3.micro"
 
-  allocated_storage     = 10
-  max_allocated_storage = 20
+  allocated_storage     = 20
+  max_allocated_storage = 100
   storage_type          = "gp3"
   storage_encrypted     = true
 
