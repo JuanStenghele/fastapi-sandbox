@@ -82,6 +82,9 @@ jobs:
 
       - name: Run DB migrations
         run: |
+          kubectl apply -f kubernetes/api/fastapi-sandbox-secrets.yml
+          kubectl apply -f kubernetes/api/fastapi-sandbox-config-map.yml
+
           kubectl delete job fastapi-sandbox-migration-job --ignore-not-found=true
           kubectl apply -f kubernetes/api/fastapi-sandbox-migration-job.yml
           kubectl wait --for=condition=complete --timeout=300s job/fastapi-sandbox-migration-job
