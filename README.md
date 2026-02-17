@@ -78,12 +78,13 @@ kubectl rollout restart deployments
 Build the AWS infraestructure using Terraform. First, create the `.tfvars` file:
 
 ```bash
-cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+cp terraform/infrastructure/terraform.tfvars.example terraform/infrastructure/terraform.tfvars
 ```
 
 Then populate it with your own AWS credentials and choose a username and password for RDS service DB. Continue by initializing Terraform with: 
 
 ```bash
+cd terraform/infrastructure
 terraform init
 ```
 
@@ -103,6 +104,17 @@ Delete everything with:
 
 ```bash
 terraform destroy
+```
+
+To deploy the DNS configuration and use a custom domain. Run exactly the same but with the `dns` directory:
+
+```bash
+cp terraform/dns/terraform.tfvars.example terraform/dns/terraform.tfvars
+# Populate terraform/dns/terraform.tfvars here
+cd terraform/dns
+terraform init
+terraform plan
+terraform apply
 ```
 
 ## Tests
