@@ -19,6 +19,12 @@ POSTGRES_SSLMODE_DEFAULT = "prefer"
 # Logger
 LOGGER_NAME = "fastapi-sandbox"
 
+# OpenTelemetry constants
+OTEL_SERVICE_NAME = "fastapi-sandbox"
+OTEL_EXPORTER_OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
+OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT = "http://otel-collector:4318/v1/metrics"
+OTEL_METRIC_EXPORT_INTERVAL_MILLIS = 60000
+
 class Tags(Enum):
   HEALTH_CHECK = "Health check"
   BOOKS = "Books"

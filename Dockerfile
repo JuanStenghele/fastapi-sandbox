@@ -17,4 +17,5 @@ COPY ./scripts ./scripts
 
 COPY ./src ./src
 
-CMD ["fastapi", "dev", "/fastapi-sandbox/src/main.py", "--port", "8000", "--host", "0.0.0.0"]
+RUN chmod +x /fastapi-sandbox/scripts/run_server.sh
+CMD ["/fastapi-sandbox/scripts/run_server.sh"]

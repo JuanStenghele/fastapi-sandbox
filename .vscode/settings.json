@@ -1,5 +1,10 @@
 {
     "yaml.schemas": {
-        "https://www.schemastore.org/github-workflow.json": "file:///workspaces/fastapi-sandbox/.github/workflows/pipeline.yml"
-    }
+        "https://www.schemastore.org/github-workflow.json": "file:///workspaces/fastapi-sandbox/.github/workflows/pipeline.yml",
+        ".vscode/otel-collector-schema.json": [
+            "metrics/otel-collector/otel-collector-config.yml",
+            "kubernetes/monitoring/otel-collector-config-map.yml"
+        ]
+    },
+    "python-envs.defaultEnvManager": "ms-python.python:system"
 }

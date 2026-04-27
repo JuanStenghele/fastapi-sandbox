@@ -4,7 +4,7 @@ services:
     depends_on:
       postgres:
         condition: service_started
-      db-migrations:
+      db-migrations-job:
         condition: service_completed_successfully
     build:
       context: ./
@@ -16,8 +16,8 @@ services:
     env_file:
       - .env
 
-  db-migrations:
-    container_name: fastapi-sandbox-db-migrations
+  db-migrations-job:
+    container_name: fastapi-sandbox-db-migrations-job
     depends_on:
       postgres:
         condition: service_started
@@ -40,6 +40,31 @@ services:
       - .env
     volumes:
       - db-v18:/var/lib/postgresql
+
+  otel-collector:
+    container_name: otel-collector
+    image: 'otel/opentelemetry-collector-contrib:0.115.1'
+    volumes:
+      - ./metrics/otel-collector/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - 4317:4317  # gRPC receiver
+      - 4318:4318  # HTTP receiver
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  prometheus:
+    container_name: prometheus
+    image: 'prom/prometheus:v3'
+    ports:
+      - 9090:9090
+    volumes:
+      - ./metrics/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--web.enable-lifecycle'
+      - '--web.enable-otlp-receiver'
+    restart: unless-stopped
 
 volumes:
   db-v18:
