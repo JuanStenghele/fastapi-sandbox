@@ -62,10 +62,32 @@ services:
       - ./metrics/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.enable-lifecycle'
       - '--web.enable-otlp-receiver'
     restart: unless-stopped
 
+  grafana:
+    container_name: grafana
+    image: 'grafana/grafana:11.5.0'
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true # Allow access without login
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin # Role assigned to anonymous users
+    volumes:
+      - ./metrics/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+
 volumes:
   db-v18:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
     driver: local
