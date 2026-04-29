@@ -5,3 +5,4 @@ metadata:
 data:
   ENV: prod
   POSTGRES_SSLMODE: prefer
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-service:4318/v1/metrics
