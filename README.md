@@ -14,7 +14,7 @@ This repository contains a `docker-compose.yml` to run the API, the Postgres DB 
 
 ```bash
 docker compose build
-docker compose up
+docker compose up -d
 ```
 
 The API will be running on `http://localhost:8000/`.
