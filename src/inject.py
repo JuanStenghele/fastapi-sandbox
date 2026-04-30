@@ -7,7 +7,7 @@ from database import Database
 from services.book_service import BookService
 from services.observability import ObservabilityService
 from utils.database import build_db_url
-from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT
+from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT, ENV, ENV_LOCAL
 
 
 class Container(DeclarativeContainer):
@@ -31,6 +31,7 @@ class Container(DeclarativeContainer):
 
   # OTel configuration
   config.otel.otlp_endpoint.from_env(OTEL_EXPORTER_OTLP_ENDPOINT, default = OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT)
+  config.otel.env.from_env(ENV, default = ENV_LOCAL)
 
   logger = providers.Callable(
     getLogger,
@@ -40,6 +41,7 @@ class Container(DeclarativeContainer):
   observability_service = providers.Singleton(
     ObservabilityService,
     otlp_endpoint = config.otel.otlp_endpoint,
+    env = config.otel.env,
     logger = logger
   )
 

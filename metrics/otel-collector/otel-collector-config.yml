@@ -6,6 +6,13 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
+processors:
+  transform/promote_resource_attrs:
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(attributes["deployment_environment"], resource.attributes["deployment.environment"])
+
 exporters:
   otlphttp/prometheus:
     endpoint: http://prometheus:9090/api/v1/otlp
@@ -19,4 +26,5 @@ service:
   pipelines:
     metrics:
       receivers: [otlp]
+      processors: [transform/promote_resource_attrs]
       exporters: [otlphttp/prometheus, debug]

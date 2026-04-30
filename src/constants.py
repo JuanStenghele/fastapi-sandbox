@@ -3,6 +3,7 @@ from enum import Enum
 
 # Env contants
 ENV = "ENV"
+ENV_LOCAL = "local"
 ENV_TESTING = "test"
 
 # DB constants
@@ -23,7 +24,7 @@ LOGGER_NAME = "fastapi-sandbox"
 OTEL_SERVICE_NAME = "fastapi-sandbox"
 OTEL_EXPORTER_OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
 OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT = "http://otel-collector:4318/v1/metrics"
-OTEL_METRIC_EXPORT_INTERVAL_MILLIS = 60000
+OTEL_METRIC_EXPORT_INTERVAL_MILLIS = 15000
 
 class Tags(Enum):
   HEALTH_CHECK = "Health check"

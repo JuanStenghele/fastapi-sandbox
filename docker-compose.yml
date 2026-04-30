@@ -80,7 +80,7 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true # Allow access without login
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin # Role assigned to anonymous users
     volumes:
-      - ./metrics/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./metrics/grafana:/etc/grafana/provisioning
       - grafana-data:/var/lib/grafana
     restart: unless-stopped
 

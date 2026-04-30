@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: fastapi-sandbox-config-map
 data:
-  ENV: prod
+  ENV: production
   POSTGRES_SSLMODE: prefer
   OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-service:4318/v1/metrics

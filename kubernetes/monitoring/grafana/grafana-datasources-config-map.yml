@@ -9,10 +9,13 @@ data:
     datasources:
       - name: Prometheus
         type: prometheus
+        uid: prometheus
         access: proxy
         url: http://prometheus-service:9090
         isDefault: true
         editable: true
+        jsonData:
+          timeInterval: "1m"
 
       - name: PostgreSQL
         type: postgres
