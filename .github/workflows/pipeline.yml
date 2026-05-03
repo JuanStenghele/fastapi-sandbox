@@ -5,6 +5,7 @@ on:
 
 jobs:
   tests:
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +32,7 @@ jobs:
           retention-days: 7
 
   build:
+    name: Build
     needs: tests
     runs-on: ubuntu-latest
     steps:
@@ -51,6 +53,7 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/juans-fastapi-sandbox:latest
 
   deploy:
+    name: Deploy
     needs: build
     runs-on: ubuntu-latest
     steps:
