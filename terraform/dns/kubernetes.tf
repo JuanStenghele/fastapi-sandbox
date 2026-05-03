@@ -14,7 +14,7 @@ provider "kubernetes" {
 
 data "kubernetes_service" "fastapi_sandbox_service" {
   metadata {
-    name      = "${var.app_name}-service"
+    name      = "fastapi-sandbox-service"
     namespace = "default"
   }
 }
