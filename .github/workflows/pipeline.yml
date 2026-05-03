@@ -108,5 +108,14 @@ jobs:
       - name: Deploy application
         run: |
           kubectl apply -R -f kubernetes/
-          kubectl rollout restart deployment/fastapi-sandbox-deployment
-          kubectl rollout status deployment/fastapi-sandbox-deployment --timeout=300s
+          DEPLOYMENTS=$(kubectl get deployments -o name)
+          kubectl rollout restart $DEPLOYMENTS
+          for deployment in $DEPLOYMENTS; do
+            kubectl rollout status $deployment --timeout=300s &
+          done
+          wait
+
+      - name: Health check
+        run: |
+          HOSTNAME=$(kubectl get service fastapi-sandbox-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          curl --fail --retry 10 --retry-delay 5 --retry-connrefused "http://$HOSTNAME/v1/health-check"

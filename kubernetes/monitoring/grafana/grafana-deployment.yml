@@ -30,11 +30,11 @@ spec:
           mountPath: /var/lib/grafana
         - name: grafana-datasources
           mountPath: /etc/grafana/provisioning/datasources
+        - name: grafana-dashboards
+          mountPath: /etc/grafana/provisioning/dashboards
         - name: grafana-dashboards-provisioning
           mountPath: /etc/grafana/provisioning/dashboards/dashboards-provisioning.yaml
           subPath: dashboards-provisioning.yaml
-        - name: grafana-dashboards
-          mountPath: /etc/grafana/provisioning/dashboards
         resources:
           requests:
             memory: "256Mi"
