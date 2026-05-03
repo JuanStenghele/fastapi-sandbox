@@ -8,6 +8,8 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: ${{ vars.AWS_REGION }}
+  TF_VAR_rds_username: ${{ secrets.POSTGRES_USERNAME }}
+  TF_VAR_rds_password: ${{ secrets.POSTGRES_PASSWORD }}
 
 jobs:
   plan:
