@@ -16,15 +16,3 @@ variable "rds_database_name" {
   type        = string
   default     = "juansfastapisandboxdb"
 }
-
-variable "rds_username" {
-  description = "RDS master username"
-  type        = string
-  sensitive   = true
-}
-
-variable "rds_password" {
-  description = "RDS master password"
-  type        = string
-  sensitive   = true
-}
