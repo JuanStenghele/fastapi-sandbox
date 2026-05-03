@@ -20,8 +20,16 @@ resource "aws_route53_record" "fastapi_sandbox_www" {
 
 resource "aws_route53_record" "grafana" {
   zone_id = aws_route53_zone.main.zone_id
-  name    = "${var.grafana_subdomain_name}.${var.main_domain_name}"
+  name    = "${var.grafana_subdomain_name}.${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
   type    = "CNAME"
   records = [data.kubernetes_service.grafana_service.status[0].load_balancer[0].ingress[0].hostname]
+  ttl     = 300
+}
+
+resource "aws_route53_record" "grafana_www" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "www.${var.grafana_subdomain_name}.${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
+  type    = "CNAME"
+  records = ["${var.grafana_subdomain_name}.${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"]
   ttl     = 300
 }

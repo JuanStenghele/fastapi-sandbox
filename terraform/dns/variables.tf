@@ -1,7 +1,7 @@
 variable "app_name" {
   description = "Application Name"
   type        = string
-  default     = "juans-fastapi-sandbox"
+  default     = "fastapi-sandbox"
 }
 
 variable "aws_region" {

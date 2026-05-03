@@ -12,3 +12,8 @@ output "load_balancer_hostname" {
   description = "Load balancer hostname from Kubernetes service"
   value       = data.kubernetes_service.fastapi_sandbox_service.status[0].load_balancer[0].ingress[0].hostname
 }
+
+output "grafana_url" {
+  description = "URL to access Grafana"
+  value       = "http://${var.grafana_subdomain_name}.${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
+}
