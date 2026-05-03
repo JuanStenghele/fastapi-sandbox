@@ -389,17 +389,24 @@
             }
           }
         },
-        {
-          "id": "sortBy",
-          "options": {
-            "fields": [
-              { "desc": true, "displayName": "Requests" }
-            ]
-          }
-        }
       ],
       "fieldConfig": {
         "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Endpoint" },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View Endpoint",
+                    "url": "/d/endpoint-overview?var-env=${env}&var-service=${service}&var-endpoint=${__data.fields.Endpoint}",
+                    "targetBlank": false
+                  }
+                ]
+              }
+            ]
+          },
           {
             "matcher": { "id": "byName", "options": "Requests" },
             "properties": [
@@ -409,39 +416,15 @@
           {
             "matcher": { "id": "byName", "options": "Error Rate" },
             "properties": [
-              { "id": "unit",    "value": "percent" },
+              { "id": "unit",     "value": "percent" },
               { "id": "decimals", "value": 2 },
-              { "id": "noValue", "value": "0%" },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    { "color": "green",  "value": null },
-                    { "color": "yellow", "value": 1    },
-                    { "color": "red",    "value": 5    }
-                  ]
-                }
-              },
-              { "id": "custom.displayMode", "value": "color-background" }
+              { "id": "noValue",  "value": "0%" }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "p99 Latency" },
             "properties": [
-              { "id": "unit", "value": "ms" },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    { "color": "green",  "value": null },
-                    { "color": "yellow", "value": 500  },
-                    { "color": "red",    "value": 1000 }
-                  ]
-                }
-              },
-              { "id": "custom.displayMode", "value": "color-background" }
+              { "id": "unit", "value": "ms" }
             ]
           }
         ]
