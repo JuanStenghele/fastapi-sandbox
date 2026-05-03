@@ -107,6 +107,6 @@ jobs:
 
       - name: Deploy application
         run: |
-          kubectl apply -f kubernetes/
+          kubectl apply -R -f kubernetes/
           kubectl rollout restart deployment/fastapi-sandbox-deployment
           kubectl rollout status deployment/fastapi-sandbox-deployment --timeout=300s
