@@ -22,3 +22,9 @@ variable "fastapi_sandbox_subdomain_name" {
   type        = string
   default     = "juans-fastapi-sandbox"
 }
+
+variable "grafana_subdomain_name" {
+  description = "Subdomain for the Grafana service"
+  type        = string
+  default     = "grafana"
+}

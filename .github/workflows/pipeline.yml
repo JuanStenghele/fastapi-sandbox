@@ -80,6 +80,10 @@ jobs:
           export POSTGRES_PORT="${{ secrets.POSTGRES_PORT }}"
           envsubst < kubernetes/api/fastapi-sandbox-secrets.template.yml > kubernetes/api/fastapi-sandbox-secrets.yml
 
+          export GRAFANA_ADMIN_USER="${{ secrets.GRAFANA_ADMIN_USER }}"
+          export GRAFANA_ADMIN_PASSWORD="${{ secrets.GRAFANA_ADMIN_PASSWORD }}"
+          envsubst < kubernetes/monitoring/grafana/grafana-secrets.template.yml > kubernetes/monitoring/grafana/grafana-secrets.yml
+
       - name: Deploy configuration
         run: |
           kubectl apply -f kubernetes/api/fastapi-sandbox-secrets.yml

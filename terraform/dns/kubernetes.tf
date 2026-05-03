@@ -18,3 +18,10 @@ data "kubernetes_service" "fastapi_sandbox_service" {
     namespace = "default"
   }
 }
+
+data "kubernetes_service" "grafana_service" {
+  metadata {
+    name      = "grafana-service"
+    namespace = "default"
+  }
+}
