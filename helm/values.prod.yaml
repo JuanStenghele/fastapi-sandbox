@@ -15,11 +15,3 @@ ingress:
   enabled: true
   api: juans-fastapi-sandbox.25101999.xyz
   grafana: grafana.juans-fastapi-sandbox.25101999.xyz
-
-traefik:
-  certificatesResolvers:
-    letsencrypt:
-      acme:
-        storage: /data/acme.json
-        httpChallenge:
-          entryPoint: web

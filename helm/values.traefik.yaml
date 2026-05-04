@@ -1,0 +1,22 @@
+ingressRoute:
+  dashboard:
+    enabled: false
+
+ports:
+  web:
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+
+persistence:
+  enabled: true
+  size: 128Mi
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      storage: /data/acme.json
+      httpChallenge:
+        entryPoint: web
