@@ -15,6 +15,9 @@ persistence:
   size: 128Mi
   storageClass: gp2
 
+podSecurityContext:
+  fsGroup: 65532
+
 certificatesResolvers:
   letsencrypt:
     acme:
