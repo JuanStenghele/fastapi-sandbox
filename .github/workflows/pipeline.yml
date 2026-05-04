@@ -75,39 +75,22 @@ jobs:
           kubectl cluster-info
 
       - name: Populate secrets
+        env:
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         run: |
-          export POSTGRES_DB="${{ secrets.POSTGRES_DB }}"
-          export POSTGRES_USER="${{ secrets.POSTGRES_USER }}"
-          export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
-          export POSTGRES_HOST="${{ secrets.POSTGRES_HOST }}"
-          export POSTGRES_PORT="${{ secrets.POSTGRES_PORT }}"
-          envsubst < kubernetes/api/fastapi-sandbox-secrets.template.yml > kubernetes/api/fastapi-sandbox-secrets.yml
-
-          export GRAFANA_ADMIN_USER="${{ secrets.GRAFANA_ADMIN_USER }}"
-          export GRAFANA_ADMIN_PASSWORD="${{ secrets.GRAFANA_ADMIN_PASSWORD }}"
-          envsubst < kubernetes/monitoring/grafana/grafana-secrets.template.yml > kubernetes/monitoring/grafana/grafana-secrets.yml
-
-      - name: Deploy configuration
-        run: |
-          kubectl apply -f kubernetes/api/fastapi-sandbox-secrets.yml
-          kubectl apply -f kubernetes/api/fastapi-sandbox-config-map.yml
-
-      - name: Run DB migrations
-        run: |
-          kubectl delete job fastapi-sandbox-migration-job --ignore-not-found=true
-          kubectl apply -f kubernetes/api/fastapi-sandbox-migration-job.yml
-          kubectl wait --for=condition=complete --timeout=300s job/fastapi-sandbox-migration-job
-          kubectl logs -l job-name=fastapi-sandbox-migration-job
-
-          if kubectl get job fastapi-sandbox-migration-job -o jsonpath='{.status.failed}' | grep -q "1"; then
-            echo "DB migration failed"
-            kubectl logs -l job-name=fastapi-sandbox-migration-job
-            exit 1
-          fi
+          for template in helm/secrets/*.template.yaml; do
+            envsubst < "$template" | kubectl apply -f -
+          done
 
       - name: Deploy application
         run: |
-          kubectl apply -R -f kubernetes/
+          helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml --wait --timeout 5m
           DEPLOYMENTS=$(kubectl get deployments -o name)
           kubectl rollout restart $DEPLOYMENTS
           for deployment in $DEPLOYMENTS; do

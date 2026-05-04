@@ -1,0 +1,13 @@
+replicaCount:
+  grafana: 1
+  prometheus: 1
+  otelCollector: 1
+
+grafana:
+  port: 80
+
+prometheus:
+  url: http://prometheus-service:9090
+
+env:
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-service:4318/v1/metrics

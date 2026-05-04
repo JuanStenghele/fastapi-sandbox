@@ -1,0 +1,12 @@
+replicaCount:
+  api: 2
+
+image:
+  api:
+    repository: jstenghele/juans-fastapi-sandbox
+    tag: latest
+    pullPolicy: Always
+
+env:
+  ENV: production
+  POSTGRES_SSLMODE: prefer

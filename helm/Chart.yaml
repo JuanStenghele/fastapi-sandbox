@@ -1,0 +1,7 @@
+apiVersion: v2
+name: fastapi-sandbox
+description: Python 3.10 FastAPI sandbox
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+icon: https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png

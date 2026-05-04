@@ -1,0 +1,15 @@
+replicaCount:
+  api: 1
+
+image:
+  api:
+    repository: fastapi-sandbox
+    tag: latest
+    pullPolicy: Never
+
+grafana:
+  port: 3000
+
+env:
+  ENV: local
+  POSTGRES_SSLMODE: disable

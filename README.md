@@ -19,7 +19,7 @@ docker compose up -d
 
 The API will be running on `http://localhost:8000/`.
 
-### Kubernetes
+### Helm/Kubernetes
 
 Run minikube:
 
@@ -39,18 +39,16 @@ Upload to Minikube the docker image:
 minikube image load fastapi-sandbox
 ```
 
-Add the required secrets by moving the `.template.yml` into `.yml` files and replace the `${ENV_VARS}` with the custom credentials.
-
-Apply the local setup:
+Apply secrets:
 
 ```bash
-kubectl apply --recursive -f kubernetes
+bash scripts/apply_local_kubernetes_secrets.sh
 ```
 
-Open dashboard:
+Apply the rest of the stack with Helm:
 
 ```bash
-minikube dashboard
+helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.local.yaml
 ```
 
 Access the FastAPI Swagger by running:
@@ -61,16 +59,22 @@ minikube tunnel
 
 And accessing `http://localhost/docs`
 
-Forward API to local:
+Open dashboard:
 
 ```bash
-minikube service fastapi-sandbox-service
+minikube dashboard
 ```
 
 Restart deployments:
 
 ```bash
 kubectl rollout restart deployments
+```
+
+Helm lint:
+
+```bash
+helm lint helm/ -f helm/values.yaml -f helm/values.local.yaml
 ```
 
 ### Terraform
