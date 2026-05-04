@@ -13,6 +13,7 @@ ports:
 persistence:
   enabled: true
   size: 128Mi
+  storageClass: gp2
 
 certificatesResolvers:
   letsencrypt:
