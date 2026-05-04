@@ -88,6 +88,9 @@ jobs:
             envsubst < "$template" | kubectl apply -f -
           done
 
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
       - name: Deploy application
         run: |
           helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml --wait --timeout 5m
