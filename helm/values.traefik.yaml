@@ -20,6 +20,8 @@ deployment:
     - name: volume-permissions
       image: busybox:latest
       command: ["sh", "-c", "touch /data/acme.json && chmod 600 /data/acme.json"]
+      securityContext:
+        runAsUser: 0
       volumeMounts:
         - name: data
           mountPath: /data
