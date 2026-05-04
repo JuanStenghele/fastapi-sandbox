@@ -12,16 +12,9 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
-data "kubernetes_service" "fastapi_sandbox_service" {
+data "kubernetes_service" "traefik" {
   metadata {
-    name      = "fastapi-sandbox-service"
-    namespace = "default"
-  }
-}
-
-data "kubernetes_service" "grafana_service" {
-  metadata {
-    name      = "grafana-service"
+    name      = "fastapi-sandbox-traefik"
     namespace = "default"
   }
 }

@@ -13,3 +13,8 @@ grafana:
 env:
   ENV: local
   POSTGRES_SSLMODE: disable
+
+ingress:
+  enabled: false
+  api: ""
+  grafana: ""

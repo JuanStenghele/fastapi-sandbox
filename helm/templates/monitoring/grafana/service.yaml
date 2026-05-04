@@ -9,4 +9,4 @@ spec:
   ports:
   - port: {{ .Values.grafana.port }}
     targetPort: 3000
-  type: LoadBalancer
+  type: {{ if .Values.ingress.enabled }}ClusterIP{{ else }}LoadBalancer{{ end }}

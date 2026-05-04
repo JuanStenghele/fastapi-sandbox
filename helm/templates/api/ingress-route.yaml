@@ -1,0 +1,17 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: api-ingress-route
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.ingress.api }}`) || Host(`www.{{ .Values.ingress.api }}`)
+      kind: Rule
+      services:
+        - name: fastapi-sandbox-service
+          port: 80
+  tls:
+    certResolver: letsencrypt
+{{- end }}

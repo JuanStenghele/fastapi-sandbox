@@ -91,9 +91,12 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v4
 
+      - name: Update Helm dependencies
+        run: helm dependency update helm/
+
       - name: Deploy application
         run: |
-          helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml --wait --timeout 5m
+          helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml --set traefik.certificatesResolvers.letsencrypt.acme.email=${{ secrets.LETSENCRYPT_EMAIL }} --wait --timeout 5m
           DEPLOYMENTS=$(kubectl get deployments -o name)
           kubectl rollout restart $DEPLOYMENTS
           for deployment in $DEPLOYMENTS; do

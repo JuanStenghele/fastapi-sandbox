@@ -11,3 +11,18 @@ prometheus:
 
 env:
   OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-service:4318/v1/metrics
+
+traefik:
+  ingressRoute:
+    dashboard:
+      enabled: false
+  ports:
+    web:
+      http:
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
+  persistence:
+    enabled: true
+    size: 128Mi

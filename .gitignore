@@ -15,3 +15,6 @@ terraform.tfstate.backup
 
 # Kubernetes
 *-secrets.yml
+
+# Helm
+helm/charts/
