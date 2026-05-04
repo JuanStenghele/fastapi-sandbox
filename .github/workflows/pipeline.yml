@@ -108,5 +108,5 @@ jobs:
 
       - name: Health check
         run: |
-          HOSTNAME=$(kubectl get service fastapi-sandbox-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-          curl --fail --retry 10 --retry-delay 5 --retry-connrefused "http://$HOSTNAME/v1/health-check"
+          TRAEFIK=$(kubectl get service traefik -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          curl --fail --retry 10 --retry-delay 5 --retry-connrefused --insecure -H "Host: juans-fastapi-sandbox.25101999.xyz" "https://$TRAEFIK/v1/health-check"

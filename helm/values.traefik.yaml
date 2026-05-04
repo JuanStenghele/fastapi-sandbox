@@ -18,6 +18,18 @@ persistence:
 podSecurityContext:
   fsGroup: 65532
 
+deployment:
+  initContainers:
+    - name: volume-permissions
+      image: busybox:latest
+      command: ["sh", "-c", "touch /data/acme.json && chmod 600 /data/acme.json"]
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      volumeMounts:
+        - name: data
+          mountPath: /data
+
 certificatesResolvers:
   letsencrypt:
     acme:
