@@ -14,7 +14,7 @@ provider "kubernetes" {
 
 data "kubernetes_service" "traefik" {
   metadata {
-    name      = "fastapi-sandbox-traefik"
+    name      = "traefik"
     namespace = "default"
   }
 }
