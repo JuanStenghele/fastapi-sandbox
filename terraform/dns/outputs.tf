@@ -9,8 +9,8 @@ output "application_url" {
 }
 
 output "load_balancer_hostname" {
-  description = "Load balancer hostname from Kubernetes service"
-  value       = data.kubernetes_service.fastapi_sandbox_service.status[0].load_balancer[0].ingress[0].hostname
+  description = "Load balancer hostname from Traefik service"
+  value       = data.kubernetes_service.traefik.status[0].load_balancer[0].ingress[0].hostname
 }
 
 output "grafana_url" {
