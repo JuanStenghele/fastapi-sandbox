@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$ENV" = "dev" ] || [ "$ENV" = "test" ]; then
+if [ "$ENV" = "test" ] || [ "$ENV" = "local" ]; then
   echo "Starting application with fastapi development mode..."
   MODE="dev"
 else

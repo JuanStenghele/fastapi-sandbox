@@ -77,6 +77,16 @@ Helm lint:
 helm lint helm/ -f helm/values.yaml -f helm/values.local.yaml
 ```
 
+### Auth
+
+Generate a local access token:
+
+```bash
+curl -X POST http://localhost:8080/fastapi-sandbox/token -d "grant_type=client_credentials&client_id=test&client_secret=test"
+```
+
+Or it can be done from the [UI](http://localhost:8080/fastapi-sandbox/debugger) clicking on `GET A TOKEN` and then entering any user. Make sure the application stack is running.
+
 ### Terraform
 
 Build the AWS infraestructure using Terraform. First, create the `.tfvars` file:

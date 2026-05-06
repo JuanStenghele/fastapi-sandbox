@@ -1,13 +1,14 @@
 from logging import getLogger
 from dependency_injector import providers
 from dependency_injector.containers import DeclarativeContainer, WiringConfiguration
+from services.auth import AuthService
 from dal.book_dal import BookDAL
 from dal.health_check_dal import HealthCheckDAL
 from database import Database
 from services.book_service import BookService
 from services.observability import ObservabilityService
 from utils.database import build_db_url
-from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT, ENV, ENV_LOCAL
+from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT, ENV, ENV_PRODUCTION, AUTH_AUDIENCE, AUTH_ISSUER, AUTH_JWKS_URI
 
 
 class Container(DeclarativeContainer):
@@ -21,6 +22,8 @@ class Container(DeclarativeContainer):
 
   config = providers.Configuration()
 
+  config.env.from_env(ENV, default = ENV_PRODUCTION)
+
   # DB configuration
   config.db.name.from_env(POSTGRES_DB)
   config.db.user.from_env(POSTGRES_USER)
@@ -31,17 +34,28 @@ class Container(DeclarativeContainer):
 
   # OTel configuration
   config.otel.otlp_endpoint.from_env(OTEL_EXPORTER_OTLP_ENDPOINT, default = OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT)
-  config.otel.env.from_env(ENV, default = ENV_LOCAL)
+
+  # Auth configuration
+  config.auth.issuer.from_env(AUTH_ISSUER)
+  config.auth.audience.from_env(AUTH_AUDIENCE)
+  config.auth.jwks_uri.from_env(AUTH_JWKS_URI)
 
   logger = providers.Callable(
     getLogger,
     name = LOGGER_NAME
   )
 
+  auth_service = providers.Singleton(
+    AuthService,
+    issuer = config.auth.issuer,
+    audience = config.auth.audience,
+    jwks_uri = config.auth.jwks_uri
+  )
+
   observability_service = providers.Singleton(
     ObservabilityService,
     otlp_endpoint = config.otel.otlp_endpoint,
-    env = config.otel.env,
+    env = config.env,
     logger = logger
   )
 

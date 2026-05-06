@@ -24,9 +24,13 @@
 			"kubernetesVersion": "1.35"
 		}
 	},
-	// Add extensions
 	"customizations": {
 		"vscode": {
+			// Add default Python interpreter
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/local/bin/python3.10"
+			},
+			// Add extensions
 			"extensions": [
 				"ms-python.python",
 				"4ops.terraform",
