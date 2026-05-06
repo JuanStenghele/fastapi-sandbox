@@ -23,7 +23,6 @@ class AuthService():
       )
     except Exception:
       raise UnauthenticatedError(detail = "INVALID_TOKEN")
-    print("LLEGA")
     claims = AuthClaims.model_validate(payload)
     if scope is not None:
       self.verify_permissions(claims, scope)
