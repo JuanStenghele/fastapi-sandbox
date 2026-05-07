@@ -16,7 +16,7 @@ from alembic import command
 
 db_name = "db"
 db_user = "dev"
-db_password = "kzxfngm5ckt2FBH3xef"
+db_password = "qwerty123"
 db_sslmode = "disable"
 
 class Context():
