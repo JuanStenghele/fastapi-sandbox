@@ -13,6 +13,9 @@ grafana:
 env:
   ENV: local
   POSTGRES_SSLMODE: disable
+  AUTH_ISSUER: "http://mock-oauth2-server:8080/fastapi-sandbox"
+  AUTH_AUDIENCE: "default"
+  AUTH_JWKS_URI: "http://mock-oauth2-server:8080/fastapi-sandbox/jwks"
 
 ingress:
   enabled: false

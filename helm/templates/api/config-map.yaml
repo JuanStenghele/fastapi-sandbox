@@ -6,3 +6,6 @@ data:
   ENV: {{ .Values.env.ENV | quote }}
   POSTGRES_SSLMODE: {{ .Values.env.POSTGRES_SSLMODE | quote }}
   OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.env.OTEL_EXPORTER_OTLP_ENDPOINT | quote }}
+  AUTH_ISSUER: {{ .Values.env.AUTH_ISSUER | quote }}
+  AUTH_AUDIENCE: {{ .Values.env.AUTH_AUDIENCE | quote }}
+  AUTH_JWKS_URI: {{ .Values.env.AUTH_JWKS_URI | quote }}

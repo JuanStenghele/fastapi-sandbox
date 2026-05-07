@@ -10,6 +10,9 @@ image:
 env:
   ENV: production
   POSTGRES_SSLMODE: prefer
+  AUTH_ISSUER: "https://dev-76kf5dzezilav06g.us.auth0.com/"
+  AUTH_AUDIENCE: "https://juans-fastapi-sandbox"
+  AUTH_JWKS_URI: "https://dev-76kf5dzezilav06g.us.auth0.com/.well-known/jwks.json"
 
 ingress:
   enabled: true
