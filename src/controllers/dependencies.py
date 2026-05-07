@@ -8,12 +8,13 @@ from database import Database
 from services.auth import AuthService
 from objects.auth import AuthClaims
 from objects.error import UnauthenticatedError, UnauthorizedError
+from constants import AUTH_SCOPE_ADMIN
 
 
 def get_auth_claims(
-  scope: str | None = None,
-  credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error = False)),
-  auth_service: AuthService = Depends(lambda: Container.auth_service())
+  scope: str | None,
+  credentials: HTTPAuthorizationCredentials | None,
+  auth_service: AuthService
 ) -> AuthClaims:
   try:
     if credentials is None:
@@ -23,6 +24,20 @@ def get_auth_claims(
     raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = e.detail)
   except UnauthorizedError as e:
     raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = e.detail)
+
+
+def get_user_auth_claims(
+  credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error = False)),
+  auth_service: AuthService = Depends(lambda: Container.auth_service())
+) -> AuthClaims:
+  return get_auth_claims(None, credentials, auth_service)
+
+
+def get_admin_auth_claims(
+  credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error = False)),
+  auth_service: AuthService = Depends(lambda: Container.auth_service())
+) -> AuthClaims:
+  return get_auth_claims(AUTH_SCOPE_ADMIN, credentials, auth_service)
 
 
 def get_session(

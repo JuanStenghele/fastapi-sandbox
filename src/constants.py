@@ -33,6 +33,7 @@ OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT = "http://otel-collector:4318/v1/metrics"
 OTEL_METRIC_EXPORT_INTERVAL_MILLIS = 15000
 
 AUTH_ALGORITHM = "RS256"
+AUTH_SCOPE_ADMIN = "admin"
 
 class Tags(Enum):
   HEALTH_CHECK = "Health check"

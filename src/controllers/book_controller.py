@@ -1,4 +1,3 @@
-from functools import partial
 from fastapi import APIRouter, Depends, HTTPException, status
 from dependency_injector.wiring import inject, Provide
 from sqlmodel import Session
@@ -7,7 +6,7 @@ from inject import Container
 from objects.display import BookCreationRequest, BookCreationResponse
 from services.book_service import BookService
 from logging import Logger
-from controllers.dependencies import get_session, get_auth_claims
+from controllers.dependencies import get_session, get_user_auth_claims
 from objects.book import Book
 from objects.auth import AuthClaims
 
@@ -19,7 +18,7 @@ router = APIRouter()
 @inject
 def get_books(
 	id: str,
-	_: AuthClaims = Depends(get_auth_claims),
+	_: AuthClaims = Depends(get_user_auth_claims),
 	book_service: BookService = Depends(Provide[Container.book_service]),
 	session: Session = Depends(get_session),
 	logger: Logger = Depends(Provide[Container.logger])
@@ -38,7 +37,7 @@ def get_books(
 @inject
 def create_books(
 	book: BookCreationRequest,
-	_: AuthClaims = Depends(partial(get_auth_claims)),
+	_: AuthClaims = Depends(get_user_auth_claims),
 	book_service: BookService = Depends(Provide[Container.book_service]),
 	session: Session = Depends(get_session),
 	logger: Logger = Depends(Provide[Container.logger])
