@@ -1,4 +1,6 @@
 import jwt
+
+
 from jwt import PyJWKClient
 from constants import AUTH_ALGORITHM
 from objects.auth import AuthClaims
@@ -6,10 +8,10 @@ from objects.error import UnauthenticatedError, UnauthorizedError
 
 
 class AuthService():
-  def __init__(self, issuer: str, audience: str, jwks_uri: str):
+  def __init__(self, issuer: str, audience: str, jwks_client: PyJWKClient):
     self.issuer = issuer
     self.audience = audience
-    self.jwks_client = PyJWKClient(jwks_uri)
+    self.jwks_client = jwks_client
 
   def verify_token(self, token: str, scope: str | None = None) -> AuthClaims:
     signing_key = self.jwks_client.get_signing_key_from_jwt(token)

@@ -1,4 +1,5 @@
 from logging import getLogger
+from jwt import PyJWKClient
 from dependency_injector import providers
 from dependency_injector.containers import DeclarativeContainer, WiringConfiguration
 from services.auth import AuthService
@@ -45,11 +46,16 @@ class Container(DeclarativeContainer):
     name = LOGGER_NAME
   )
 
+  jwks_client = providers.Singleton(
+    PyJWKClient,
+    config.auth.jwks_uri
+  )
+
   auth_service = providers.Singleton(
     AuthService,
     issuer = config.auth.issuer,
     audience = config.auth.audience,
-    jwks_uri = config.auth.jwks_uri
+    jwks_client = jwks_client
   )
 
   observability_service = providers.Singleton(
