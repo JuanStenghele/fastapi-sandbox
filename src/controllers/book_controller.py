@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from dependency_injector.wiring import inject, Provide
 from sqlmodel import Session
@@ -17,7 +18,7 @@ router = APIRouter()
 @router.get("/books", tags = [Tags.BOOKS])
 @inject
 def get_books(
-	id: str,
+	id: UUID,
 	_: AuthClaims = Depends(get_user_auth_claims),
 	book_service: BookService = Depends(Provide[Container.book_service]),
 	session: Session = Depends(get_session),
@@ -43,7 +44,7 @@ def create_books(
 	logger: Logger = Depends(Provide[Container.logger])
 ):
 	try:
-		result: Book = book_service.create_book(session, book.name)
+		result: Book = book_service.create_book(session, book.title, book.description, book.isbn, book.publication_date)
 		return BookCreationResponse.from_book(result)
 	except Exception as e:
 		logger.error(f"Error creating book: {e}")

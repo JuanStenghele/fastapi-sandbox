@@ -1,7 +1,8 @@
 import pytest
 
-
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
+from uuid import uuid4
 from sqlmodel import Session
 from objects.book import Book
 from dal.book_dal import BookDAL
@@ -11,23 +12,23 @@ from db_schema.book_db import Book as DBBook
 class TestBookDal():
   def test_create_book_success(self):
     session_mock = MagicMock(spec = Session)
-    book_id = '1'
-    book_name = 'Test Book'
-    book = Book(id = book_id, name = book_name)
+    now = datetime.now(timezone.utc)
+    book_id = uuid4()
+    book_title = 'Harry Potter'
+    book = Book(id = book_id, title = book_title, created_at = now, updated_at = now)
     instance = BookDAL()
     result = instance.create_book(session_mock, book)
     assert result == book
     added_book = session_mock.add.call_args[0][0]
     assert added_book.id == book_id
-    assert added_book.name == book_name
+    assert added_book.title == book_title
 
   def test_create_book_fail(self):
     session_mock = MagicMock(spec = Session)
     expected_message = 'Test Exception'
     session_mock.add.side_effect = Exception(expected_message)
-    book_id = '1'
-    book_name = 'Test Book'
-    book = Book(id = book_id, name = book_name)
+    now = datetime.now(timezone.utc)
+    book = Book(id = uuid4(), title = 'Harry Potter', created_at = now, updated_at = now)
     instance = BookDAL()
     with pytest.raises(Exception) as exc_info:
       instance.create_book(session_mock, book)
@@ -36,9 +37,10 @@ class TestBookDal():
 
   def test_get_book_success(self):
     session_mock = MagicMock(spec = Session)
-    book_id = '1'
-    book_name = 'Test Book'
-    db_book = DBBook(id = book_id, name = book_name)
+    now = datetime.now(timezone.utc)
+    book_id = uuid4()
+    book_title = 'Harry Potter'
+    db_book = DBBook(id = book_id, title = book_title, created_at = now, updated_at = now)
     exec_mock = MagicMock()
     exec_mock.first.return_value = db_book
     session_mock.exec.return_value = exec_mock
@@ -46,16 +48,15 @@ class TestBookDal():
     result = instance.get_book(session_mock, book_id)
     assert result is not None
     assert result.id == book_id
-    assert result.name == book_name
+    assert result.title == book_title
     assert session_mock.exec.call_count == 1
 
   def test_get_book_fail(self):
     session_mock = MagicMock(spec = Session)
     expected_message = 'Test Exception'
     session_mock.exec.side_effect = Exception(expected_message)
-    book_id = '1'
     instance = BookDAL()
-    with pytest.raises(Exception) as exc_info:  
-      instance.get_book(session_mock, book_id)
+    with pytest.raises(Exception) as exc_info:
+      instance.get_book(session_mock, uuid4())
     assert str(exc_info.value) == expected_message
     assert session_mock.exec.call_count == 1

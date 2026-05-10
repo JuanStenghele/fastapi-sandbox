@@ -3,9 +3,11 @@ from jwt import PyJWKClient
 from dependency_injector import providers
 from dependency_injector.containers import DeclarativeContainer, WiringConfiguration
 from services.auth import AuthService
+from dal.author_dal import AuthorDAL
 from dal.book_dal import BookDAL
 from dal.health_check_dal import HealthCheckDAL
 from database import Database
+from services.author_service import AuthorService
 from services.book_service import BookService
 from services.observability import ObservabilityService
 from utils.database import build_db_url
@@ -16,6 +18,7 @@ class Container(DeclarativeContainer):
   wiring_config = WiringConfiguration(
     modules = [
       "controllers.dependencies",
+      "controllers.author_controller",
       "controllers.book_controller",
       "controllers.health_check"
     ]
@@ -86,8 +89,17 @@ class Container(DeclarativeContainer):
     logger = logger
   )
 
+  author_dal = providers.Factory(
+    AuthorDAL
+  )
+
   book_dal = providers.Factory(
     BookDAL
+  )
+
+  author_service = providers.Factory(
+    AuthorService,
+    author_dal = author_dal
   )
 
   book_service = providers.Factory(

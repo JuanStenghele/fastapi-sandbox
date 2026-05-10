@@ -1,32 +1,31 @@
 import pytest
 
+from uuid import uuid4
 from system.utils.db_utils import insert_book, delete_all_books
-from system.utils.auth_utils import get_auth_token, get_auth_headers
+from system.utils.auth_utils import get_auth_headers, get_user_auth_token
 from system.conftest import Context
 
 
 class TestBookController():
   @pytest.fixture(autouse = True)
   def after_each(self, context: Context):
-    self.auth_token = get_auth_token(context.auth_token_url, "test-user")
+    self.auth_token = get_user_auth_token(context.auth_token_url, "test-user")
     yield
     delete_all_books(context.db_url)
 
   def test_retrieve_book(self, context: Context):
-    insert_book(context.db_url, '123', 'Harry Potter')
-    insert_book(context.db_url, '456', 'The Lord of the Rings')
-    response = context.client.get("/v1/books", params = { "id": "123" }, headers = get_auth_headers(self.auth_token))
+    book_id = str(uuid4())
+    insert_book(context.db_url, book_id, 'Harry Potter')
+    insert_book(context.db_url, str(uuid4()), 'The Lord of the Rings')
+    response = context.client.get("/v1/books", params = { "id": book_id }, headers = get_auth_headers(self.auth_token))
     assert response.status_code == 200
     data = response.json()
-    assert data == {
-      'id': '123',
-      'name': 'Harry Potter'
-    }
+    assert data['id'] == book_id
+    assert data['title'] == 'Harry Potter'
 
   def test_retrieve_unexistent_book(self, context: Context):
-    insert_book(context.db_url, '123', 'Harry Potter')
-    insert_book(context.db_url, '456', 'The Lord of the Rings')
-    response = context.client.get("/v1/books", params = { "id": "789" }, headers = get_auth_headers(self.auth_token))
+    insert_book(context.db_url, str(uuid4()), 'Harry Potter')
+    response = context.client.get("/v1/books", params = { "id": str(uuid4()) }, headers = get_auth_headers(self.auth_token))
     assert response.status_code == 404
     data = response.json()
     assert data == {
@@ -34,18 +33,18 @@ class TestBookController():
     }
 
   def test_create_book(self, context: Context):
-    book_name = 'Harry Potter'
-    response = context.client.post("/v1/books", json = { "name": book_name }, headers = get_auth_headers(self.auth_token))
+    book_title = 'Harry Potter'
+    response = context.client.post("/v1/books", json = { "title": book_title }, headers = get_auth_headers(self.auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] is not None
-    assert data['name'] == book_name
+    assert data['title'] == book_title
 
-  def test_create_book_with_duplicate_name(self, context: Context):
-    book_name = 'Harry Potter'
-    insert_book(context.db_url, '123', book_name)
-    response = context.client.post("/v1/books", json = { "name": book_name }, headers = get_auth_headers(self.auth_token))
+  def test_create_book_with_duplicate_title(self, context: Context):
+    book_title = 'Harry Potter'
+    insert_book(context.db_url, str(uuid4()), book_title)
+    response = context.client.post("/v1/books", json = { "title": book_title }, headers = get_auth_headers(self.auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] is not None
-    assert data['name'] == book_name
+    assert data['title'] == book_title

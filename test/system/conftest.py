@@ -1,5 +1,6 @@
 import pytest, os, time, urllib.request, urllib.error
 
+
 from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 from testcontainers.core.container import DockerContainer
@@ -10,6 +11,7 @@ from constants import (
   OTEL_EXPORTER_OTLP_ENDPOINT, AUTH_ISSUER, AUTH_AUDIENCE, AUTH_JWKS_URI
 )
 from utils.env_vars import set_env_vars
+from utils.auth_utils import get_mock_oauth2_server_config
 from alembic.config import Config
 from alembic import command
 
@@ -76,6 +78,7 @@ def mock_oauth2_server_instance(request: FixtureRequest) -> tuple[str, str]:
   container = DockerContainer("ghcr.io/navikt/mock-oauth2-server:3.0.1")
   container.with_name("test-mock-oauth2-server")
   container.with_exposed_ports(8080)
+  container.with_env("JSON_CONFIG", get_mock_oauth2_server_config())
   container.start()
 
   def remove_container():
@@ -114,7 +117,7 @@ def context(request: FixtureRequest):
     POSTGRES_SSLMODE: db_sslmode,
     OTEL_EXPORTER_OTLP_ENDPOINT: otel_endpoint,
     AUTH_ISSUER: f"{auth_base_url}/fastapi-sandbox",
-    AUTH_AUDIENCE: "default",
+    AUTH_AUDIENCE: "fastapi-sandbox",
     AUTH_JWKS_URI: f"{auth_base_url}/fastapi-sandbox/jwks",
   }):
     # Import app here to ensure env vars are set before app initialization

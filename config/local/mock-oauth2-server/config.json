@@ -1,0 +1,26 @@
+{
+  "tokenCallbacks": [
+    {
+      "issuerId": "fastapi-sandbox",
+      "requestMappings": [
+        {
+          "requestParam": "scope",
+          "match": "admin",
+          "claims": {
+            "sub": "${clientId}",
+            "aud": ["fastapi-sandbox"],
+            "scope": "admin"
+          }
+        },
+        {
+          "requestParam": "client_id",
+          "match": ".*",
+          "claims": {
+            "sub": "${clientId}",
+            "aud": ["fastapi-sandbox"]
+          }
+        }
+      ]
+    }
+  ]
+}

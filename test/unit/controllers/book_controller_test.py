@@ -1,7 +1,7 @@
 import pytest
 
-
 from unittest.mock import MagicMock
+from uuid import uuid4
 from fastapi import HTTPException
 from objects.display import BookCreationRequest
 from objects.auth import AuthClaims
@@ -13,7 +13,7 @@ from logging import Logger
 class TestBookController():
   def test_create_book_500_error(self):
     from controllers.book_controller import create_books
-    book = BookCreationRequest(name = 'Harry Potter')
+    book = BookCreationRequest(title = 'Harry Potter')
     claims_mock = MagicMock(spec = AuthClaims)
     book_service_mock = MagicMock(spec = BookService)
     book_service_mock.create_book.side_effect = Exception('error')
@@ -40,7 +40,7 @@ class TestBookController():
     logger_mock = MagicMock(spec = Logger)
     with pytest.raises(HTTPException) as e:
       get_books(
-        id = '123',
+        id = uuid4(),
         _ = claims_mock,
         book_service = book_service_mock,
         session = session_mock,

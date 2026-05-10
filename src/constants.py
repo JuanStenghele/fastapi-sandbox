@@ -37,4 +37,5 @@ AUTH_SCOPE_ADMIN = "admin"
 
 class Tags(Enum):
   HEALTH_CHECK = "Health check"
+  AUTHORS = "Authors"
   BOOKS = "Books"
