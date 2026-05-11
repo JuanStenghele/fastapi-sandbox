@@ -8,6 +8,8 @@ services:
         condition: service_completed_successfully
       mock-oauth2-server:
         condition: service_started
+      minio:
+        condition: service_started
     build:
       context: ./
     volumes:
@@ -54,6 +56,18 @@ services:
     volumes:
       - db-v18:/var/lib/postgresql
 
+  minio:
+    container_name: minio
+    image: 'minio/minio:RELEASE.2025-09-07T16-13-09Z'
+    ports:
+      - 9000:9000
+      - 9001:9001
+    env_file:
+      - .env
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+
   otel-collector:
     container_name: otel-collector
     image: 'otel/opentelemetry-collector-contrib:0.115.1'
@@ -99,6 +113,8 @@ services:
 
 volumes:
   db-v18:
+    driver: local
+  minio-data:
     driver: local
   prometheus-data:
     driver: local

@@ -10,3 +10,4 @@ opentelemetry-sdk == 1.41.0
 opentelemetry-instrumentation-fastapi == 0.62b0
 opentelemetry-instrumentation-sqlalchemy == 0.62b0
 opentelemetry-exporter-otlp-proto-http == 1.41.0
+boto3 == 1.43.6

@@ -34,7 +34,7 @@ class TestBookController():
 
   def test_create_book(self, context: Context):
     book_title = 'Harry Potter'
-    response = context.client.post("/v1/books", json = { "title": book_title }, headers = get_auth_headers(self.auth_token))
+    response = context.client.post("/v1/books", data = { "title": book_title }, headers = get_auth_headers(self.auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] is not None
@@ -43,7 +43,7 @@ class TestBookController():
   def test_create_book_with_duplicate_title(self, context: Context):
     book_title = 'Harry Potter'
     insert_book(context.db_url, str(uuid4()), book_title)
-    response = context.client.post("/v1/books", json = { "title": book_title }, headers = get_auth_headers(self.auth_token))
+    response = context.client.post("/v1/books", data = { "title": book_title }, headers = get_auth_headers(self.auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] is not None
