@@ -1,0 +1,9 @@
+{{- if eq .Values.env.ENV "local" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio-run-script
+data:
+  run_minio.sh: |
+{{ .Files.Get "files/minio/run_minio.sh" | indent 4 }}
+{{- end }}

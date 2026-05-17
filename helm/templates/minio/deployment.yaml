@@ -1,0 +1,47 @@
+{{- if eq .Values.env.ENV "local" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+      - name: minio
+        image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+        command: ["/scripts/run_minio.sh"]
+        envFrom:
+        - secretRef:
+            name: minio-secrets
+        volumeMounts:
+        - name: minio-storage
+          mountPath: /data
+        - name: run-minio-script
+          mountPath: /scripts/run_minio.sh
+          subPath: run_minio.sh
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: minio-storage
+        persistentVolumeClaim:
+          claimName: minio-pvc
+      - name: run-minio-script
+        configMap:
+          name: minio-run-script
+          defaultMode: 0755
+{{- end }}
