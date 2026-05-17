@@ -64,9 +64,10 @@ services:
       - 9001:9001
     env_file:
       - .env
-    command: server /data --console-address ":9001"
+    entrypoint: /scripts/run_minio.sh
     volumes:
       - minio-data:/data
+      - ./scripts/local/run_minio.sh:/scripts/run_minio.sh
 
   otel-collector:
     container_name: otel-collector

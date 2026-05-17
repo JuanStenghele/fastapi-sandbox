@@ -88,7 +88,7 @@ The API uses OAuth 2.0 with JWT bearer tokens. In production, Auth0 should act a
 Generate a local access token:
 
 ```bash
-curl -X POST http://localhost:8080/fastapi-sandbox/token -d "grant_type=client_credentials&client_id=<your-id>&client_secret=test"
+curl -X POST http://localhost:8080/fastapi-sandbox/token -d "grant_type=client_credentials&client_id=<your-id>&client_secret=test&scope=admin"
 ```
 
 Remember to replace `<your-id>` with the ID of the user you want to authenticate as. This value will be returned in the `sub` claim.

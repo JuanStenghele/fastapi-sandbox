@@ -46,7 +46,7 @@ def create_books(
 	logger: Logger = Depends(Provide[Container.logger])
 ):
 	try:
-		cover_image = RawImage(data = book.cover_image.file.read(), content_type = book.cover_image.content_type) if book.cover_image else None
+		cover_image = RawImage(file = book.cover_image.file, content_type = book.cover_image.content_type, size = book.cover_image.size) if book.cover_image else None
 		result: Book = book_service.create_book(session, book.title, book.description, book.isbn, book.publication_date, cover_image)
 		return BookCreationResponse.from_book(result)
 	except ValidationError as e:

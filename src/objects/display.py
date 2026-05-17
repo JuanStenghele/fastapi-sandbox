@@ -41,7 +41,6 @@ class BookCreationResponse(BaseObj):
   description: str | None = None
   isbn: str | None = None
   publication_date: date | None = None
-  cover_image_id: UUID | None = None
   cover_image_url: str | None = None
 
   @classmethod
@@ -52,8 +51,7 @@ class BookCreationResponse(BaseObj):
       description = book.description,
       isbn = book.isbn,
       publication_date = book.publication_date,
-      cover_image_id = book.cover_image_id,
-      cover_image_url = book.cover_image_url
+      cover_image_url = book.cover_image.url if book.cover_image else None
     )
 
 

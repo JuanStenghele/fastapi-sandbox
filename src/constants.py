@@ -37,6 +37,7 @@ AUTH_SCOPE_ADMIN = "admin"
 
 # Cover image
 COVER_IMAGE_ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
+COVER_IMAGE_MAX_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 # Storage
 S3_SERVICE_NAME = "s3"

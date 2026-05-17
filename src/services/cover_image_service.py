@@ -4,6 +4,7 @@ from sqlmodel import Session
 from clients.storage_client import StorageClient
 from dal.book_cover_dal import BookCoverDAL
 from objects.book_cover import BookCover
+from objects.cover_image import CoverImage
 from objects.image import RawImage
 from validators.cover_image_validator import CoverImageValidator
 
@@ -14,10 +15,11 @@ class CoverImageService():
     self.book_cover_dal = book_cover_dal
     self.cover_image_validator = cover_image_validator
 
-  def create(self, session: Session, image: RawImage) -> BookCover:
+  def create(self, session: Session, image: RawImage) -> CoverImage:
     self.cover_image_validator.validate(image)
     id = uuid.uuid4()
-    url = self.storage_client.upload(str(id), image.data, image.content_type)
+    image_data = image.file.read()
+    url = self.storage_client.upload(str(id), image_data, image.content_type)
     now = datetime.now(timezone.utc)
     book_cover = BookCover(
       id = id,
@@ -26,4 +28,5 @@ class CoverImageService():
       created_at = now,
       updated_at = now
     )
-    return self.book_cover_dal.create_book_cover(session, book_cover)
+    self.book_cover_dal.create_book_cover(session, book_cover)
+    return CoverImage(id = id, url = url)
