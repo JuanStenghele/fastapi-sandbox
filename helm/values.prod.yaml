@@ -1,3 +1,6 @@
+serviceAccount:
+  roleArn: "" # terraform output s3_iam_role_arn
+
 replicaCount:
   api: 2
 

@@ -18,6 +18,27 @@ output "configure_kubectl" {
   value       = "aws eks --region ${var.aws_region} update-kubeconfig --name ${var.app_name}-eks"
 }
 
+# S3
+output "s3_iam_role_arn" {
+  description = "IAM role ARN for the API to access S3 via IRSA"
+  value       = module.irsa_s3.iam_role_arn
+}
+
+output "s3_bucket_name" {
+  description = "S3 bucket name"
+  value       = aws_s3_bucket.main.bucket
+}
+
+output "s3_bucket_arn" {
+  description = "S3 bucket ARN"
+  value       = aws_s3_bucket.main.arn
+}
+
+output "s3_bucket_region" {
+  description = "S3 bucket region"
+  value       = aws_s3_bucket.main.region
+}
+
 # RDS
 output "rds_endpoint" {
   description = "RDS PostgreSQL endpoint"

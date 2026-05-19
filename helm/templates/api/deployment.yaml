@@ -12,6 +12,9 @@ spec:
       labels:
         app: fastapi-sandbox
     spec:
+      {{- if .Values.serviceAccount.roleArn }}
+      serviceAccountName: fastapi-sandbox-sa
+      {{- end }}
       containers:
       - name: fastapi-sandbox
         image: {{ .Values.image.api.repository }}:{{ .Values.image.api.tag }}
