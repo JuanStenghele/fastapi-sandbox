@@ -1,5 +1,7 @@
-from logging import getLogger
 import boto3
+
+
+from logging import getLogger
 from jwt import PyJWKClient
 from dependency_injector import providers
 from dependency_injector.containers import DeclarativeContainer, WiringConfiguration

@@ -1,4 +1,6 @@
 import uuid
+
+
 from datetime import datetime, timezone
 from sqlmodel import Session
 from clients.storage_client import StorageClient
@@ -8,6 +10,8 @@ from objects.cover_image import CoverImage
 from objects.image import RawImage
 from validators.cover_image_validator import CoverImageValidator
 
+
+COVER_IMAGES_PATH = "cover-images"
 
 class CoverImageService():
   def __init__(self, storage_client: StorageClient, book_cover_dal: BookCoverDAL, cover_image_validator: CoverImageValidator):
@@ -19,7 +23,7 @@ class CoverImageService():
     self.cover_image_validator.validate(image)
     id = uuid.uuid4()
     image_data = image.file.read()
-    url = self.storage_client.upload(str(id), image_data, image.content_type)
+    url = self.storage_client.upload_user_content(f"{COVER_IMAGES_PATH}/{id}", image_data, image.content_type)
     now = datetime.now(timezone.utc)
     book_cover = BookCover(
       id = id,
