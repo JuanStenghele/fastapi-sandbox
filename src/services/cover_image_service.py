@@ -20,14 +20,14 @@ class CoverImageService():
     self.cover_image_validator = cover_image_validator
 
   def create(self, session: Session, image: RawImage) -> CoverImage:
-    self.cover_image_validator.validate(image)
+    self.cover_image_validator.validate_creation(image)
     id = uuid.uuid4()
     image_data = image.file.read()
     url = self.storage_client.upload_user_content(f"{COVER_IMAGES_PATH}/{id}", image_data, image.content_type)
     now = datetime.now(timezone.utc)
     book_cover = BookCover(
       id = id,
-      source = self.storage_client.source,
+      source = self.storage_client.source(),
       url = url,
       created_at = now,
       updated_at = now

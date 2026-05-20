@@ -4,7 +4,8 @@ from dependency_injector.wiring import inject, Provide
 from sqlmodel import Session
 from constants import Tags
 from inject import Container
-from objects.display import BookCreationRequest, BookCreationResponse
+from objects.book_creation import BookCreationRequest
+from objects.display import BookCreationHTTPRequest, BookCreationHTTPResponse
 from objects.error import ValidationError
 from objects.image import RawImage
 from services.book_service import BookService
@@ -36,19 +37,20 @@ def get_books(
 	return book
 
 
-@router.post("/books", response_model = BookCreationResponse, tags = [Tags.BOOKS])
+@router.post("/books", response_model = BookCreationHTTPResponse, tags = [Tags.BOOKS])
 @inject
 def create_books(
-	book: BookCreationRequest = Depends(BookCreationRequest.as_form),
+	http_request: BookCreationHTTPRequest = Depends(BookCreationHTTPRequest.as_form),
 	_: AuthClaims = Depends(get_user_auth_claims),
 	book_service: BookService = Depends(Provide[Container.book_service]),
 	session: Session = Depends(get_session),
 	logger: Logger = Depends(Provide[Container.logger])
 ):
 	try:
-		cover_image = RawImage(file = book.cover_image.file, content_type = book.cover_image.content_type, size = book.cover_image.size) if book.cover_image else None
-		result: Book = book_service.create_book(session, book.title, book.description, book.isbn, book.publication_date, cover_image)
-		return BookCreationResponse.from_book(result)
+		cover_image = RawImage(file = http_request.cover_image.file, content_type = http_request.cover_image.content_type, size = http_request.cover_image.size) if http_request.cover_image else None
+		request = BookCreationRequest(title = http_request.title, author_id = http_request.author_id, description = http_request.description, isbn = http_request.isbn, publication_date = http_request.publication_date, cover_image = cover_image)
+		result: Book = book_service.create_book(session, request)
+		return BookCreationHTTPResponse.from_book(result)
 	except ValidationError as e:
 		raise HTTPException(detail = e.detail, status_code = status.HTTP_400_BAD_REQUEST)
 	except Exception as e:

@@ -1,29 +1,33 @@
 import uuid
 
 
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from uuid import UUID
 from dal.book_dal import BookDAL
 from objects.book import Book
-from objects.image import RawImage
+from objects.book_creation import BookCreationRequest
 from services.cover_image_service import CoverImageService
 from sqlmodel import Session
+from validators.book_validator import BookValidator
 
 
 class BookService():
-  def __init__(self, book_dal: BookDAL, cover_image_service: CoverImageService) -> None:
+  def __init__(self, book_dal: BookDAL, cover_image_service: CoverImageService, book_validator: BookValidator) -> None:
     self.book_dal: BookDAL = book_dal
     self.cover_image_service = cover_image_service
+    self.book_validator: BookValidator = book_validator
 
-  def create_book(self, session: Session, title: str, description: str | None, isbn: str | None, publication_date: date | None, cover_image: RawImage | None = None) -> Book:
-    cover = self.cover_image_service.create(session, cover_image) if cover_image else None
+  def create_book(self, session: Session, request: BookCreationRequest) -> Book:
+    self.book_validator.validate_creation(session, request)
+    cover = self.cover_image_service.create(session, request.cover_image) if request.cover_image else None
     now = datetime.now(timezone.utc)
     book = Book(
       id = uuid.uuid4(),
-      title = title,
-      description = description,
-      isbn = isbn,
-      publication_date = publication_date,
+      title = request.title,
+      author_id = request.author_id,
+      description = request.description,
+      isbn = request.isbn,
+      publication_date = request.publication_date,
       cover_image = cover,
       created_at = now,
       updated_at = now

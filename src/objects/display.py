@@ -7,10 +7,11 @@ from objects.author import Author
 from objects.book import Book
 
 
-class BookCreationRequest(BaseObj):
+class BookCreationHTTPRequest(BaseObj):
   model_config = ConfigDict(arbitrary_types_allowed = True)
 
   title: str
+  author_id: UUID
   description: str | None = None
   isbn: str | None = None
   publication_date: date | None = None
@@ -21,6 +22,7 @@ class BookCreationRequest(BaseObj):
   def as_form(
     cls,
     title: str = Form(...),
+    author_id: UUID = Form(...),
     description: str | None = Form(None),
     isbn: str | None = Form(None),
     publication_date: date | None = Form(None),
@@ -28,6 +30,7 @@ class BookCreationRequest(BaseObj):
   ):
     return cls(
       title = title,
+      author_id = author_id,
       description = description,
       isbn = isbn,
       publication_date = publication_date,
@@ -35,7 +38,7 @@ class BookCreationRequest(BaseObj):
     )
 
 
-class BookCreationResponse(BaseObj):
+class BookCreationHTTPResponse(BaseObj):
   id: UUID
   title: str
   description: str | None = None
@@ -55,11 +58,11 @@ class BookCreationResponse(BaseObj):
     )
 
 
-class AuthorCreationRequest(BaseObj):
+class AuthorCreationHTTPRequest(BaseObj):
   name: str
 
 
-class AuthorCreationResponse(AuthorCreationRequest):
+class AuthorCreationHTTPResponse(AuthorCreationHTTPRequest):
   id: UUID
 
   @classmethod

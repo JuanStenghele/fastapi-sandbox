@@ -1,5 +1,6 @@
 from uuid import UUID
 from sqlmodel import select, Session
+from db_schema.book_author_db import BookAuthor as DBBookAuthor
 from db_schema.book_db import Book as DBBook
 from objects.book import Book
 
@@ -12,11 +13,17 @@ class BookDAL():
       description = book.description,
       isbn = book.isbn,
       publication_date = book.publication_date,
-      cover_image_id = book.cover_image_id,
+      cover_image_id = book.cover_image.id if book.cover_image else None,
       created_at = book.created_at,
       updated_at = book.updated_at
     )
     session.add(db_book)
+    db_book_author = DBBookAuthor(
+      book_id = book.id,
+      author_id = book.author_id,
+      created_at = book.created_at,
+    )
+    session.add(db_book_author)
     return book
 
   def get_book(self, session: Session, id: UUID) -> Book | None:

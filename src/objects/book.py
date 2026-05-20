@@ -7,6 +7,7 @@ from objects.cover_image import CoverImage
 class Book(OrmObj):
   id: UUID
   title: str
+  author_id: UUID
   description: str | None = None
   isbn: str | None = None
   publication_date: date | None = None

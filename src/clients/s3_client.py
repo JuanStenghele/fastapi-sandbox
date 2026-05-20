@@ -11,7 +11,6 @@ class S3Client(StorageClient):
     self.bucket_name = bucket_name
     self.public_url = public_url
 
-  @property
   def source(self) -> str:
     return "s3"
 

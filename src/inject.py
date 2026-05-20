@@ -8,6 +8,7 @@ from dependency_injector.containers import DeclarativeContainer, WiringConfigura
 from services.auth import AuthService
 from dal.author_dal import AuthorDAL
 from dal.book_dal import BookDAL
+from validators.book_validator import BookValidator
 from dal.health_check_dal import HealthCheckDAL
 from database import Database
 from services.author_service import AuthorService
@@ -148,8 +149,14 @@ class Container(DeclarativeContainer):
     cover_image_validator = cover_image_validator
   )
 
+  book_validator = providers.Factory(
+    BookValidator,
+    author_dal = author_dal
+  )
+
   book_service = providers.Factory(
     BookService,
     book_dal = book_dal,
-    cover_image_service = cover_image_service
+    cover_image_service = cover_image_service,
+    book_validator = book_validator
   )
