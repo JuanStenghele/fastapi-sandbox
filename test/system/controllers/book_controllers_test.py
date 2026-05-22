@@ -1,8 +1,9 @@
-import pytest
+import pytest, os
 
 from uuid import uuid4
 from system.utils.db_utils import insert_author, insert_book, delete_all_books
 from system.utils.auth_utils import get_auth_headers, get_user_auth_token
+from system.utils.storage_utils import clean_bucket
 from system.conftest import Context
 
 
@@ -12,6 +13,7 @@ class TestBookController():
     self.auth_token = get_user_auth_token(context.auth_token_url, "test-user")
     yield
     delete_all_books(context.db_url)
+    clean_bucket(context.storage_endpoint_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name)
 
   def test_retrieve_book(self, context: Context):
     author_id = uuid4()
@@ -53,6 +55,26 @@ class TestBookController():
     assert response.status_code == 400
     data = response.json()
     assert data == { 'detail': 'AUTHOR_NOT_FOUND' }
+
+  def test_create_book_with_cover(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_title = 'Harry Potter'
+    res_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "res", "harry_potter_cover.jpg")
+    cover_image = open(res_path, "rb")
+    response = context.client.post(
+      "/v1/books",
+      data = { "title": book_title, "author_id": str(author_id) },
+      files = { "cover_image": ("harry_potter_cover.jpg", cover_image, "image/jpeg") },
+      headers = get_auth_headers(self.auth_token)
+    )
+    cover_image.close()
+    assert response.status_code == 200
+    data = response.json()
+    assert data['id'] is not None
+    assert data['title'] == book_title
+    assert data['cover_image_url'] is not None
+    assert f"public/user-content/cover-images/{data['id']}" in data['cover_image_url']
 
   def test_create_book_with_duplicate_title(self, context: Context):
     author_id = uuid4()
