@@ -3,7 +3,7 @@ import pytest
 
 from unittest.mock import MagicMock
 from fastapi import HTTPException
-from objects.display import AuthorCreationRequest
+from objects.display import AuthorCreationHTTPRequest
 from objects.auth import AuthClaims
 from services.author_service import AuthorService
 from sqlalchemy.orm import Session
@@ -13,7 +13,7 @@ from logging import Logger
 class TestAuthorController():
   def test_create_author_500_error(self):
     from controllers.author_controller import create_author
-    author = AuthorCreationRequest(name = 'J. K. Rowling')
+    author = AuthorCreationHTTPRequest(name = 'J. K. Rowling')
     claims_mock = MagicMock(spec = AuthClaims)
     author_service_mock = MagicMock(spec = AuthorService)
     author_service_mock.create_author.side_effect = Exception('error')

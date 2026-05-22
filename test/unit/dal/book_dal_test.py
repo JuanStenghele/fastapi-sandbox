@@ -14,21 +14,26 @@ class TestBookDal():
     session_mock = MagicMock(spec = Session)
     now = datetime.now(timezone.utc)
     book_id = uuid4()
+    author_id = uuid4()
     book_title = 'Harry Potter'
-    book = Book(id = book_id, title = book_title, created_at = now, updated_at = now)
+    book = Book(id = book_id, title = book_title, author_id = author_id, created_at = now, updated_at = now)
     instance = BookDAL()
     result = instance.create_book(session_mock, book)
     assert result == book
-    added_book = session_mock.add.call_args[0][0]
+    assert session_mock.add.call_count == 2
+    added_book = session_mock.add.call_args_list[0][0][0]
     assert added_book.id == book_id
     assert added_book.title == book_title
+    added_book_author = session_mock.add.call_args_list[1][0][0]
+    assert added_book_author.book_id == book_id
+    assert added_book_author.author_id == author_id
 
   def test_create_book_fail(self):
     session_mock = MagicMock(spec = Session)
     expected_message = 'Test Exception'
     session_mock.add.side_effect = Exception(expected_message)
     now = datetime.now(timezone.utc)
-    book = Book(id = uuid4(), title = 'Harry Potter', created_at = now, updated_at = now)
+    book = Book(id = uuid4(), title = 'Harry Potter', author_id = uuid4(), created_at = now, updated_at = now)
     instance = BookDAL()
     with pytest.raises(Exception) as exc_info:
       instance.create_book(session_mock, book)
