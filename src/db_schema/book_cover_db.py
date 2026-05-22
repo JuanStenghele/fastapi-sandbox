@@ -6,7 +6,7 @@ from sqlmodel import SQLModel, Field
 class BookCover(SQLModel, table = True):
   __tablename__: str = "book_covers"
 
-  id: UUID = Field(primary_key = True, index = True)
+  book_id: UUID = Field(primary_key = True, foreign_key = "books.id")
   source: str = Field(nullable = False)
   url: str = Field(nullable = False)
   created_at: datetime = Field(nullable = False)

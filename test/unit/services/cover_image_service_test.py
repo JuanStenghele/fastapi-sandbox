@@ -2,6 +2,7 @@ import pytest
 
 
 from unittest.mock import MagicMock
+from uuid import uuid4
 from sqlmodel import Session
 from clients.storage_client import StorageClient
 from dal.book_cover_dal import BookCoverDAL
@@ -21,17 +22,16 @@ class TestCoverImageService():
     session_mock = MagicMock(spec = Session)
     file_mock = MagicMock()
     file_mock.read.return_value = b"data"
+    book_id = uuid4()
     image = RawImage.model_construct(file = file_mock, content_type = "image/jpeg")
     instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
-    result = instance.create(session_mock, image)
+    result = instance.create(session_mock, book_id, image)
     cover_image_validator_mock.validate_creation.assert_called_once_with(image)
-    storage_client_mock.upload_user_content.assert_called_once()
-    upload_args = storage_client_mock.upload_user_content.call_args[0]
-    assert upload_args[0].startswith(f"{COVER_IMAGES_PATH}/")
-    assert upload_args[1] == b"data"
-    assert upload_args[2] == "image/jpeg"
+    storage_client_mock.upload_user_content.assert_called_once_with(
+      f"{COVER_IMAGES_PATH}/{book_id}", b"data", "image/jpeg"
+    )
     book_cover_dal_mock.create_book_cover.assert_called_once()
-    assert result.id is not None
+    assert result.book_id == book_id
     assert result.url == "https://example.com/cover.jpg"
 
   def test_create_validation_fail(self):
@@ -43,7 +43,7 @@ class TestCoverImageService():
     image = RawImage.model_construct(file = MagicMock(), content_type = "image/bmp")
     instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
     with pytest.raises(ValidationError) as exc_info:
-      instance.create(session_mock, image)
+      instance.create(session_mock, uuid4(), image)
     assert exc_info.value.detail == "INVALID_IMAGE"
     storage_client_mock.upload_user_content.assert_not_called()
     book_cover_dal_mock.create_book_cover.assert_not_called()
@@ -59,6 +59,6 @@ class TestCoverImageService():
     image = RawImage.model_construct(file = file_mock, content_type = "image/jpeg")
     instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
     with pytest.raises(Exception) as exc_info:
-      instance.create(session_mock, image)
+      instance.create(session_mock, uuid4(), image)
     assert str(exc_info.value) == "upload failed"
     book_cover_dal_mock.create_book_cover.assert_not_called()

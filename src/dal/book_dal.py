@@ -15,7 +15,6 @@ class BookDAL():
       description = book.description,
       isbn = book.isbn,
       publication_date = book.publication_date,
-      cover_image_id = book.cover_image.id if book.cover_image else None,
       created_at = book.created_at,
       updated_at = book.updated_at
     )
@@ -33,7 +32,7 @@ class BookDAL():
     query = (
       select(DBBook, DBBookAuthor, DBBookCover)
       .join(DBBookAuthor, DBBookAuthor.book_id == DBBook.id, isouter = True)
-      .join(DBBookCover, DBBookCover.id == DBBook.cover_image_id, isouter = True)
+      .join(DBBookCover, DBBookCover.book_id == DBBook.id, isouter = True)
       .where(DBBook.id == id)
     )
     result = session.exec(query).first()
@@ -47,7 +46,7 @@ class BookDAL():
       description = db_book.description,
       isbn = db_book.isbn,
       publication_date = db_book.publication_date,
-      cover_image = CoverImage(id = db_cover.id, url = db_cover.url) if db_cover else None,
+      cover_image = CoverImage(book_id = db_cover.book_id, url = db_cover.url) if db_cover else None,
       created_at = db_book.created_at,
       updated_at = db_book.updated_at,
       deleted_at = db_book.deleted_at

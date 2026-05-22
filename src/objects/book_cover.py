@@ -4,7 +4,7 @@ from objects.base import OrmObj
 
 
 class BookCover(OrmObj):
-  id: UUID
+  book_id: UUID
   source: str
   url: str
   created_at: datetime

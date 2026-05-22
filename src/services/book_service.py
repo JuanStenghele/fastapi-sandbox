@@ -19,7 +19,6 @@ class BookService():
 
   def create_book(self, session: Session, request: BookCreationRequest) -> Book:
     self.book_validator.validate_creation(session, request)
-    cover = self.cover_image_service.create(session, request.cover_image) if request.cover_image else None
     now = datetime.now(timezone.utc)
     book = Book(
       id = uuid.uuid4(),
@@ -28,11 +27,12 @@ class BookService():
       description = request.description,
       isbn = request.isbn,
       publication_date = request.publication_date,
-      cover_image = cover,
       created_at = now,
       updated_at = now
     )
     self.book_dal.create_book(session, book)
+    if request.cover_image:
+      book.cover_image = self.cover_image_service.create(session, book.id, request.cover_image)
     return book
 
   def get_book(self, session: Session, id: UUID) -> Book | None:

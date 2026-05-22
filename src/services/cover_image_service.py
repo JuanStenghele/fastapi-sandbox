@@ -1,7 +1,5 @@
-import uuid
-
-
 from datetime import datetime, timezone
+from uuid import UUID
 from sqlmodel import Session
 from clients.storage_client import StorageClient
 from dal.book_cover_dal import BookCoverDAL
@@ -19,18 +17,17 @@ class CoverImageService():
     self.book_cover_dal = book_cover_dal
     self.cover_image_validator = cover_image_validator
 
-  def create(self, session: Session, image: RawImage) -> CoverImage:
+  def create(self, session: Session, book_id: UUID, image: RawImage) -> CoverImage:
     self.cover_image_validator.validate_creation(image)
-    id = uuid.uuid4()
     image_data = image.file.read()
-    url = self.storage_client.upload_user_content(f"{COVER_IMAGES_PATH}/{id}", image_data, image.content_type)
+    url = self.storage_client.upload_user_content(f"{COVER_IMAGES_PATH}/{book_id}", image_data, image.content_type)
     now = datetime.now(timezone.utc)
     book_cover = BookCover(
-      id = id,
+      book_id = book_id,
       source = self.storage_client.source(),
       url = url,
       created_at = now,
       updated_at = now
     )
     self.book_cover_dal.create_book_cover(session, book_cover)
-    return CoverImage(id = id, url = url)
+    return CoverImage(book_id = book_id, url = url)

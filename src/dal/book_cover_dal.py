@@ -6,7 +6,7 @@ from objects.book_cover import BookCover
 class BookCoverDAL():
   def create_book_cover(self, session: Session, book_cover: BookCover) -> BookCover:
     db_book_cover = DBBookCover(
-      id = book_cover.id,
+      book_id = book_cover.book_id,
       source = book_cover.source,
       url = book_cover.url,
       created_at = book_cover.created_at,

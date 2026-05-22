@@ -9,6 +9,7 @@ from services.cover_image_service import CoverImageService
 from dal.book_dal import BookDAL
 from objects.book import Book
 from objects.book_creation import BookCreationRequest
+from objects.image import RawImage
 from validators.book_validator import BookValidator
 from sqlmodel import Session
 
@@ -28,6 +29,23 @@ class TestBookService():
     assert result.title == book_title
     assert result.author_id == author_id
     book_validator_mock.validate_creation.assert_called_once()
+    cover_image_service_mock.create.assert_not_called()
+
+  def test_create_book_success_with_cover(self):
+    book_title = 'Harry Potter'
+    author_id = uuid4()
+    book_dal_mock = MagicMock(spec = BookDAL)
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    book_validator_mock = MagicMock(spec = BookValidator)
+    session_mock = MagicMock(spec = Session)
+    raw_image = RawImage.model_construct(file = MagicMock(), content_type = "image/jpeg")
+    instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock)
+    request = BookCreationRequest(title = book_title, author_id = author_id, cover_image = raw_image)
+    instance.create_book(session_mock, request)
+    cover_image_service_mock.create.assert_called_once()
+    call_args = cover_image_service_mock.create.call_args[0]
+    assert call_args[0] == session_mock
+    assert call_args[2] == raw_image
 
   def test_create_book_fail(self):
     book_dal_mock = MagicMock(spec = BookDAL)

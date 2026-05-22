@@ -67,11 +67,10 @@ class TestBookDal():
     now = datetime.now(timezone.utc)
     book_id = uuid4()
     author_id = uuid4()
-    cover_id = uuid4()
     cover_url = 'https://example.com/cover.jpg'
     db_book = DBBook(id = book_id, title = 'Harry Potter', created_at = now, updated_at = now)
     db_book_author = DBBookAuthor(book_id = book_id, author_id = author_id, created_at = now)
-    db_cover = DBBookCover(id = cover_id, source = 's3', url = cover_url, created_at = now, updated_at = now)
+    db_cover = DBBookCover(book_id = book_id, source = 's3', url = cover_url, created_at = now, updated_at = now)
     exec_mock = MagicMock()
     exec_mock.first.return_value = (db_book, db_book_author, db_cover)
     session_mock.exec.return_value = exec_mock
@@ -79,7 +78,7 @@ class TestBookDal():
     result = instance.get_book(session_mock, book_id)
     assert result is not None
     assert result.cover_image is not None
-    assert result.cover_image.id == cover_id
+    assert result.cover_image.book_id == book_id
     assert result.cover_image.url == cover_url
 
   def test_get_book_not_found(self):

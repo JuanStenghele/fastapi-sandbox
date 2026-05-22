@@ -11,7 +11,6 @@ class Book(SQLModel, table = True):
   description: str | None = Field(default = None, nullable = True)
   isbn: str | None = Field(default = None, nullable = True)
   publication_date: date | None = Field(default = None, nullable = True)
-  cover_image_id: UUID | None = Field(default = None, foreign_key = "book_covers.id", nullable = True)
   created_at: datetime = Field(nullable = False)
   updated_at: datetime = Field(nullable = False)
   deleted_at: datetime | None = Field(default = None, nullable = True)

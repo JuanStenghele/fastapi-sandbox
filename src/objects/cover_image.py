@@ -3,5 +3,5 @@ from objects.base import BaseObj
 
 
 class CoverImage(BaseObj):
-  id: UUID
+  book_id: UUID
   url: str
