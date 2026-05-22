@@ -27,6 +27,16 @@ def delete_all_authors(db_url: str):
     connection.execute(delete(authors))
     connection.commit()
 
+def clean_all_tables(db_url: str):
+  engine = create_engine(db_url)
+  metadata = MetaData()
+  metadata.reflect(bind = engine)
+
+  with engine.connect() as connection:
+    for table in reversed(metadata.sorted_tables):
+      connection.execute(delete(table))
+    connection.commit()
+
 def insert_author(db_url: str, id: UUID, name: str):
   engine = create_engine(db_url)
   metadata = MetaData()
