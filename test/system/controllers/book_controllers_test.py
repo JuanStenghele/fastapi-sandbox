@@ -3,7 +3,7 @@ import pytest, os
 from uuid import uuid4
 from system.utils.db_utils import insert_author, insert_book, clean_all_tables
 from system.utils.auth_utils import get_auth_headers, get_user_auth_token
-from system.utils.storage_utils import clean_bucket
+from system.utils.storage_utils import clean_bucket, file_exists
 from system.conftest import Context
 
 
@@ -85,8 +85,10 @@ class TestBookController():
     assert data['description'] == book_description
     assert data['isbn'] == book_isbn
     assert data['publication_date'] == book_publication_date
+    cover_image_key = f"public/user-content/cover-images/{data['id']}"
     assert data['cover_image_url'] is not None
-    assert f"public/user-content/cover-images/{data['id']}" in data['cover_image_url']
+    assert cover_image_key in data['cover_image_url']
+    assert file_exists(context.storage_endpoint_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, cover_image_key)
 
   def test_create_book_with_duplicate_title(self, context: Context):
     author_id = uuid4()
