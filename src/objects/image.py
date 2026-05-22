@@ -1,12 +1,12 @@
-from typing import BinaryIO
-from pydantic import ConfigDict
+from typing import Annotated, BinaryIO
+from pydantic import ConfigDict, SkipValidation
 from objects.base import BaseObj
 
 
 class RawImage(BaseObj):
   model_config = ConfigDict(arbitrary_types_allowed = True)
 
-  file: BinaryIO
+  file: Annotated[BinaryIO, SkipValidation]
   content_type: str
   size: int | None = None
 
