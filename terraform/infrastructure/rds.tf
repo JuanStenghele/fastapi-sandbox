@@ -46,7 +46,7 @@ resource "aws_db_instance" "main" {
 
   db_name  = var.rds_database_name
   username = var.rds_username
-  password = var.rds_password
+  password = random_password.rds.result
   port     = 5432
 
   db_subnet_group_name   = aws_db_subnet_group.main.name

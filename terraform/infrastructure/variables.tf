@@ -21,5 +21,11 @@ variable "s3_bucket_name" {
 variable "rds_database_name" {
   description = "Name of the database to create"
   type        = string
-  default     = "juansfastapisandboxdb"
+  default     = "fastapi_sandbox_db"
+}
+
+variable "rds_username" {
+  description = "Username for RDS"
+  type        = string
+  default     = "dev"
 }
