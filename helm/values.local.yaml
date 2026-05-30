@@ -13,6 +13,7 @@ grafana:
 env:
   ENV: local
   POSTGRES_SSLMODE: disable
+  STORAGE_PUBLIC_URL: "http://localhost:9000"
   AUTH_ISSUER: "http://mock-oauth2-server:8080/fastapi-sandbox"
   AUTH_AUDIENCE: "default"
   AUTH_JWKS_URI: "http://mock-oauth2-server:8080/fastapi-sandbox/jwks"
@@ -21,3 +22,17 @@ ingress:
   enabled: false
   api: ""
   grafana: ""
+
+secrets:
+  postgresHost: "postgres"
+  postgresPort: "5432"
+  postgresDb: "db"
+  postgresUser: "admin"
+  postgresPassword: "qwerty123"
+  grafanaAdminUser: "admin"
+  storageBucketName: "fastapi-sandbox-local"
+  storageAccessKeyId: "admin"
+  storageSecretAccessKey: "qwerty123"
+  grafanaPassword: "qwerty123"
+  minioRootUser: "admin"
+  minioRootPassword: "qwerty123"

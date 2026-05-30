@@ -1,6 +1,3 @@
-serviceAccount:
-  roleArn: ""
-
 replicaCount:
   grafana: 1
   prometheus: 1

@@ -74,22 +74,17 @@ jobs:
         run: |
           kubectl cluster-info
 
-      - name: Populate secrets
-        env:
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-          GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
-          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
-        run: |
-          for template in helm/secrets/*.template.yaml; do
-            envsubst < "$template" | kubectl apply -f -
-          done
-
       - name: Setup Helm
         uses: azure/setup-helm@v5
+
+      - name: Deploy External Secrets Operator
+        run: |
+          helm repo add external-secrets https://charts.external-secrets.io
+          ESO_ROLE_ARN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/eso/iam_role_arn" --query "Parameter.Value" --output text)          
+          helm upgrade --install external-secrets external-secrets/external-secrets \
+            -n external-secrets --create-namespace \
+            --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=$ESO_ROLE_ARN \
+            --wait --timeout 5m
 
       - name: Deploy Traefik
         run: |

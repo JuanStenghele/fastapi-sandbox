@@ -29,3 +29,16 @@ variable "rds_username" {
   type        = string
   default     = "dev"
 }
+
+variable "rds_port" {
+  description = "Port for RDS"
+  type        = string
+  default     = "5432"
+}
+
+# Grafana
+variable "grafana_admin_user" {
+  description = "Grafana admin username"
+  type        = string
+  default     = "admin"
+}

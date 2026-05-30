@@ -11,6 +11,24 @@ resource "aws_ssm_parameter" "rds_host" {
   value = aws_db_instance.main.address
 }
 
+resource "aws_ssm_parameter" "rds_port" {
+  name  = "/${var.app_name}/rds/port"
+  type  = "String"
+  value = var.rds_port
+}
+
+resource "aws_ssm_parameter" "rds_database_name" {
+  name  = "/${var.app_name}/rds/database_name"
+  type  = "String"
+  value = var.rds_database_name
+}
+
+resource "aws_ssm_parameter" "rds_username" {
+  name  = "/${var.app_name}/rds/username"
+  type  = "String"
+  value = var.rds_username
+}
+
 resource "aws_ssm_parameter" "rds_password" {
   name  = "/${var.app_name}/rds/password"
   type  = "SecureString"
@@ -22,6 +40,12 @@ resource "random_password" "grafana" {
   length           = 16
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>?"
+}
+
+resource "aws_ssm_parameter" "grafana_admin_user" {
+  name  = "/${var.app_name}/grafana/username"
+  type  = "String"
+  value = var.grafana_admin_user
 }
 
 resource "aws_ssm_parameter" "grafana_admin_password" {

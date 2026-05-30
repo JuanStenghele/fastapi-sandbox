@@ -9,3 +9,4 @@ data:
   AUTH_ISSUER: {{ .Values.env.AUTH_ISSUER | quote }}
   AUTH_AUDIENCE: {{ .Values.env.AUTH_AUDIENCE | quote }}
   AUTH_JWKS_URI: {{ .Values.env.AUTH_JWKS_URI | quote }}
+  STORAGE_PUBLIC_URL: {{ .Values.env.STORAGE_PUBLIC_URL | quote }}
