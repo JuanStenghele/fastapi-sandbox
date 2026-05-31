@@ -39,10 +39,10 @@ Upload to Minikube the docker image:
 minikube image load fastapi-sandbox
 ```
 
-Apply secrets:
+Make sure `kubectl` points to `minikube`:
 
 ```bash
-bash scripts/apply_local_kubernetes_secrets.sh
+kubectl config use-context minikube
 ```
 
 Apply the rest of the stack with Helm:

@@ -23,6 +23,12 @@ ingress:
   api: ""
   grafana: ""
 
+s3:
+  roleArn: ""
+
+serviceAccount:
+  roleArn: ""
+
 secrets:
   postgresHost: "postgres"
   postgresPort: "5432"
