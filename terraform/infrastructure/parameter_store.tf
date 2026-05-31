@@ -54,6 +54,13 @@ resource "aws_ssm_parameter" "grafana_admin_password" {
   value = random_password.grafana.result
 }
 
+# GitHub Actions
+resource "aws_ssm_parameter" "github_actions_role_arn" {
+  name  = "/${var.app_name}/github-actions/role-arn"
+  type  = "String"
+  value = aws_iam_role.github_actions.arn
+}
+
 # ESO
 resource "aws_ssm_parameter" "eso_iam_role_arn" {
   name  = "/${var.app_name}/eso/iam_role_arn"

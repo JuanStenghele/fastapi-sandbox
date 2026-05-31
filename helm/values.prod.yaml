@@ -15,6 +15,9 @@ env:
   AUTH_AUDIENCE: "https://juans-fastapi-sandbox"
   AUTH_JWKS_URI: "https://dev-76kf5dzezilav06g.us.auth0.com/.well-known/jwks.json"
 
+traefik:
+  enabled: true
+
 ingress:
   enabled: true
   api: juans-fastapi-sandbox.25101999.xyz

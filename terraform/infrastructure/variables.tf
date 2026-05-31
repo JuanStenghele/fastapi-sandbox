@@ -1,3 +1,9 @@
+variable "github_repo" {
+  description = "GitHub repository in the format owner/repo"
+  type        = string
+  default     = "JuanStenghele/fastapi-sandbox"
+}
+
 variable "app_name" {
   description = "Application Name"
   type        = string
