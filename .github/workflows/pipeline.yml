@@ -86,6 +86,7 @@ jobs:
             --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=$ESO_ROLE_ARN \
             --wait --timeout 5m
           kubectl wait --for condition=established --timeout=60s crd/externalsecrets.external-secrets.io crd/clustersecretstores.external-secrets.io
+          kubectl wait --for condition=available --timeout=60s deployment/external-secrets -n external-secrets
 
       - name: Deploy Traefik
         run: |
