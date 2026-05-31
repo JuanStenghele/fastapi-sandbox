@@ -97,6 +97,7 @@ jobs:
       - name: Deploy application
         run: |
           kubectl wait --for condition=established --timeout=60s crd/externalsecrets.external-secrets.io crd/clustersecretstores.external-secrets.io
+          kubectl get clustersecretstores.external-secrets.io 2>&1 || true
           helm dependency build helm/
           S3_ROLE_ARN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/s3/iam_role_arn" --query "Parameter.Value" --output text)
           helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml \
