@@ -94,6 +94,7 @@ jobs:
 
       - name: Deploy application
         run: |
+          helm dependency build helm/
           helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml --wait --timeout 5m
           DEPLOYMENTS=$(kubectl get deployments -o name)
           kubectl rollout restart $DEPLOYMENTS
