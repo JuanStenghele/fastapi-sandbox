@@ -42,3 +42,10 @@ variable "grafana_admin_user" {
   type        = string
   default     = "admin"
 }
+
+# Let's Encrypt
+variable "letsencrypt_email" {
+  description = "Email for Let's Encrypt certificate notifications"
+  type        = string
+  sensitive   = true
+}

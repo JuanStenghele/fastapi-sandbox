@@ -73,3 +73,10 @@ resource "aws_ssm_parameter" "s3_iam_role_arn" {
   type  = "String"
   value = module.irsa_s3.iam_role_arn
 }
+
+# Let's Encrypt
+resource "aws_ssm_parameter" "letsencrypt_email" {
+  name  = "/${var.app_name}/letsencrypt/email"
+  type  = "SecureString"
+  value = var.letsencrypt_email
+}

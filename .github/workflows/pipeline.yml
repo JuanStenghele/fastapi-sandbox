@@ -89,7 +89,8 @@ jobs:
       - name: Deploy Traefik
         run: |
           helm repo add traefik https://helm.traefik.io/traefik
-          helm upgrade --install traefik traefik/traefik -f helm/values.traefik.yaml --set certificatesResolvers.letsencrypt.acme.email=${{ secrets.LETSENCRYPT_EMAIL }} --wait --timeout 5m
+          LETSENCRYPT_EMAIL=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/letsencrypt/email" --with-decryption --query "Parameter.Value" --output text)
+          helm upgrade --install traefik traefik/traefik -f helm/values.traefik.yaml --set certificatesResolvers.letsencrypt.acme.email=$LETSENCRYPT_EMAIL --wait --timeout 5m
 
       - name: Deploy application
         run: |
