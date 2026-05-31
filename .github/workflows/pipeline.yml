@@ -102,7 +102,7 @@ jobs:
           S3_ROLE_ARN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/s3/iam_role_arn" --query "Parameter.Value" --output text)
           helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml \
             --set s3.roleArn=$S3_ROLE_ARN \
-            --wait --timeout 5m
+            --wait --timeout 5m --debug 2>&1 | grep -i "error\|mapping\|discover\|external-secrets\|ClusterSecret\|ExternalSecret" || true
           DEPLOYMENTS=$(kubectl get deployments -o name)
           kubectl rollout restart $DEPLOYMENTS
           for deployment in $DEPLOYMENTS; do
