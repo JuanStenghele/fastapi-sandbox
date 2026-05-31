@@ -54,10 +54,10 @@ helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.
 Access the FastAPI Swagger by running:
 
 ```bash
-minikube tunnel
+kubectl port-forward deployment/fastapi-sandbox-deployment 8000:8000
 ```
 
-And accessing `http://localhost/docs`
+And accessing `http://localhost:8000/docs`
 
 Open dashboard:
 
