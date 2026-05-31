@@ -5,11 +5,6 @@ on:
 
 env:
   TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_REGION: ${{ vars.AWS_REGION }}
-  TF_VAR_rds_username: ${{ secrets.POSTGRES_USER }}
-  TF_VAR_rds_password: ${{ secrets.POSTGRES_PASSWORD }}
 
 jobs:
   plan:
@@ -27,14 +22,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
-
-      - name: Upload plan
-        uses: actions/upload-artifact@v7
-        with:
-          name: infrastructure-tfplan
-          path: terraform/infrastructure/tfplan
-          retention-days: 1
+        run: terraform plan
 
   apply:
     name: Apply
@@ -52,11 +40,5 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Download plan
-        uses: actions/download-artifact@v8
-        with:
-          name: infrastructure-tfplan
-          path: terraform/infrastructure
-
       - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve
