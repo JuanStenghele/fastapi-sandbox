@@ -85,8 +85,6 @@ jobs:
             -n external-secrets --create-namespace \
             --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=$ESO_ROLE_ARN \
             --wait --timeout 5m
-          kubectl wait --for condition=established --timeout=60s crd/externalsecrets.external-secrets.io crd/clustersecretstores.external-secrets.io
-          kubectl rollout status deployment/external-secrets deployment/external-secrets-webhook deployment/external-secrets-cert-controller -n external-secrets --timeout=120s
 
       - name: Deploy Traefik
         run: |
@@ -96,9 +94,6 @@ jobs:
 
       - name: Deploy application
         run: |
-          kubectl wait --for condition=established --timeout=60s crd/externalsecrets.external-secrets.io crd/clustersecretstores.external-secrets.io
-          kubectl get clustersecretstores.external-secrets.io 2>&1 || true
-          kubectl api-versions | grep external-secrets || echo "external-secrets NOT in api-versions"
           helm dependency build helm/
           S3_ROLE_ARN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/s3/iam_role_arn" --query "Parameter.Value" --output text)
           helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml \
