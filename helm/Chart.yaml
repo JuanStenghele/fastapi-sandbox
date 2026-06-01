@@ -10,3 +10,11 @@ dependencies:
     version: "39.0.8"
     repository: "https://traefik.github.io/charts"
     condition: traefik.enabled
+  - name: external-secrets
+    version: "2.5.0"
+    repository: "https://charts.external-secrets.io"
+    condition: externalSecrets.enabled
+  - name: kubernetes-dashboard
+    version: "7.14.0"
+    repository: "https://kubernetes.github.io/dashboard/"
+    condition: kubernetesDashboard.enabled

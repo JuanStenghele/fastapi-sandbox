@@ -18,7 +18,13 @@ env:
   AUTH_AUDIENCE: "default"
   AUTH_JWKS_URI: "http://mock-oauth2-server:8080/fastapi-sandbox/jwks"
 
+externalSecrets:
+  enabled: false
+
 traefik:
+  enabled: false
+
+kubernetesDashboard:
   enabled: false
 
 ingress:

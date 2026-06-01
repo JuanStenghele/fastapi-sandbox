@@ -79,28 +79,20 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v5
 
-      - name: Deploy External Secrets Operator
-        run: |
-          helm repo add external-secrets https://charts.external-secrets.io
-          ESO_ROLE_ARN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/eso/iam_role_arn" --query "Parameter.Value" --output text)          
-          helm upgrade --install external-secrets external-secrets/external-secrets \
-            -n external-secrets --create-namespace \
-            --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=$ESO_ROLE_ARN \
-            --wait --timeout 5m
-
-      - name: Deploy Traefik
-        run: |
-          helm repo add traefik https://helm.traefik.io/traefik
-          LETSENCRYPT_EMAIL=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/letsencrypt/email" --with-decryption --query "Parameter.Value" --output text)
-          helm upgrade --install traefik traefik/traefik -f helm/values.traefik.yaml --set certificatesResolvers.letsencrypt.acme.email=$LETSENCRYPT_EMAIL --wait --timeout 5m
-
       - name: Deploy application
         run: |
           helm dependency build helm/
           S3_ROLE_ARN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/s3/iam_role_arn" --query "Parameter.Value" --output text)
-          helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml \
+          LETSENCRYPT_EMAIL=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/letsencrypt/email" --with-decryption --query "Parameter.Value" --output text)
+          ESO_ROLE_ARN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/eso/iam_role_arn" --query "Parameter.Value" --output text)
+          helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml -f helm/values.traefik.yaml -f helm/values.eso.yaml \
             --set s3.roleArn=$S3_ROLE_ARN \
+            --set "traefik.certificatesResolvers.letsencrypt.acme.email=$LETSENCRYPT_EMAIL" \
+            --set "external-secrets.serviceAccount.annotations.eks\.amazonaws\.com/role-arn=$ESO_ROLE_ARN" \
             --wait --timeout 5m
+
+      - name: Restart deployments
+        run: |
           DEPLOYMENTS=$(kubectl get deployments -o name)
           kubectl rollout restart $DEPLOYMENTS
           for deployment in $DEPLOYMENTS; do

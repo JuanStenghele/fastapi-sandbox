@@ -1,38 +1,39 @@
-ingressRoute:
-  dashboard:
-    enabled: false
+traefik:
+  ingressRoute:
+    dashboard:
+      enabled: false
 
-ports:
-  web:
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
+  ports:
+    web:
+      http:
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
 
-persistence:
-  enabled: true
-  size: 128Mi
-  storageClass: gp2
+  persistence:
+    enabled: true
+    size: 128Mi
+    storageClass: gp2
 
-podSecurityContext:
-  fsGroup: 65532
+  podSecurityContext:
+    fsGroup: 65532
 
-deployment:
-  initContainers:
-    - name: volume-permissions
-      image: busybox:latest
-      command: ["sh", "-c", "touch /data/acme.json && chmod 600 /data/acme.json"]
-      securityContext:
-        runAsUser: 65532
-        runAsGroup: 65532
-      volumeMounts:
-        - name: data
-          mountPath: /data
+  deployment:
+    initContainers:
+      - name: volume-permissions
+        image: busybox:latest
+        command: ["sh", "-c", "touch /data/acme.json && chmod 600 /data/acme.json"]
+        securityContext:
+          runAsUser: 65532
+          runAsGroup: 65532
+        volumeMounts:
+          - name: data
+            mountPath: /data
 
-certificatesResolvers:
-  letsencrypt:
-    acme:
-      storage: /data/acme.json
-      httpChallenge:
-        entryPoint: web
+  certificatesResolvers:
+    letsencrypt:
+      acme:
+        storage: /data/acme.json
+        httpChallenge:
+          entryPoint: web
