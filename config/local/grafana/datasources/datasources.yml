@@ -11,6 +11,13 @@ datasources:
     jsonData:
       timeInterval: "1m"
 
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true
+
   - name: PostgreSQL
     type: postgres
     url: ${POSTGRES_HOST}:${POSTGRES_PORT}

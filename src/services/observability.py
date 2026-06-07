@@ -1,3 +1,6 @@
+import logging
+
+
 from logging import Logger
 from fastapi import FastAPI
 from sqlalchemy import Engine
@@ -8,7 +11,12 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
-from constants import OTEL_METRIC_EXPORT_INTERVAL_MILLIS, OTEL_SERVICE_NAME
+from opentelemetry.sdk._logs import LoggerProvider
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.instrumentation.logging.handler import LoggingHandler
+from constants import OTEL_METRIC_EXPORT_INTERVAL_MILLIS, OTEL_SERVICE_NAME, LOGGER_NAME
 
 
 class ObservabilityService():
@@ -19,20 +27,28 @@ class ObservabilityService():
     self.logger = logger
 
   def setup(self, app: FastAPI, engine: Engine) -> None:
-    self.setup_metrics()
+    resource = Resource(attributes = {"service.name": self.service_name, "deployment.environment": self.env})
+    self.setup_metrics(resource)
+    self.setup_logs(resource)
     FastAPIInstrumentor.instrument_app(app)
     self.logger.info("FastAPI instrumented with OpenTelemetry")
     SQLAlchemyInstrumentor().instrument(engine = engine)
     self.logger.info("SQLAlchemy instrumented with OpenTelemetry")
     self.logger.info("Observability service setup complete")
 
-  def setup_metrics(self) -> None:
-    resource = Resource(attributes = {"service.name": self.service_name, "deployment.environment": self.env})
-    # OTLP exporter pushes metrics to OTel Collector
-    otlp_exporter = OTLPMetricExporter(
-      endpoint = self.otlp_endpoint
-    )
-    reader = PeriodicExportingMetricReader(otlp_exporter, export_interval_millis = OTEL_METRIC_EXPORT_INTERVAL_MILLIS)
+  def setup_logs(self, resource: Resource) -> None:
+    exporter = OTLPLogExporter(endpoint = f"{self.otlp_endpoint}/v1/logs")
+    provider = LoggerProvider(resource = resource)
+    provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
+    set_logger_provider(provider)
+    handler = LoggingHandler(level = logging.NOTSET, logger_provider = provider, log_code_attributes = True)
+    for name in [LOGGER_NAME, "uvicorn", "fastapi"]:
+      logging.getLogger(name).addHandler(handler)
+    self.logger.info("OpenTelemetry log export initialized")
+
+  def setup_metrics(self, resource: Resource) -> None:
+    exporter = OTLPMetricExporter(endpoint = f"{self.otlp_endpoint}/v1/metrics")
+    reader = PeriodicExportingMetricReader(exporter, export_interval_millis = OTEL_METRIC_EXPORT_INTERVAL_MILLIS)
     provider = MeterProvider(resource = resource, metric_readers = [reader])
     metrics.set_meter_provider(provider)
     self.meter = metrics.get_meter(self.service_name)

@@ -2,6 +2,7 @@ replicaCount:
   grafana: 1
   prometheus: 1
   otelCollector: 1
+  loki: 1
 
 grafana:
   port: 80
@@ -9,5 +10,8 @@ grafana:
 prometheus:
   url: http://prometheus-service:9090
 
+loki:
+  url: http://loki-service:3100
+
 env:
-  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-service:4318/v1/metrics
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-service:4318

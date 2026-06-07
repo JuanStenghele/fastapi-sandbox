@@ -29,6 +29,13 @@ ingress:
 s3:
   roleArn: "" # retrieved from parameter store
 
+loki:
+  s3:
+    endpoint: "https://s3.sa-east-1.amazonaws.com"
+    insecure: false
+    s3forcepathstyle: false
+    region: "sa-east-1"
+
 eso:
   region: "sa-east-1"
   parameterStorePrefix: "/juans-fastapi-sandbox"

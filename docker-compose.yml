@@ -69,6 +69,20 @@ services:
       - minio-data:/data
       - ./scripts/local/run_minio.sh:/scripts/run_minio.sh
 
+  loki:
+    container_name: loki
+    image: 'grafana/loki:3.7.2'
+    ports:
+      - 3100:3100
+    volumes:
+      - ./config/local/loki/loki-config.yml:/etc/loki/loki-config.yml
+    command: -config.file=/etc/loki/loki-config.yml -config.expand-env=true
+    env_file:
+      - .env
+    depends_on:
+      - minio
+    restart: unless-stopped
+
   otel-collector:
     container_name: otel-collector
     image: 'otel/opentelemetry-collector-contrib:0.115.1'
@@ -79,6 +93,7 @@ services:
       - 4318:4318  # HTTP receiver
     depends_on:
       - prometheus
+      - loki
     restart: unless-stopped
 
   prometheus:

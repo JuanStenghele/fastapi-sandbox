@@ -24,9 +24,6 @@ externalSecrets:
 traefik:
   enabled: false
 
-kubernetesDashboard:
-  enabled: false
-
 ingress:
   enabled: false
   api: ""
@@ -34,6 +31,13 @@ ingress:
 
 s3:
   roleArn: ""
+
+loki:
+  s3:
+    endpoint: "http://minio-service:9000"
+    insecure: true
+    s3forcepathstyle: true
+    region: "us-east-1"
 
 secrets:
   postgresHost: "postgres"
