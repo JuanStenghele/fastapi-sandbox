@@ -124,6 +124,7 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin # Role assigned to anonymous users
     volumes:
       - ./config/local/grafana:/etc/grafana/provisioning
+      - ./helm/files/grafana/dashboards:/var/lib/grafana/dashboards
     restart: unless-stopped
 
 volumes:
