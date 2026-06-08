@@ -9,6 +9,10 @@ class StorageClient(ABC):
     pass
 
   @abstractmethod
+  def health_check(self) -> bool:
+    pass
+
+  @abstractmethod
   def upload(self, name: str, data: bytes, content_type: str, public: bool = False) -> str:
     pass
 

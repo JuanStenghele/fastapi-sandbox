@@ -7,10 +7,10 @@ class HealthCheckDAL():
   def __init__(self, logger: Logger) -> None:
     self.logger = logger
 
-  def health_check(self, session: Session) -> str:
+  def health_check(self, session: Session) -> bool:
     try:
       session.exec(select(literal(1)))
-      return "ok"
+      return True
     except Exception as e:
       self.logger.error(f"Error checking postgres database health: {e}")
-      return "error"
+      return False

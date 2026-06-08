@@ -131,7 +131,8 @@ class Container(DeclarativeContainer):
     S3Client,
     boto3_client = boto3_client,
     bucket_name = config.storage.bucket_name,
-    public_url = config.storage.public_url
+    public_url = config.storage.public_url,
+    logger = logger
   )
 
   book_cover_dal = providers.Factory(
