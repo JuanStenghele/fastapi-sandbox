@@ -29,6 +29,7 @@ storage_config:
     s3: s3://${STORAGE_ACCESS_KEY_ID}:${STORAGE_SECRET_ACCESS_KEY}@minio:9000/${LOKI_BUCKET_NAME}
     s3forcepathstyle: true
     insecure: true
+    region: sa-east-1
 
 limits_config:
   volume_enabled: true

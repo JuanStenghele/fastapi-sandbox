@@ -423,6 +423,86 @@
           }
         ]
       }
+    },
+    {
+      "id": 12,
+      "title": "Logs",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "x": 0, "y": 36, "w": 24, "h": 1 },
+      "panels": []
+    },
+    {
+      "id": 13,
+      "title": "Error Logs",
+      "type": "logs",
+      "transparent": true,
+      "gridPos": { "x": 0, "y": 37, "w": 12, "h": 10 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "{job=\"$service\"} | json | severity=\"ERROR\" | line_format \"{{.severity}} - {{.body}}{{if .attributes_code_file_path}} ({{.attributes_code_file_path}}:{{.attributes_code_line_number}}){{end}}\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none",
+        "showLabels": false,
+        "showCommonLabels": false,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 14,
+      "title": "Warning Logs",
+      "type": "logs",
+      "transparent": true,
+      "gridPos": { "x": 12, "y": 37, "w": 12, "h": 10 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "{job=\"$service\"} | json | severity=\"WARN\" | line_format \"{{.severity}} - {{.body}}{{if .attributes_code_file_path}} ({{.attributes_code_file_path}}:{{.attributes_code_line_number}}){{end}}\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none",
+        "showLabels": false,
+        "showCommonLabels": false,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 15,
+      "title": "All Logs",
+      "type": "logs",
+      "transparent": true,
+      "gridPos": { "x": 0, "y": 47, "w": 24, "h": 12 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "{job=\"$service\"} | json | line_format \"{{.severity}} - {{.body}}{{if .attributes_code_file_path}} ({{.attributes_code_file_path}}:{{.attributes_code_line_number}}){{end}}\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none",
+        "showLabels": false,
+        "showCommonLabels": false,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
     }
   ]
 }

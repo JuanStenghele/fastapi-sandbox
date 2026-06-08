@@ -37,7 +37,7 @@ loki:
     endpoint: "http://minio-service:9000"
     insecure: true
     s3forcepathstyle: true
-    region: "us-east-1"
+    region: "sa-east-1"
 
 secrets:
   postgresHost: "postgres"
