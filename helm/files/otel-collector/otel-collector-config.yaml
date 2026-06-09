@@ -22,6 +22,11 @@ exporters:
   loki:
     endpoint: {{ .Values.loki.url }}/loki/api/v1/push
 
+  otlphttp/tempo:
+    endpoint: {{ .Values.tempo.otlpHttpUrl }}
+    tls:
+      insecure: true
+
   debug:
     verbosity: detailed
 
@@ -34,3 +39,6 @@ service:
     logs:
       receivers: [otlp]
       exporters: [loki]
+    traces:
+      receivers: [otlp]
+      exporters: [otlphttp/tempo]

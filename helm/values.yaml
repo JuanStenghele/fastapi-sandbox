@@ -3,6 +3,7 @@ replicaCount:
   prometheus: 1
   otelCollector: 1
   loki: 1
+  tempo: 1
 
 grafana:
   port: 80
@@ -12,6 +13,10 @@ prometheus:
 
 loki:
   url: http://loki-service:3100
+
+tempo:
+  url: http://tempo-service:3200
+  otlpHttpUrl: http://tempo-service:4318
 
 env:
   OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-service:4318

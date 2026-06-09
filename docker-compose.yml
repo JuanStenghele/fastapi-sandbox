@@ -83,6 +83,20 @@ services:
       - minio
     restart: unless-stopped
 
+  tempo:
+    container_name: tempo
+    image: 'grafana/tempo:2.10.6'
+    ports:
+      - 3200:3200
+    volumes:
+      - ./config/local/tempo/tempo-config.yml:/etc/tempo/tempo-config.yml
+    command: -config.file=/etc/tempo/tempo-config.yml -config.expand-env=true
+    env_file:
+      - .env
+    depends_on:
+      - minio
+    restart: unless-stopped
+
   otel-collector:
     container_name: otel-collector
     image: 'otel/opentelemetry-collector-contrib:0.115.1'
@@ -94,6 +108,7 @@ services:
     depends_on:
       - prometheus
       - loki
+      - tempo
     restart: unless-stopped
 
   prometheus:
@@ -115,6 +130,8 @@ services:
     image: 'grafana/grafana:11.5.0'
     depends_on:
       - prometheus
+      - loki
+      - tempo
     ports:
       - 3000:3000
     env_file:

@@ -39,6 +39,13 @@ loki:
     s3forcepathstyle: true
     region: "sa-east-1"
 
+tempo:
+  s3:
+    endpoint: "minio-service:9000"
+    insecure: true
+    forcepathstyle: true
+    region: "sa-east-1"
+
 secrets:
   postgresHost: "postgres"
   postgresPort: "5432"
@@ -52,3 +59,4 @@ secrets:
   grafanaPassword: "qwerty123"
   minioRootUser: "admin"
   minioRootPassword: "qwerty123"
+  observabilityBucketName: "fastapi-sandbox-observability"

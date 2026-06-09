@@ -17,6 +17,24 @@ datasources:
     access: proxy
     url: {{ .Values.loki.url }}
     editable: true
+    jsonData:
+      derivedFields:
+        - name: TraceID
+          matcherRegex: '"trace_id":"([a-f0-9]+)"'
+          url: "$${__value.raw}"
+          datasourceUid: tempo
+
+  - name: Traces
+    type: tempo
+    uid: tempo
+    access: proxy
+    url: {{ .Values.tempo.url }}
+    editable: true
+    jsonData:
+      lokiSearch:
+        datasourceUid: loki
+      nodeGraph:
+        enabled: true
 
   - name: DB
     type: postgres

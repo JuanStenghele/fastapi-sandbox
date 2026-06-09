@@ -30,7 +30,7 @@ storage_config:
     insecure: {{ .Values.loki.s3.insecure }}
     s3forcepathstyle: {{ .Values.loki.s3.s3forcepathstyle }}
     region: {{ .Values.loki.s3.region }}
-    bucketnames: ${LOKI_BUCKET_NAME}
+    bucketnames: ${OBSERVABILITY_BUCKET_NAME}
     access_key_id: ${STORAGE_ACCESS_KEY_ID}
     secret_access_key: ${STORAGE_SECRET_ACCESS_KEY}
 

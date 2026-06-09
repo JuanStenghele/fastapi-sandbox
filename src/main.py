@@ -14,7 +14,7 @@ app.container = container
 
 # Initialize observability
 observability_service = container.observability_service()
-observability_service.setup(app, container.db().engine)
+observability_service.setup(app)
 
 # Add routers
 app.include_router(author_router, prefix = "/v1")

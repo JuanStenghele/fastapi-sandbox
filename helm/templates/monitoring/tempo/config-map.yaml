@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tempo-config
+  namespace: default
+data:
+  tempo-config.yaml: |
+{{ tpl (.Files.Get "files/tempo/tempo-config.yaml") . | indent 4 }}

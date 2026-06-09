@@ -26,7 +26,7 @@ log_error() {
 }
 
 # Validate required environment variables
-REQUIRED_VARS=("MINIO_ROOT_USER" "MINIO_ROOT_PASSWORD" "STORAGE_BUCKET_NAME" "LOKI_BUCKET_NAME")
+REQUIRED_VARS=("MINIO_ROOT_USER" "MINIO_ROOT_PASSWORD" "STORAGE_BUCKET_NAME" "OBSERVABILITY_BUCKET_NAME")
 for var in "${REQUIRED_VARS[@]}"; do
   if [ -z "${!var}" ]; then
     log_error "Required environment variable $var is not set"
@@ -66,7 +66,7 @@ create_bucket() {
 }
 
 create_bucket "$STORAGE_BUCKET_NAME"
-create_bucket "$LOKI_BUCKET_NAME"
+create_bucket "$OBSERVABILITY_BUCKET_NAME"
 
 log "Setting all buckets to public (anonymous download)..."
 while read -ra fields; do

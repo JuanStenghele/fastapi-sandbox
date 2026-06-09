@@ -26,7 +26,7 @@ storage_config:
     active_index_directory: /loki/index
     cache_location: /loki/index_cache
   aws:
-    s3: s3://${STORAGE_ACCESS_KEY_ID}:${STORAGE_SECRET_ACCESS_KEY}@minio:9000/${LOKI_BUCKET_NAME}
+    s3: s3://${STORAGE_ACCESS_KEY_ID}:${STORAGE_SECRET_ACCESS_KEY}@minio:9000/${OBSERVABILITY_BUCKET_NAME}
     s3forcepathstyle: true
     insecure: true
     region: sa-east-1
