@@ -21,7 +21,8 @@
 		"ghcr.io/devcontainers/features/terraform:1": {},
 		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
 			"kubernetesVersion": "1.35"
-		}
+		},
+		"ghcr.io/devcontainers-extra/features/opencode:1": {}
 	},
 	"customizations": {
 		"vscode": {
