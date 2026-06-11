@@ -1,0 +1,17 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: headlamp-ingress-route
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.ingress.headlamp }}`) || Host(`www.{{ .Values.ingress.headlamp }}`)
+      kind: Rule
+      services:
+        - name: headlamp-service
+          port: {{ .Values.headlamp.port }}
+  tls:
+    certResolver: letsencrypt
+{{- end }}

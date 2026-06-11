@@ -45,6 +45,13 @@ Make sure `kubectl` points to `minikube`:
 kubectl config use-context minikube
 ```
 
+Install Helm dependencies in the `helm` directory with:
+
+```bash
+cd helm
+helm dependency build
+```
+
 Apply the rest of the stack with Helm:
 
 ```bash
@@ -75,6 +82,12 @@ Helm lint:
 
 ```bash
 helm lint helm/ -f helm/values.yaml -f helm/values.local.yaml
+```
+
+Generate headlamp token with:
+
+```bash
+kubectl create token headlamp
 ```
 
 ### Auth

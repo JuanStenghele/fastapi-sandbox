@@ -10,6 +10,9 @@ image:
 grafana:
   port: 3000
 
+headlamp:
+  port: 4466
+
 env:
   ENV: local
   POSTGRES_SSLMODE: disable
@@ -28,6 +31,7 @@ ingress:
   enabled: false
   api: ""
   grafana: ""
+  headlamp: ""
 
 s3:
   roleArn: ""

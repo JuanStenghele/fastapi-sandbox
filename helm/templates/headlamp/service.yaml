@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: headlamp-service
+  namespace: default
+spec:
+  selector:
+    app: headlamp
+  ports:
+  - port: {{ .Values.headlamp.port }}
+    targetPort: 4466
+  type: {{ if .Values.ingress.enabled }}ClusterIP{{ else }}LoadBalancer{{ end }}
