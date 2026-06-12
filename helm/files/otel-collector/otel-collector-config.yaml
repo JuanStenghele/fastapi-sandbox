@@ -19,8 +19,10 @@ exporters:
     tls:
       insecure: true
 
-  loki:
-    endpoint: {{ .Values.loki.url }}/loki/api/v1/push
+  otlphttp/loki:
+    endpoint: {{ .Values.loki.url }}/otlp
+    tls:
+      insecure: true
 
   otlphttp/tempo:
     endpoint: {{ .Values.tempo.otlpHttpUrl }}
@@ -38,7 +40,7 @@ service:
       exporters: [otlphttp/prometheus, debug]
     logs:
       receivers: [otlp]
-      exporters: [loki]
+      exporters: [otlphttp/loki]
     traces:
       receivers: [otlp]
       exporters: [otlphttp/tempo]

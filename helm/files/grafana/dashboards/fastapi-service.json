@@ -442,7 +442,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "{job=\"$service\"} | json | severity=\"ERROR\" | line_format \"{{.severity}} - {{.body}}{{if .attributes_code_file_path}} ({{.attributes_code_file_path}}:{{.attributes_code_line_number}}){{end}}\"",
+          "expr": "{service_name=\"$service\", deployment_environment=\"$env\"} | severity_text=\"ERROR\" | line_format \"{{.severity_text}} - {{__line__}}{{if .code_file_path}} ({{.code_file_path}}:{{.code_line_number}}){{end}}\"",
           "refId": "A"
         }
       ],
@@ -466,7 +466,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "{job=\"$service\"} | json | severity=\"WARN\" | line_format \"{{.severity}} - {{.body}}{{if .attributes_code_file_path}} ({{.attributes_code_file_path}}:{{.attributes_code_line_number}}){{end}}\"",
+          "expr": "{service_name=\"$service\", deployment_environment=\"$env\"} | severity_text=\"WARN\" | line_format \"{{.severity_text}} - {{__line__}}{{if .code_file_path}} ({{.code_file_path}}:{{.code_line_number}}){{end}}\"",
           "refId": "A"
         }
       ],
@@ -490,7 +490,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "{job=\"$service\"} | json | line_format \"{{.severity}} - {{.body}}{{if .attributes_code_file_path}} ({{.attributes_code_file_path}}:{{.attributes_code_line_number}}){{end}}\"",
+          "expr": "{service_name=\"$service\", deployment_environment=\"$env\"} | line_format \"{{.severity_text}} - {{__line__}}{{if .code_file_path}} ({{.code_file_path}}:{{.code_line_number}}){{end}}\"",
           "refId": "A"
         }
       ],

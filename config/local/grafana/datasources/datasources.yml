@@ -19,8 +19,9 @@ datasources:
     editable: true
     jsonData:
       derivedFields:
-        - name: TraceID
-          matcherRegex: '"trace_id":"([a-f0-9]+)"'
+        - name: Trace
+          matcherType: label
+          matcherRegex: trace_id
           url: "$${__value.raw}"
           datasourceUid: tempo
 
