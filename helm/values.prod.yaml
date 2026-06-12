@@ -18,11 +18,8 @@ env:
 externalSecrets:
   enabled: true
 
-traefik:
-  enabled: true
-
 ingress:
-  enabled: true
+  tls: true
   api: juans-fastapi-sandbox.25101999.xyz
   grafana: grafana.juans-fastapi-sandbox.25101999.xyz
   headlamp: headlamp.juans-fastapi-sandbox.25101999.xyz

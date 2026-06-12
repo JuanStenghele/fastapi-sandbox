@@ -9,4 +9,4 @@ spec:
   ports:
   - port: {{ .Values.headlamp.port }}
     targetPort: 4466
-  type: {{ if .Values.ingress.enabled }}ClusterIP{{ else }}LoadBalancer{{ end }}
+  type: ClusterIP

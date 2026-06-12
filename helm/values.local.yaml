@@ -17,6 +17,7 @@ env:
   ENV: local
   POSTGRES_SSLMODE: disable
   STORAGE_PUBLIC_URL: "http://localhost:9000"
+  STORAGE_ENDPOINT_URL: "http://minio:9000"
   AUTH_ISSUER: "http://mock-oauth2-server:8080/fastapi-sandbox"
   AUTH_AUDIENCE: "default"
   AUTH_JWKS_URI: "http://mock-oauth2-server:8080/fastapi-sandbox/jwks"
@@ -24,28 +25,25 @@ env:
 externalSecrets:
   enabled: false
 
-traefik:
-  enabled: false
-
 ingress:
-  enabled: false
-  api: ""
-  grafana: ""
-  headlamp: ""
+  tls: false
+  api: api.127.0.0.1.nip.io
+  grafana: grafana.127.0.0.1.nip.io
+  headlamp: headlamp.127.0.0.1.nip.io
 
 s3:
   roleArn: ""
 
 loki:
   s3:
-    endpoint: "http://minio-service:9000"
+    endpoint: "http://minio:9000"
     insecure: true
     s3forcepathstyle: true
     region: "sa-east-1"
 
 tempo:
   s3:
-    endpoint: "minio-service:9000"
+    endpoint: "minio:9000"
     insecure: true
     forcepathstyle: true
     region: "sa-east-1"

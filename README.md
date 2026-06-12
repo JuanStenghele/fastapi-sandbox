@@ -58,13 +58,17 @@ Apply the rest of the stack with Helm:
 helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.local.yaml
 ```
 
-Access the FastAPI Swagger by running:
+Forward services by running:
 
 ```bash
-kubectl port-forward deployment/fastapi-sandbox-deployment 8000:8000
+kubectl port-forward svc/fastapi-sandbox-traefik 8000:80
 ```
 
-And accessing `http://localhost:8000/docs`
+And accessing:
+
+- http://api.127.0.0.1.nip.io:8000/docs
+- http://grafana.127.0.0.1.nip.io:8000
+- http://headlamp.127.0.0.1.nip.io:8000
 
 Open dashboard:
 
