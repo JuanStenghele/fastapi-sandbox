@@ -19,6 +19,7 @@
 			"moby": false
 		},
 		"ghcr.io/devcontainers/features/terraform:1": {},
+		"ghcr.io/devcontainers/features/aws-cli:1": {},
 		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
 			"kubernetesVersion": "1.35"
 		},
