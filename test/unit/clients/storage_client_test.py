@@ -6,6 +6,9 @@ class FakeStorageClient(StorageClient):
   def source(self) -> str:
     return "fake"
 
+  def health_check(self) -> bool:
+    return True
+
   def upload(self, name: str, data: bytes, content_type: str, public: bool = False) -> str:
     pass
 

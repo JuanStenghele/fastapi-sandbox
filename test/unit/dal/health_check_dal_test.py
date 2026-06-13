@@ -10,11 +10,11 @@ class TestHealthCheckDal():
     session_mock.exec.return_value = 'ok'
     logger_mock = MagicMock(spec = Logger)
     instance = HealthCheckDAL(logger_mock)
-    assert instance.health_check(session_mock) == 'ok'
+    assert instance.health_check(session_mock) == True
 
   def test_health_check_fail(self):
     session_mock = MagicMock(spec = Session)
     session_mock.exec.side_effect = Exception('error')
     logger_mock = MagicMock(spec = Logger)
     instance = HealthCheckDAL(logger_mock)
-    assert instance.health_check(session_mock) == 'error'
+    assert instance.health_check(session_mock) == False

@@ -5,7 +5,8 @@ from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
-from opentelemetry import metrics
+from opentelemetry import metrics, trace
+from opentelemetry._logs import get_logger_provider
 from constants import (
   POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_SSLMODE,
   OTEL_EXPORTER_OTLP_ENDPOINT, AUTH_ISSUER, AUTH_AUDIENCE, AUTH_JWKS_URI,
@@ -163,6 +164,9 @@ def context(request: FixtureRequest):
     # Import app here to ensure env vars are set before app initialization
     from main import app
 
+    # Disable rate limiting
+    app.state.limiter.enabled = False
+
     # Run DB migrations
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     alembic_ini_path = os.path.join(project_root, "alembic.ini")
@@ -172,3 +176,5 @@ def context(request: FixtureRequest):
     yield Context(app, TestClient(app), db_name, db_user, db_password, db_host, db_port, auth_token_url, minio_endpoint, minio_user, minio_password, minio_bucket)
 
     metrics.get_meter_provider().shutdown()
+    trace.get_tracer_provider().shutdown()
+    get_logger_provider().shutdown()
