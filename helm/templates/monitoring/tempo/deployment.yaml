@@ -10,6 +10,9 @@ spec:
       app: tempo
   template:
     metadata:
+      annotations:
+        checksum/config: {{ .Files.Get "files/tempo/tempo-config.yaml" | sha256sum }}{{ toYaml (.Values.tempo | default dict) | sha256sum }}
+        checksum/secret: {{ toYaml .Values.secrets | sha256sum }}
       labels:
         app: tempo
     spec:

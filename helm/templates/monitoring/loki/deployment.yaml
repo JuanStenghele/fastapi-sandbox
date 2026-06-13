@@ -10,6 +10,9 @@ spec:
       app: loki
   template:
     metadata:
+      annotations:
+        checksum/config: {{ .Files.Get "files/loki/loki-config.yaml" | sha256sum }}{{ toYaml (.Values.loki | default dict) | sha256sum }}
+        checksum/secret: {{ toYaml .Values.secrets | sha256sum }}
       labels:
         app: loki
     spec:

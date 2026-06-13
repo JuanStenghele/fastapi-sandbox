@@ -10,6 +10,12 @@ spec:
       app: grafana
   template:
     metadata:
+      annotations:
+        checksum/config: {{ toYaml .Values.env | sha256sum }}
+        checksum/datasources: {{ .Files.Get "files/grafana/datasources/datasources.yaml" | sha256sum }}{{ toYaml (.Values.prometheus | default dict) | sha256sum }}{{ toYaml (.Values.loki | default dict) | sha256sum }}{{ toYaml (.Values.tempo | default dict) | sha256sum }}
+        checksum/dashboards-provisioning: {{ .Files.Get "files/grafana/dashboards/dashboards-provisioning.yaml" | sha256sum }}
+        checksum/dashboards: {{ .Files.Get "files/grafana/dashboards/fastapi-service.json" | sha256sum }}{{ .Files.Get "files/grafana/dashboards/endpoint-overview.json" | sha256sum }}
+        checksum/secret: {{ toYaml .Values.secrets | sha256sum }}
       labels:
         app: grafana
     spec:

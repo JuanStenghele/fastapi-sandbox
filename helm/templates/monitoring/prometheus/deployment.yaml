@@ -10,6 +10,8 @@ spec:
       app: prometheus
   template:
     metadata:
+      annotations:
+        checksum/config: {{ .Files.Get "files/prometheus/prometheus.yaml" | sha256sum }}
       labels:
         app: prometheus
     spec:

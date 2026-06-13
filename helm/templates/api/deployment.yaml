@@ -9,6 +9,9 @@ spec:
       app: fastapi-sandbox
   template:
     metadata:
+      annotations:
+        checksum/config: {{ toYaml .Values.env | sha256sum }}
+        checksum/secret: {{ toYaml .Values.secrets | sha256sum }}
       labels:
         app: fastapi-sandbox
     spec:

@@ -10,6 +10,8 @@ spec:
       app: postgres
   template:
     metadata:
+      annotations:
+        checksum/secret: {{ toYaml .Values.secrets | sha256sum }}
       labels:
         app: postgres
     spec:

@@ -91,15 +91,6 @@ jobs:
             --set "external-secrets.serviceAccount.annotations.eks\.amazonaws\.com/role-arn=$ESO_ROLE_ARN" \
             --wait --timeout 5m
 
-      - name: Restart deployments
-        run: |
-          DEPLOYMENTS=$(kubectl get deployments -o name)
-          kubectl rollout restart $DEPLOYMENTS
-          for deployment in $DEPLOYMENTS; do
-            kubectl rollout status $deployment --timeout=300s &
-          done
-          wait
-
       - name: Health check
         run: |
           TRAEFIK=$(kubectl get service traefik -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')

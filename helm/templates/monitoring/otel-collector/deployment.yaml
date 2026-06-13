@@ -10,6 +10,8 @@ spec:
       app: otel-collector
   template:
     metadata:
+      annotations:
+        checksum/config: {{ .Files.Get "files/otel-collector/otel-collector-config.yaml" | sha256sum }}{{ toYaml (.Values.prometheus | default dict) | sha256sum }}{{ toYaml (.Values.loki | default dict) | sha256sum }}{{ toYaml (.Values.tempo | default dict) | sha256sum }}
       labels:
         app: otel-collector
     spec:

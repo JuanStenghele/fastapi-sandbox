@@ -10,6 +10,9 @@ spec:
       app: minio
   template:
     metadata:
+      annotations:
+        checksum/config: {{ .Files.Get "files/minio/run_minio.sh" | sha256sum }}
+        checksum/secret: {{ toYaml .Values.secrets | sha256sum }}
       labels:
         app: minio
     spec:
