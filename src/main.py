@@ -1,9 +1,11 @@
 from fastapi import FastAPI
+
 from controllers.author_controller import router as author_router
 from controllers.book_controller import router as book_router
 from controllers.health_check import router as health_check_router
 from services.logger import setup_logger
 from inject import Container
+from utils.rate_limiting import setup_rate_limiting
 
 
 setup_logger()
@@ -15,6 +17,8 @@ app.container = container
 # Initialize observability
 observability_service = container.observability_service()
 observability_service.setup(app)
+
+setup_rate_limiting(app)
 
 # Add routers
 app.include_router(author_router, prefix = "/v1")

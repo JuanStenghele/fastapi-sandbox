@@ -49,6 +49,9 @@ STORAGE_BUCKET_NAME = "STORAGE_BUCKET_NAME"
 STORAGE_REGION = "STORAGE_REGION"
 STORAGE_REGION_DEFAULT = "us-east-1"
 
+# Rate limiting
+RATE_LIMIT_DEFAULT = "60/minute"
+
 class Tags(Enum):
   HEALTH_CHECK = "Health check"
   AUTHORS = "Authors"
