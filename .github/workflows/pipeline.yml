@@ -79,6 +79,10 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v5
 
+      - name: Helm lint
+        run: |
+          helm lint helm/ -f helm/values.yaml -f helm/values.prod.yaml -f helm/values.traefik.yaml -f helm/values.eso.yaml
+
       - name: Deploy application
         run: |
           helm dependency build helm/
