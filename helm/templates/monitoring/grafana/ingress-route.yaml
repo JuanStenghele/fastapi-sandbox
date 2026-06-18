@@ -1,4 +1,5 @@
-{{- if .Values.ingress.grafana }}
+{{- if and .Values.ingress .Values.ingress.domain }}
+{{- $host := printf "%s.%s" .Values.ingress.subdomains.grafana .Values.ingress.domain }}
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -7,7 +8,7 @@ spec:
   entryPoints:
     - {{ if .Values.ingress.tls }}websecure{{ else }}web{{ end }}
   routes:
-    - match: Host(`{{ .Values.ingress.grafana }}`) || Host(`www.{{ .Values.ingress.grafana }}`)
+    - match: Host(`{{ $host }}`) || Host(`www.{{ $host }}`)
       kind: Rule
       services:
         - name: grafana-service

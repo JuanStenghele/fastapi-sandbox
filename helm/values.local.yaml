@@ -27,9 +27,11 @@ externalSecrets:
 
 ingress:
   tls: false
-  api: api.127.0.0.1.nip.io
-  grafana: grafana.127.0.0.1.nip.io
-  headlamp: headlamp.127.0.0.1.nip.io
+  domain: 127.0.0.1.nip.io
+  subdomains:
+    api: api
+    headlamp: headlamp
+    grafana: grafana
 
 s3:
   roleArn: ""

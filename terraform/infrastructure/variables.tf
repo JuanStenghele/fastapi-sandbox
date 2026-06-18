@@ -55,3 +55,34 @@ variable "letsencrypt_email" {
   type        = string
   sensitive   = true
 }
+
+# Ingress
+variable "main_domain_name" {
+  description = "Main domain name"
+  type        = string
+  default     = "25101999.xyz"
+}
+
+variable "fastapi_sandbox_subdomain_name" {
+  description = "Subdomain for the fastapi-sandbox service"
+  type        = string
+  default     = "juans-fastapi-sandbox"
+}
+
+variable "api_subdomain_name" {
+  description = "Subdomain for the API service"
+  type        = string
+  default     = "api"
+}
+
+variable "headlamp_subdomain_name" {
+  description = "Subdomain for the Headlamp service"
+  type        = string
+  default     = "headlamp"
+}
+
+variable "grafana_subdomain_name" {
+  description = "Subdomain for the Grafana service"
+  type        = string
+  default     = "grafana"
+}

@@ -87,3 +87,29 @@ resource "aws_ssm_parameter" "letsencrypt_email" {
   type  = "SecureString"
   value = var.letsencrypt_email
 }
+
+# Domain
+resource "aws_ssm_parameter" "domain" {
+  name  = "/${var.app_name}/domain"
+  type  = "String"
+  value = "${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
+}
+
+# Subdomains
+resource "aws_ssm_parameter" "api_subdomain" {
+  name  = "/${var.app_name}/subdomains/api"
+  type  = "String"
+  value = var.api_subdomain_name
+}
+
+resource "aws_ssm_parameter" "headlamp_subdomain" {
+  name  = "/${var.app_name}/subdomains/headlamp"
+  type  = "String"
+  value = var.headlamp_subdomain_name
+}
+
+resource "aws_ssm_parameter" "grafana_subdomain" {
+  name  = "/${var.app_name}/subdomains/grafana"
+  type  = "String"
+  value = var.grafana_subdomain_name
+}

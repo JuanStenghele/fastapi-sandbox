@@ -20,12 +20,14 @@ externalSecrets:
 
 ingress:
   tls: true
-  api: juans-fastapi-sandbox.25101999.xyz
-  grafana: grafana.juans-fastapi-sandbox.25101999.xyz
-  headlamp: headlamp.juans-fastapi-sandbox.25101999.xyz
+  domain: "" # Parameter Store
+  subdomains:
+    api: "" # Parameter Store
+    headlamp: "" # Parameter Store
+    grafana: "" # Parameter Store
 
 s3:
-  roleArn: "" # retrieved from parameter store
+  roleArn: "" # Parameter Store
 
 loki:
   s3:
