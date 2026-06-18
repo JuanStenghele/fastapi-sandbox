@@ -5,7 +5,7 @@ terraform {
     organization = "fastapi-sandbox"
 
     workspaces {
-      name = "dns"
+      name = "post-deployment"
     }
   }
 

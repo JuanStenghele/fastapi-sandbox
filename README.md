@@ -155,12 +155,12 @@ Delete everything with:
 terraform destroy
 ```
 
-To deploy the DNS configuration and use a custom domain. Run exactly the same but with the `dns` directory:
+To deploy the post-deployment configuration (DNS, K8s dashboard, ...) and use a custom domain. Run exactly the same but with the `post-deployment` directory:
 
 ```bash
-cp terraform/dns/terraform.tfvars.example terraform/dns/terraform.tfvars
-# Populate terraform/dns/terraform.tfvars here
-cd terraform/dns
+cp terraform/post-deployment/terraform.tfvars.example terraform/post-deployment/terraform.tfvars
+# Populate terraform/post-deployment/terraform.tfvars here
+cd terraform/post-deployment
 terraform init
 terraform plan
 terraform apply
