@@ -86,22 +86,7 @@ jobs:
       - name: Deploy application
         run: |
           helm dependency build helm/
-          S3_ROLE_ARN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/s3/iam_role_arn" --query "Parameter.Value" --output text)
-          LETSENCRYPT_EMAIL=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/letsencrypt/email" --with-decryption --query "Parameter.Value" --output text)
-          ESO_ROLE_ARN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/eso/iam_role_arn" --query "Parameter.Value" --output text)
-          DOMAIN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/domain" --query "Parameter.Value" --output text)
-          API_SUBDOMAIN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/subdomains/api" --query "Parameter.Value" --output text)
-          HEADLAMP_SUBDOMAIN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/subdomains/headlamp" --query "Parameter.Value" --output text)
-          GRAFANA_SUBDOMAIN=$(aws ssm get-parameter --name "/juans-fastapi-sandbox/subdomains/grafana" --query "Parameter.Value" --output text)
-          helm upgrade --install fastapi-sandbox helm/ -f helm/values.yaml -f helm/values.prod.yaml -f helm/values.traefik.yaml -f helm/values.eso.yaml \
-            --set s3.roleArn=$S3_ROLE_ARN \
-            --set "traefik.certificatesResolvers.letsencrypt.acme.email=$LETSENCRYPT_EMAIL" \
-            --set "external-secrets.serviceAccount.annotations.eks\.amazonaws\.com/role-arn=$ESO_ROLE_ARN" \
-            --set ingress.domain=$DOMAIN \
-            --set "ingress.subdomains.api=$API_SUBDOMAIN" \
-            --set "ingress.subdomains.headlamp=$HEADLAMP_SUBDOMAIN" \
-            --set "ingress.subdomains.grafana=$GRAFANA_SUBDOMAIN" \
-            --wait --timeout 5m
+          scripts/remote/helm_upgrade.sh
 
       - name: Health check
         run: |
