@@ -69,6 +69,7 @@ And accessing:
 - http://api.127.0.0.1.nip.io:8000/docs
 - http://grafana.127.0.0.1.nip.io:8000
 - http://headlamp.127.0.0.1.nip.io:8000
+- http://minio.127.0.0.1.nip.io:8000
 
 Open dashboard:
 
