@@ -1,0 +1,20 @@
+{{- if and .Values.ingress .Values.ingress.domain }}
+{{- $host := printf "%s.%s" .Values.ingress.subdomains.storage .Values.ingress.domain }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: storage-ingress-route
+spec:
+  entryPoints:
+    - {{ if .Values.ingress.tls }}websecure{{ else }}web{{ end }}
+  routes:
+    - match: Host(`{{ $host }}`) || Host(`www.{{ $host }}`)
+      kind: Rule
+      services:
+        - name: fastapi-sandbox-service
+          port: 80
+{{- if .Values.ingress.tls }}
+  tls:
+    certResolver: letsencrypt
+{{- end }}
+{{- end }}

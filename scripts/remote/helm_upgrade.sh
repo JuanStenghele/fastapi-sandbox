@@ -12,6 +12,7 @@ DOMAIN=$(ssm "domain")
 API_SUBDOMAIN=$(ssm "subdomains/api")
 HEADLAMP_SUBDOMAIN=$(ssm "subdomains/headlamp")
 GRAFANA_SUBDOMAIN=$(ssm "subdomains/grafana")
+STORAGE_SUBDOMAIN=$(ssm "subdomains/storage")
 
 helm upgrade --install fastapi-sandbox helm/ \
   -f helm/values.yaml \
@@ -25,4 +26,6 @@ helm upgrade --install fastapi-sandbox helm/ \
   --set "ingress.subdomains.api=$API_SUBDOMAIN" \
   --set "ingress.subdomains.headlamp=$HEADLAMP_SUBDOMAIN" \
   --set "ingress.subdomains.grafana=$GRAFANA_SUBDOMAIN" \
+  --set "ingress.subdomains.storage=$STORAGE_SUBDOMAIN" \
+  --set env.STORAGE_PUBLIC_URL="https://${STORAGE_SUBDOMAIN}.${DOMAIN}" \
   --wait --timeout 5m

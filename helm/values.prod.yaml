@@ -10,7 +10,7 @@ image:
 env:
   ENV: production
   POSTGRES_SSLMODE: prefer
-  STORAGE_PUBLIC_URL: "https://s3.sa-east-1.amazonaws.com"
+  STORAGE_PUBLIC_URL: "" # Set dynamically in helm upgrade
   AUTH_ISSUER: "https://dev-76kf5dzezilav06g.us.auth0.com/"
   AUTH_AUDIENCE: "https://juans-fastapi-sandbox"
   AUTH_JWKS_URI: "https://dev-76kf5dzezilav06g.us.auth0.com/.well-known/jwks.json"
@@ -25,6 +25,7 @@ ingress:
     api: "" # Parameter Store
     headlamp: "" # Parameter Store
     grafana: "" # Parameter Store
+    storage: "" # Parameter Store
 
 s3:
   roleArn: "" # Parameter Store
