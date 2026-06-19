@@ -113,3 +113,9 @@ resource "aws_ssm_parameter" "grafana_subdomain" {
   type  = "String"
   value = var.grafana_subdomain_name
 }
+
+resource "aws_ssm_parameter" "storage_subdomain" {
+  name  = "/${var.app_name}/subdomains/storage"
+  type  = "String"
+  value = var.storage_subdomain_name
+}
