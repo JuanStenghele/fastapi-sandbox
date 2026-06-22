@@ -32,7 +32,6 @@ ingress:
     api: api
     headlamp: headlamp
     grafana: grafana
-    storage: storage
     minio: minio
 
 s3:
