@@ -87,8 +87,3 @@ variable "grafana_subdomain_name" {
   default     = "grafana"
 }
 
-variable "storage_subdomain_name" {
-  description = "Subdomain for the S3 storage proxy"
-  type        = string
-  default     = "storage"
-}
