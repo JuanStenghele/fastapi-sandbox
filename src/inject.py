@@ -123,7 +123,7 @@ class Container(DeclarativeContainer):
   boto3_client = providers.Singleton(
     boto3.client,
     service_name = S3_SERVICE_NAME,
-    service_url = config.storage.service_url,
+    endpoint_url = config.storage.service_url,
     aws_access_key_id = config.storage.access_key_id,
     aws_secret_access_key = config.storage.secret_access_key,
     region_name = config.storage.region
