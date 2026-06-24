@@ -52,7 +52,13 @@ STORAGE_REGION_DEFAULT = "us-east-1"
 # Rate limiting
 RATE_LIMIT_DEFAULT = "60/minute"
 
+# Storage
+PUBLIC_PATH = "public"
+PRIVATE_PATH = "private"
+DEFAULT_CONTENT_TYPE = "application/octet-stream"
+
 class Tags(Enum):
   HEALTH_CHECK = "Health check"
   AUTHORS = "Authors"
   BOOKS = "Books"
+  STORAGE = "Storage"

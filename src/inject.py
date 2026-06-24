@@ -15,6 +15,7 @@ from services.author_service import AuthorService
 from services.book_service import BookService
 from services.observability import ObservabilityService
 from services.cover_image_service import CoverImageService
+from services.storage_proxy import StorageProxy
 from validators.cover_image_validator import CoverImageValidator
 from clients.s3_client import S3Client
 from dal.book_cover_dal import BookCoverDAL
@@ -28,7 +29,8 @@ class Container(DeclarativeContainer):
       "controllers.dependencies",
       "controllers.author_controller",
       "controllers.book_controller",
-      "controllers.health_check"
+      "controllers.health_check",
+      "controllers.storage_controller"
     ]
   )
 
@@ -133,6 +135,11 @@ class Container(DeclarativeContainer):
     bucket_name = config.storage.bucket_name,
     public_url = config.storage.public_url,
     logger = logger
+  )
+
+  storage_proxy = providers.Factory(
+    StorageProxy,
+    storage_client = s3_client
   )
 
   book_cover_dal = providers.Factory(

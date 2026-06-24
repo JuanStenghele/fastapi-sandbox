@@ -86,4 +86,3 @@ variable "grafana_subdomain_name" {
   type        = string
   default     = "grafana"
 }
-

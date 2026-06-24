@@ -5,6 +5,7 @@ from pydantic import ConfigDict
 from objects.base import BaseObj
 from objects.author import Author
 from objects.book import Book
+from objects.stored_object import StoredObject
 
 
 class BookCreationHTTPRequest(BaseObj):
@@ -70,4 +71,18 @@ class AuthorCreationHTTPResponse(AuthorCreationHTTPRequest):
     return cls(
       id = author.id,
       name = author.name
+    )
+
+
+class StorageProxyResponse(BaseObj):
+  model_config = ConfigDict(arbitrary_types_allowed = True)
+
+  body: bytes
+  content_type: str
+
+  @classmethod
+  def from_stored_object(cls, object: StoredObject):
+    return cls(
+      body = object.body,
+      content_type = object.content_type
     )

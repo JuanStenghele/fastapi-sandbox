@@ -1,11 +1,11 @@
 from logging import Logger
 from botocore.client import BaseClient
 from botocore.exceptions import BotoCoreError, ClientError
-from clients.storage_client import StorageClient
+from clients.storage_client import StorageClient, StorageClientError
+from constants import DEFAULT_CONTENT_TYPE, PUBLIC_PATH, PRIVATE_PATH
+from objects.stored_object import StoredObject
+from botocore.response import StreamingBody
 
-
-PUBLIC_PATH = "public"
-PRIVATE_PATH = "private"
 
 class S3Client(StorageClient):
   def __init__(self, boto3_client: BaseClient, bucket_name: str, public_url: str, logger: Logger):
@@ -25,7 +25,7 @@ class S3Client(StorageClient):
       self.logger.error(f"Error checking storage health: {e}")
       return False
 
-  def upload(self, name: str, data: bytes, content_type: str, public: bool = False) -> str:
+  def upload(self, name: str, data: bytes, content_type: str, public: bool = False) -> str | None:
     key = f"{PUBLIC_PATH}/{name}" if public else f"{PRIVATE_PATH}/{name}"
     self.boto3_client.put_object(
       Bucket = self.bucket_name,
@@ -33,4 +33,24 @@ class S3Client(StorageClient):
       Body = data,
       ContentType = content_type
     )
-    return f"{self.public_url}/{self.bucket_name}/{key}"
+    return f"{self.public_url}/{name}" if public else None
+
+  def get(self, name: str) -> StoredObject | None:
+    try:
+      object: dict = self.boto3_client.get_object(
+        Bucket = self.bucket_name,
+        Key = name
+      )
+      body: StreamingBody = object.get("Body")
+      if body is None:
+        raise StorageClientError("No body in S3 object")
+      return StoredObject(
+        body = body.read(),
+        content_type = object.get("ContentType", DEFAULT_CONTENT_TYPE)
+      )
+    except ClientError as e:
+      if e.response["Error"]["Code"] == "NoSuchKey":
+        return None
+      raise StorageClientError from e
+    except BotoCoreError as e:
+      raise StorageClientError from e
