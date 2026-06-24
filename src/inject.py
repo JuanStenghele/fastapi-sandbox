@@ -20,7 +20,7 @@ from validators.cover_image_validator import CoverImageValidator
 from clients.s3_client import S3Client
 from dal.book_cover_dal import BookCoverDAL
 from utils.database import build_db_url
-from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT, ENV, ENV_PRODUCTION, AUTH_AUDIENCE, AUTH_ISSUER, AUTH_JWKS_URI, S3_SERVICE_NAME, STORAGE_ENDPOINT_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, STORAGE_BUCKET_NAME, STORAGE_REGION, STORAGE_REGION_DEFAULT
+from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT, ENV, ENV_PRODUCTION, AUTH_AUDIENCE, AUTH_ISSUER, AUTH_JWKS_URI, S3_SERVICE_NAME, STORAGE_SERVICE_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, STORAGE_BUCKET_NAME, STORAGE_REGION, STORAGE_REGION_DEFAULT
 
 
 class Container(DeclarativeContainer):
@@ -55,7 +55,7 @@ class Container(DeclarativeContainer):
   config.auth.jwks_uri.from_env(AUTH_JWKS_URI)
 
   # Storage configuration
-  config.storage.endpoint_url.from_env(STORAGE_ENDPOINT_URL, default = None)
+  config.storage.service_url.from_env(STORAGE_SERVICE_URL, default = None)
   config.storage.public_url.from_env(STORAGE_PUBLIC_URL)
   config.storage.access_key_id.from_env(STORAGE_ACCESS_KEY_ID)
   config.storage.secret_access_key.from_env(STORAGE_SECRET_ACCESS_KEY)
@@ -123,7 +123,7 @@ class Container(DeclarativeContainer):
   boto3_client = providers.Singleton(
     boto3.client,
     service_name = S3_SERVICE_NAME,
-    endpoint_url = config.storage.endpoint_url,
+    service_url = config.storage.service_url,
     aws_access_key_id = config.storage.access_key_id,
     aws_secret_access_key = config.storage.secret_access_key,
     region_name = config.storage.region

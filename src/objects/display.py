@@ -72,17 +72,3 @@ class AuthorCreationHTTPResponse(AuthorCreationHTTPRequest):
       id = author.id,
       name = author.name
     )
-
-
-class StorageProxyResponse(BaseObj):
-  model_config = ConfigDict(arbitrary_types_allowed = True)
-
-  body: bytes
-  content_type: str
-
-  @classmethod
-  def from_stored_object(cls, object: StoredObject):
-    return cls(
-      body = object.body,
-      content_type = object.content_type
-    )

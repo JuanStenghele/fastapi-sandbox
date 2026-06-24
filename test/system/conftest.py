@@ -10,7 +10,7 @@ from opentelemetry._logs import get_logger_provider
 from constants import (
   POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_SSLMODE,
   OTEL_EXPORTER_OTLP_ENDPOINT, AUTH_ISSUER, AUTH_AUDIENCE, AUTH_JWKS_URI,
-  STORAGE_ENDPOINT_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, STORAGE_BUCKET_NAME
+  STORAGE_SERVICE_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, STORAGE_BUCKET_NAME
 )
 from utils.env_vars import set_env_vars
 from utils.auth_utils import get_mock_oauth2_server_config
@@ -29,7 +29,7 @@ minio_password = "qwerty123"
 minio_bucket = "fastapi-sandbox-test"
 
 class Context():
-  def __init__(self, app, client: TestClient, db_name: str, db_user: str, db_password: str, db_host: str, db_port: str, auth_token_url: str, storage_endpoint_url: str, storage_access_key_id: str, storage_secret_access_key: str, storage_bucket_name: str):
+  def __init__(self, app, client: TestClient, db_name: str, db_user: str, db_password: str, db_host: str, db_port: str, auth_token_url: str, storage_service_url: str, storage_access_key_id: str, storage_secret_access_key: str, storage_bucket_name: str):
     self.app = app
     self.client = client
     self.db_name = db_name
@@ -39,7 +39,7 @@ class Context():
     self.db_port = db_port
     self.db_url = f"postgresql+psycopg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
     self.auth_token_url = auth_token_url
-    self.storage_endpoint_url = storage_endpoint_url
+    self.storage_service_url = storage_service_url
     self.storage_access_key_id = storage_access_key_id
     self.storage_secret_access_key = storage_secret_access_key
     self.storage_bucket_name = storage_bucket_name
@@ -155,7 +155,7 @@ def context(request: FixtureRequest):
     AUTH_ISSUER: f"{auth_base_url}/fastapi-sandbox",
     AUTH_AUDIENCE: "fastapi-sandbox",
     AUTH_JWKS_URI: f"{auth_base_url}/fastapi-sandbox/jwks",
-    STORAGE_ENDPOINT_URL: minio_endpoint,
+    STORAGE_SERVICE_URL: minio_endpoint,
     STORAGE_PUBLIC_URL: minio_endpoint,
     STORAGE_ACCESS_KEY_ID: minio_user,
     STORAGE_SECRET_ACCESS_KEY: minio_password,

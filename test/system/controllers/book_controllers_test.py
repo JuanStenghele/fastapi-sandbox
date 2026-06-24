@@ -13,7 +13,7 @@ class TestBookController():
     self.auth_token = get_user_auth_token(context.auth_token_url, "test-user")
     yield
     clean_all_tables(context.db_url)
-    clean_bucket(context.storage_endpoint_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name)
+    clean_bucket(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name)
 
   def test_retrieve_book(self, context: Context):
     author_id = uuid4()
@@ -88,7 +88,7 @@ class TestBookController():
     cover_image_key = f"public/user-content/cover-images/{data['id']}"
     assert data['cover_image_url'] is not None
     assert cover_image_key in data['cover_image_url']
-    assert file_exists(context.storage_endpoint_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, cover_image_key)
+    assert file_exists(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, cover_image_key)
 
   def test_create_book_with_duplicate_title(self, context: Context):
     author_id = uuid4()
