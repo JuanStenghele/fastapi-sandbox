@@ -2,7 +2,7 @@ from clients.storage_client import StorageClient, StoredObject
 from constants import PUBLIC_PATH
 
 
-class StorageProxy():
+class StorageReverseProxy():
   def __init__(self, storage_client: StorageClient):
     self.storage_client = storage_client
 

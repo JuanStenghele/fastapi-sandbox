@@ -1,7 +1,11 @@
-import boto3
+import boto3, os
 
 
 from botocore.exceptions import ClientError
+
+
+def get_test_image_path(filename: str) -> str:
+  return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "res", filename)
 
 
 def create_bucket(endpoint_url: str, access_key_id: str, secret_access_key: str, bucket_name: str):
@@ -28,6 +32,22 @@ def file_exists(endpoint_url: str, access_key_id: str, secret_access_key: str, b
     return True
   except ClientError:
     return False
+
+
+def save_file(endpoint_url: str, access_key_id: str, secret_access_key: str, bucket_name: str, key: str, data: bytes, content_type: str):
+  client = boto3.client(
+    "s3",
+    endpoint_url = endpoint_url,
+    aws_access_key_id = access_key_id,
+    aws_secret_access_key = secret_access_key,
+    region_name = "us-east-1"
+  )
+  client.put_object(
+    Bucket = bucket_name,
+    Key = key,
+    Body = data,
+    ContentType = content_type
+  )
 
 
 def clean_bucket(endpoint_url: str, access_key_id: str, secret_access_key: str, bucket_name: str):

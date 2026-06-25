@@ -1,9 +1,9 @@
-import pytest, os
+import pytest
 
 from uuid import uuid4
 from system.utils.db_utils import insert_author, insert_book, clean_all_tables
 from system.utils.auth_utils import get_auth_headers, get_user_auth_token
-from system.utils.storage_utils import clean_bucket, file_exists
+from system.utils.storage_utils import get_test_image_path, clean_bucket, file_exists
 from system.conftest import Context
 
 
@@ -69,8 +69,7 @@ class TestBookController():
     book_description = 'A young wizard discovers his magical heritage.'
     book_isbn = '978-0-7475-3269-9'
     book_publication_date = '1997-06-26'
-    res_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "res", "harry_potter_cover.jpg")
-    cover_image = open(res_path, "rb")
+    cover_image = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
     response = context.client.post(
       "/v1/books",
       data = { "title": book_title, "author_id": str(author_id), "description": book_description, "isbn": book_isbn, "publication_date": book_publication_date },
@@ -87,7 +86,7 @@ class TestBookController():
     assert data['publication_date'] == book_publication_date
     cover_image_key = f"public/user-content/cover-images/{data['id']}"
     assert data['cover_image_url'] is not None
-    assert cover_image_key in data['cover_image_url']
+    assert f"user-content/cover-images/{data['id']}" in data['cover_image_url']
     assert file_exists(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, cover_image_key)
 
   def test_create_book_with_duplicate_title(self, context: Context):
