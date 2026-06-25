@@ -4,6 +4,7 @@ metadata:
   name: fastapi-sandbox-config-map
 data:
   ENV: {{ .Values.env.ENV | quote }}
+  PORT: {{ .Values.env.PORT | quote }}
   POSTGRES_SSLMODE: {{ .Values.env.POSTGRES_SSLMODE | quote }}
   OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.env.OTEL_EXPORTER_OTLP_ENDPOINT | quote }}
   AUTH_ISSUER: {{ .Values.env.AUTH_ISSUER | quote }}

@@ -8,4 +8,4 @@ else
   MODE="run"
 fi
 
-exec fastapi $MODE /fastapi-sandbox/src/main.py --port 8000 --host 0.0.0.0
+exec fastapi $MODE /fastapi-sandbox/src/main.py --port ${PORT:-8000} --host 0.0.0.0

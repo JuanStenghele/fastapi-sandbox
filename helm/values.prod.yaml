@@ -9,6 +9,7 @@ image:
 
 env:
   ENV: production
+  PORT: "8000"
   POSTGRES_SSLMODE: prefer
   STORAGE_PUBLIC_URL: "" # Set dynamically in helm upgrade
   AUTH_ISSUER: "https://dev-76kf5dzezilav06g.us.auth0.com/"

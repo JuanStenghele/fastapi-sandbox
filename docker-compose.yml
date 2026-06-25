@@ -15,7 +15,7 @@ services:
     volumes:
       - ./src:/fastapi-sandbox/src
     ports:
-      - 8000:8000
+      - "${PORT:-8000}:${PORT:-8000}"
     restart: on-failure:5
     env_file:
       - .env

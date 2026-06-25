@@ -7,5 +7,5 @@ spec:
     app: fastapi-sandbox
   ports:
   - port: 80
-    targetPort: 8000
+    targetPort: {{ .Values.env.PORT }}
   type: ClusterIP
