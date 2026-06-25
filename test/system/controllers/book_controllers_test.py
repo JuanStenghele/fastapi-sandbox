@@ -84,9 +84,9 @@ class TestBookController():
     assert data['description'] == book_description
     assert data['isbn'] == book_isbn
     assert data['publication_date'] == book_publication_date
-    cover_image_key = f"public/user-content/cover-images/{data['id']}"
+    cover_image_key = f"public/user-content/cover-images/{data['id']}.jpg"
     assert data['cover_image_url'] is not None
-    assert f"user-content/cover-images/{data['id']}" in data['cover_image_url']
+    assert f"user-content/cover-images/{data['id']}.jpg" in data['cover_image_url']
     assert file_exists(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, cover_image_key)
 
   def test_create_book_with_duplicate_title(self, context: Context):

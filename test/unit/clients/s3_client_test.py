@@ -42,7 +42,7 @@ class TestS3Client():
     boto3_mock = MagicMock()
     logger_mock = MagicMock()
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
-    result = instance.upload("images/cover.jpg", b"data", "image/jpeg", public = True)
+    result = instance.upload("images/cover", b"data", "image/jpeg", public = True)
     boto3_mock.put_object.assert_called_once_with(
       Bucket = "my-bucket",
       Key = f"{PUBLIC_PATH}/images/cover.jpg",
@@ -55,7 +55,7 @@ class TestS3Client():
     boto3_mock = MagicMock()
     logger_mock = MagicMock()
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
-    result = instance.upload("images/cover.jpg", b"data", "image/jpeg", public = False)
+    result = instance.upload("images/cover", b"data", "image/jpeg", public = False)
     boto3_mock.put_object.assert_called_once_with(
       Bucket = "my-bucket",
       Key = f"{PRIVATE_PATH}/images/cover.jpg",
@@ -70,7 +70,7 @@ class TestS3Client():
     boto3_mock.put_object.side_effect = Exception("upload failed")
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
     with pytest.raises(Exception) as exc_info:
-      instance.upload("images/cover.jpg", b"data", "image/jpeg", public = True)
+      instance.upload("images/cover", b"data", "image/jpeg", public = True)
     assert str(exc_info.value) == "upload failed"
 
   def test_get_success(self):

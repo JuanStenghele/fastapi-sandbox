@@ -25,7 +25,7 @@ class S3Client(StorageClient):
       self.logger.error(f"Error checking storage health: {e}")
       return False
 
-  def upload(self, name: str, data: bytes, content_type: str, public: bool = False) -> str | None:
+  def abs_upload(self, name: str, data: bytes, content_type: str, public: bool) -> str | None:
     key = f"{PUBLIC_PATH}/{name}" if public else f"{PRIVATE_PATH}/{name}"
     self.boto3_client.put_object(
       Bucket = self.bucket_name,
