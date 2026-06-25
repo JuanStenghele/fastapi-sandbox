@@ -1,3 +1,6 @@
+import mimetypes
+
+
 from datetime import datetime, timezone
 from uuid import UUID
 from sqlmodel import Session
@@ -17,10 +20,17 @@ class CoverImageService():
     self.book_cover_dal = book_cover_dal
     self.cover_image_validator = cover_image_validator
 
+  def build_image_path(self, path: str, content_type: str) -> str:
+    extension = mimetypes.guess_extension(content_type)
+    if extension is not None and not path.endswith(extension):
+      path += extension
+    return path
+
   def create(self, session: Session, book_id: UUID, image: RawImage) -> CoverImage:
     self.cover_image_validator.validate_creation(image)
     image_data = image.file.read()
-    url = self.storage_client.upload_user_content(f"{COVER_IMAGES_PATH}/{book_id}", image_data, image.content_type)
+    path = self.build_image_path(f"{COVER_IMAGES_PATH}/{book_id}", image.content_type)
+    url = self.storage_client.upload_user_content(path, image_data, image.content_type)
     now = datetime.now(timezone.utc)
     book_cover = BookCover(
       book_id = book_id,

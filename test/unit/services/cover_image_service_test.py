@@ -28,7 +28,7 @@ class TestCoverImageService():
     result = instance.create(session_mock, book_id, image)
     cover_image_validator_mock.validate_creation.assert_called_once_with(image)
     storage_client_mock.upload_user_content.assert_called_once_with(
-      f"{COVER_IMAGES_PATH}/{book_id}", b"data", "image/jpeg"
+      f"{COVER_IMAGES_PATH}/{book_id}.jpg", b"data", "image/jpeg"
     )
     book_cover_dal_mock.create_book_cover.assert_called_once()
     assert result.book_id == book_id
@@ -62,3 +62,27 @@ class TestCoverImageService():
       instance.create(session_mock, uuid4(), image)
     assert str(exc_info.value) == "upload failed"
     book_cover_dal_mock.create_book_cover.assert_not_called()
+
+  def test_resolve_name_appends_extension(self):
+    storage_client_mock = MagicMock(spec = StorageClient)
+    book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
+    cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    result = instance.build_image_path("cover-images/123", "image/jpeg")
+    assert result == "cover-images/123.jpg"
+
+  def test_resolve_name_skips_when_present(self):
+    storage_client_mock = MagicMock(spec = StorageClient)
+    book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
+    cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    result = instance.build_image_path("cover-images/123.png", "image/png")
+    assert result == "cover-images/123.png"
+
+  def test_resolve_name_skips_unknown_type(self):
+    storage_client_mock = MagicMock(spec = StorageClient)
+    book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
+    cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    result = instance.build_image_path("cover-images/123", "application/x-custom")
+    assert result == "cover-images/123"
