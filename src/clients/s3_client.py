@@ -45,7 +45,7 @@ class S3Client(StorageClient):
       if body is None:
         raise StorageClientError("No body in S3 object")
       return StoredObject(
-        body = body.read(),
+        body = body,
         content_type = object.get("ContentType", DEFAULT_CONTENT_TYPE)
       )
     except ClientError as e:

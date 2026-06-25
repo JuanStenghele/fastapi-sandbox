@@ -77,7 +77,6 @@ class TestS3Client():
     boto3_mock = MagicMock()
     logger_mock = MagicMock()
     body_mock = MagicMock()
-    body_mock.read.return_value = b"file content"
     boto3_mock.get_object.return_value = {
       "Body": body_mock,
       "ContentType": "image/png"
@@ -88,20 +87,19 @@ class TestS3Client():
       Bucket = "my-bucket",
       Key = "public/image.png"
     )
-    assert result.body == b"file content"
+    assert result.body == body_mock
     assert result.content_type == "image/png"
 
   def test_get_default_content_type(self):
     boto3_mock = MagicMock()
     logger_mock = MagicMock()
     body_mock = MagicMock()
-    body_mock.read.return_value = b"file content"
     boto3_mock.get_object.return_value = {
       "Body": body_mock
     }
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
     result = instance.get("public/file.bin")
-    assert result.body == b"file content"
+    assert result.body == body_mock
     assert result.content_type == DEFAULT_CONTENT_TYPE
 
   def test_get_no_body(self):
