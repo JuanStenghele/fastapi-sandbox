@@ -2,7 +2,7 @@ import pytest
 
 from uuid import uuid4
 from system.utils.db_utils import insert_author, insert_book, clean_all_tables
-from system.utils.auth_utils import get_auth_headers, get_user_auth_token
+from system.utils.auth_utils import get_auth_headers, get_user_auth_token, get_admin_auth_token
 from system.utils.storage_utils import get_test_image_path, clean_bucket, file_exists
 from system.conftest import Context
 
@@ -11,6 +11,7 @@ class TestBookController():
   @pytest.fixture(autouse = True)
   def after_each(self, context: Context):
     self.auth_token = get_user_auth_token(context.auth_token_url, "test-user")
+    self.admin_auth_token = get_admin_auth_token(context.auth_token_url, "test-user")
     yield
     clean_all_tables(context.db_url)
     clean_bucket(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name)
@@ -47,7 +48,7 @@ class TestBookController():
     book_description = 'A young wizard discovers his magical heritage.'
     book_isbn = '978-0-7475-3269-9'
     book_publication_date = '1997-06-26'
-    response = context.client.post("/v1/books", data = { "title": book_title, "author_id": str(author_id), "description": book_description, "isbn": book_isbn, "publication_date": book_publication_date }, headers = get_auth_headers(self.auth_token))
+    response = context.client.post("/v1/books", data = { "title": book_title, "author_id": str(author_id), "description": book_description, "isbn": book_isbn, "publication_date": book_publication_date }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] is not None
@@ -57,10 +58,17 @@ class TestBookController():
     assert data['publication_date'] == book_publication_date
 
   def test_create_book_invalid_author(self, context: Context):
-    response = context.client.post("/v1/books", data = { "title": "Harry Potter", "author_id": str(uuid4()) }, headers = get_auth_headers(self.auth_token))
+    response = context.client.post("/v1/books", data = { "title": "Harry Potter", "author_id": str(uuid4()) }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 400
     data = response.json()
     assert data == { 'detail': 'AUTHOR_NOT_FOUND' }
+
+  def test_create_book_without_admin_scope(self, context: Context):
+    auth_token = get_user_auth_token(context.auth_token_url, "test-user")
+    response = context.client.post("/v1/books", data = { "title": "Harry Potter", "author_id": str(uuid4()) }, headers = get_auth_headers(auth_token))
+    assert response.status_code == 403
+    data = response.json()
+    assert data == { 'detail': 'INSUFFICIENT_PERMISSIONS' }
 
   def test_create_book_with_cover(self, context: Context):
     author_id = uuid4()
@@ -74,7 +82,7 @@ class TestBookController():
       "/v1/books",
       data = { "title": book_title, "author_id": str(author_id), "description": book_description, "isbn": book_isbn, "publication_date": book_publication_date },
       files = { "cover_image": ("harry_potter_cover.jpg", cover_image, "image/jpeg") },
-      headers = get_auth_headers(self.auth_token)
+      headers = get_auth_headers(self.admin_auth_token)
     )
     cover_image.close()
     assert response.status_code == 200
@@ -94,7 +102,7 @@ class TestBookController():
     insert_author(context.db_url, author_id, 'J. K. Rowling')
     book_title = 'Harry Potter'
     insert_book(context.db_url, uuid4(), book_title, author_id)
-    response = context.client.post("/v1/books", data = { "title": book_title, "author_id": str(author_id) }, headers = get_auth_headers(self.auth_token))
+    response = context.client.post("/v1/books", data = { "title": book_title, "author_id": str(author_id) }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] is not None

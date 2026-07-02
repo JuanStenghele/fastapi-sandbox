@@ -10,7 +10,7 @@ from objects.error import ValidationError
 from objects.image import RawImage
 from services.book_service import BookService
 from logging import Logger
-from controllers.dependencies import get_session, get_user_auth_claims
+from controllers.dependencies import get_session, get_user_auth_claims, get_admin_auth_claims
 from objects.book import Book
 from objects.auth import AuthClaims
 
@@ -62,7 +62,7 @@ def get_books(
 @inject
 def create_books(
 	http_request: BookCreationHTTPRequest = Depends(BookCreationHTTPRequest.as_form),
-	_: AuthClaims = Depends(get_user_auth_claims),
+	_: AuthClaims = Depends(get_admin_auth_claims),
 	book_service: BookService = Depends(Provide[Container.book_service]),
 	session: Session = Depends(get_session),
 	logger: Logger = Depends(Provide[Container.logger])
