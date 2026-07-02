@@ -108,7 +108,7 @@ class TestBookController():
     assert data['id'] is not None
     assert data['title'] == book_title
 
-  def test_search_books_no_search_term(self, context: Context):
+  def test_get_books_no_search_term(self, context: Context):
     author_id = uuid4()
     insert_author(context.db_url, author_id, 'J. K. Rowling')
     book_id_1 = uuid4()
@@ -127,7 +127,7 @@ class TestBookController():
     assert str(book_id_1) in returned_ids
     assert str(book_id_2) in returned_ids
 
-  def test_search_books_with_search_term(self, context: Context):
+  def test_get_books_with_search_term(self, context: Context):
     author_id = uuid4()
     insert_author(context.db_url, author_id, 'J. K. Rowling')
     harry_id = uuid4()
@@ -141,7 +141,7 @@ class TestBookController():
     assert data['books'][0]['id'] == str(harry_id)
     assert data['books'][0]['title'] == 'Harry Potter'
 
-  def test_search_books_pagination(self, context: Context):
+  def test_get_books_pagination(self, context: Context):
     author_id = uuid4()
     insert_author(context.db_url, author_id, 'J. K. Rowling')
     book_id_1 = uuid4()
@@ -159,13 +159,13 @@ class TestBookController():
     assert str(book_id_1) in returned_ids
     assert str(book_id_2) in returned_ids
 
-  def test_search_books_invalid_page_size(self, context: Context):
+  def test_get_books_invalid_page_size(self, context: Context):
     response = context.client.get("/v1/books", params = { "page_size": 7 }, headers = get_auth_headers(self.auth_token))
     assert response.status_code == 400
     data = response.json()
     assert data == { 'detail': 'INVALID_PAGE_SIZE' }
 
-  def test_search_books_no_results(self, context: Context):
+  def test_get_books_no_results(self, context: Context):
     author_id = uuid4()
     insert_author(context.db_url, author_id, 'J. K. Rowling')
     insert_book(context.db_url, uuid4(), 'Harry Potter', author_id)
