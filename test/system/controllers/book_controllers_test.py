@@ -23,7 +23,7 @@ class TestBookController():
     tolkien_id = uuid4()
     insert_author(context.db_url, tolkien_id, 'J. R. R. Tolkien')
     insert_book(context.db_url, uuid4(), 'The Lord of the Rings', tolkien_id)
-    response = context.client.get("/v1/books", params = { "id": str(book_id) }, headers = get_auth_headers(self.auth_token))
+    response = context.client.get(f"/v1/books/{book_id}", headers = get_auth_headers(self.auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] == str(book_id)
@@ -33,7 +33,7 @@ class TestBookController():
     author_id = uuid4()
     insert_author(context.db_url, author_id, 'J. K. Rowling')
     insert_book(context.db_url, uuid4(), 'Harry Potter', author_id)
-    response = context.client.get("/v1/books", params = { "id": str(uuid4()) }, headers = get_auth_headers(self.auth_token))
+    response = context.client.get(f"/v1/books/{uuid4()}", headers = get_auth_headers(self.auth_token))
     assert response.status_code == 404
     data = response.json()
     assert data == {
@@ -99,3 +99,71 @@ class TestBookController():
     data = response.json()
     assert data['id'] is not None
     assert data['title'] == book_title
+
+  def test_search_books_no_search_term(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_id_1 = uuid4()
+    book_id_2 = uuid4()
+    insert_book(context.db_url, book_id_1, 'Harry Potter', author_id)
+    insert_book(context.db_url, book_id_2, 'The Lord of the Rings', author_id)
+    response = context.client.get("/v1/books", headers = get_auth_headers(self.auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['total_books'] == 2
+    assert data['total_pages'] == 1
+    assert data['current_page'] == 1
+    assert data['page_size'] == 10
+    assert len(data['books']) == 2
+    returned_ids = { book['id'] for book in data['books'] }
+    assert str(book_id_1) in returned_ids
+    assert str(book_id_2) in returned_ids
+
+  def test_search_books_with_search_term(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    harry_id = uuid4()
+    insert_book(context.db_url, harry_id, 'Harry Potter', author_id)
+    insert_book(context.db_url, uuid4(), 'The Lord of the Rings', author_id)
+    response = context.client.get("/v1/books", params = { "search_term": "Potter" }, headers = get_auth_headers(self.auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['total_books'] == 1
+    assert len(data['books']) == 1
+    assert data['books'][0]['id'] == str(harry_id)
+    assert data['books'][0]['title'] == 'Harry Potter'
+
+  def test_search_books_pagination(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_id_1 = uuid4()
+    book_id_2 = uuid4()
+    insert_book(context.db_url, book_id_1, 'Harry Potter', author_id)
+    insert_book(context.db_url, book_id_2, 'The Lord of the Rings', author_id)
+    response = context.client.get("/v1/books", params = { "page": 1, "page_size": 50 }, headers = get_auth_headers(self.auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['total_books'] == 2
+    assert data['current_page'] == 1
+    assert data['page_size'] == 50
+    assert len(data['books']) == 2
+    returned_ids = { book['id'] for book in data['books'] }
+    assert str(book_id_1) in returned_ids
+    assert str(book_id_2) in returned_ids
+
+  def test_search_books_invalid_page_size(self, context: Context):
+    response = context.client.get("/v1/books", params = { "page_size": 7 }, headers = get_auth_headers(self.auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data == { 'detail': 'INVALID_PAGE_SIZE' }
+
+  def test_search_books_no_results(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    insert_book(context.db_url, uuid4(), 'Harry Potter', author_id)
+    response = context.client.get("/v1/books", params = { "search_term": "NonExistent" }, headers = get_auth_headers(self.auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['total_books'] == 0
+    assert len(data['books']) == 0
+    assert data['total_pages'] == 0
