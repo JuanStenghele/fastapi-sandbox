@@ -1,10 +1,10 @@
-from datetime import date
+from datetime import date, datetime
 from uuid import UUID
 from fastapi import File, Form, UploadFile
 from pydantic import ConfigDict
 from objects.base import BaseObj
 from objects.author import Author
-from objects.book import Book
+from objects.book import Book, GetBooksPaginatedResult
 from objects.stored_object import StoredObject
 
 
@@ -71,4 +71,46 @@ class AuthorCreationHTTPResponse(AuthorCreationHTTPRequest):
     return cls(
       id = author.id,
       name = author.name
+    )
+
+
+class BookHTTPResponse(BaseObj):
+  id: UUID
+  title: str
+  author_id: UUID
+  description: str | None = None
+  isbn: str | None = None
+  publication_date: date | None = None
+  cover_image_url: str | None = None
+  created_at: datetime
+
+  @classmethod
+  def from_book(cls, book: Book):
+    return cls(
+      id = book.id,
+      title = book.title,
+      author_id = book.author_id,
+      description = book.description,
+      isbn = book.isbn,
+      publication_date = book.publication_date,
+      cover_image_url = book.cover_image.url if book.cover_image else None,
+      created_at = book.created_at
+    )
+
+
+class BooksHTTPResponse(BaseObj):
+  books: list
+  total_books: int
+  total_pages: int
+  current_page: int
+  page_size: int
+
+  @classmethod
+  def from_books_result(cls, result: GetBooksPaginatedResult):
+    return cls(
+      books = [BookHTTPResponse.from_book(book) for book in result.books],
+      total_books = result.total_books,
+      total_pages = result.total_pages,
+      current_page = result.current_page,
+      page_size = result.page_size
     )

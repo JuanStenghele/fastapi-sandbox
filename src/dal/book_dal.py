@@ -1,4 +1,5 @@
 from uuid import UUID
+from sqlalchemy import func
 from sqlmodel import select, Session
 from db_schema.book_author_db import BookAuthor as DBBookAuthor
 from db_schema.book_cover_db import BookCover as DBBookCover
@@ -51,3 +52,35 @@ class BookDAL():
       updated_at = db_book.updated_at,
       deleted_at = db_book.deleted_at
     )
+
+  def get_books(self, session: Session, search_term: str | None, limit: int, offset: int) -> list[Book]:
+    query = (
+      select(DBBook, DBBookAuthor, DBBookCover)
+      .join(DBBookAuthor, DBBookAuthor.book_id == DBBook.id, isouter = True)
+      .join(DBBookCover, DBBookCover.book_id == DBBook.id, isouter = True)
+    )
+    if search_term:
+      query = query.filter(DBBook.title.icontains(search_term, autoescape = True))
+    query = query.order_by(DBBook.id.asc()).limit(limit).offset(offset)
+    results = session.exec(query).all()
+    return [
+      Book(
+        id = db_book.id,
+        title = db_book.title,
+        author_id = book_author.author_id if book_author else None,
+        description = db_book.description,
+        isbn = db_book.isbn,
+        publication_date = db_book.publication_date,
+        cover_image = CoverImage(book_id = db_cover.book_id, url = db_cover.url) if db_cover else None,
+        created_at = db_book.created_at,
+        updated_at = db_book.updated_at,
+        deleted_at = db_book.deleted_at
+      )
+      for db_book, book_author, db_cover in results
+    ]
+
+  def count_books(self, session: Session, search_term: str | None) -> int:
+    query = select(func.count()).select_from(DBBook)
+    if search_term:
+      query = query.filter(DBBook.title.icontains(search_term, autoescape = True))
+    return session.exec(query).one()

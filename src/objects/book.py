@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from uuid import UUID
-from objects.base import OrmObj
+from objects.base import BaseObj, OrmObj
 from objects.cover_image import CoverImage
 
 
@@ -15,3 +15,16 @@ class Book(OrmObj):
   created_at: datetime
   updated_at: datetime
   deleted_at: datetime | None = None
+
+
+class GetBooksResult(BaseObj):
+  books: list
+  total_books: int
+
+
+class GetBooksPaginatedResult(BaseObj):
+  books: list
+  total_books: int
+  total_pages: int
+  current_page: int
+  page_size: int

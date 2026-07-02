@@ -57,6 +57,8 @@ PUBLIC_PATH = "public"
 PRIVATE_PATH = "private"
 DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
+BOOKS_PAGE_SIZES = [10, 20, 50, 100]
+
 class Tags(Enum):
   HEALTH_CHECK = "Health check"
   AUTHORS = "Authors"
