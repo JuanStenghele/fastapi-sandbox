@@ -1,4 +1,5 @@
 {
+  "interactiveLogin": true,
   "tokenCallbacks": [
     {
       "issuerId": "fastapi-sandbox",
