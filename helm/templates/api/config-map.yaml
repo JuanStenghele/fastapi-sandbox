@@ -12,3 +12,4 @@ data:
   AUTH_JWKS_URI: {{ .Values.env.AUTH_JWKS_URI | quote }}
   STORAGE_PUBLIC_URL: {{ .Values.env.STORAGE_PUBLIC_URL | quote }}
   STORAGE_SERVICE_URL: {{ .Values.env.STORAGE_SERVICE_URL | quote }}
+  CORS_MIDDLEWARE_ENABLED: {{ .Values.env.CORS_MIDDLEWARE_ENABLED | quote }}

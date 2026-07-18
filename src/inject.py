@@ -20,7 +20,8 @@ from validators.cover_image_validator import CoverImageValidator
 from clients.s3_client import S3Client
 from dal.book_cover_dal import BookCoverDAL
 from utils.database import build_db_url
-from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT, ENV, ENV_PRODUCTION, AUTH_AUDIENCE, AUTH_ISSUER, AUTH_JWKS_URI, S3_SERVICE_NAME, STORAGE_SERVICE_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, STORAGE_BUCKET_NAME, STORAGE_REGION, STORAGE_REGION_DEFAULT
+from utils.env_vars_parsing import parse_bool_env_var, parse_list_env_var
+from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT, ENV, ENV_PRODUCTION, AUTH_AUDIENCE, AUTH_ISSUER, AUTH_JWKS_URI, S3_SERVICE_NAME, STORAGE_SERVICE_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, STORAGE_BUCKET_NAME, STORAGE_REGION, STORAGE_REGION_DEFAULT, CORS_MIDDLEWARE_ENABLED, CORS_MIDDLEWARE_ENABLED_DEFAULT, CORS_ALLOWED_ORIGINS, CORS_ALLOWED_ORIGINS_DEFAULT
 
 
 class Container(DeclarativeContainer):
@@ -30,7 +31,8 @@ class Container(DeclarativeContainer):
       "controllers.author_controller",
       "controllers.book_controller",
       "controllers.health_check",
-      "controllers.storage_controller"
+      "controllers.storage_controller",
+      "middlewares.cors_middleware"
     ]
   )
 
@@ -53,6 +55,10 @@ class Container(DeclarativeContainer):
   config.auth.issuer.from_env(AUTH_ISSUER)
   config.auth.audience.from_env(AUTH_AUDIENCE)
   config.auth.jwks_uri.from_env(AUTH_JWKS_URI)
+
+  # CORS configuration
+  config.cors.middleware_enabled.from_env(CORS_MIDDLEWARE_ENABLED, default = CORS_MIDDLEWARE_ENABLED_DEFAULT, as_ = parse_bool_env_var)
+  config.cors.allowed_origins.from_env(CORS_ALLOWED_ORIGINS, default = CORS_ALLOWED_ORIGINS_DEFAULT, as_ = parse_list_env_var)
 
   # Storage configuration
   config.storage.service_url.from_env(STORAGE_SERVICE_URL, default = None)

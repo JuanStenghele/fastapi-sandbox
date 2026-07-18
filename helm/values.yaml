@@ -24,3 +24,4 @@ headlamp:
 
 env:
   OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-service:4318
+  CORS_MIDDLEWARE_ENABLED: "false"

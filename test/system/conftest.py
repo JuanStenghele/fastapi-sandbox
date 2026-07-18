@@ -1,4 +1,4 @@
-import pytest, os, time, urllib.request, urllib.error
+import pytest, os, sys, time, urllib.request, urllib.error
 
 
 from fastapi.testclient import TestClient
@@ -161,6 +161,14 @@ def context(request: FixtureRequest):
     STORAGE_SECRET_ACCESS_KEY: minio_password,
     STORAGE_BUCKET_NAME: minio_bucket,
   }):
+    # TODO Delete this tmp fix
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    src_dir = os.path.join(project_root, "src")
+    for name, module in list(sys.modules.items()):
+      module_file = getattr(module, "__file__", None)
+      if module_file and os.path.abspath(module_file).startswith(src_dir + os.sep) and not name.startswith("db_schema"):
+        del sys.modules[name]
+
     # Import app here to ensure env vars are set before app initialization
     from main import app
 
@@ -168,7 +176,6 @@ def context(request: FixtureRequest):
     app.state.limiter.enabled = False
 
     # Run DB migrations
-    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     alembic_ini_path = os.path.join(project_root, "alembic.ini")
     alembic_cfg = Config(alembic_ini_path)
     command.upgrade(alembic_cfg, "head")
