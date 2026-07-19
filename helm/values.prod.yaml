@@ -22,6 +22,9 @@ externalSecrets:
 ingress:
   tls: true
   domain: "" # Parameter Store
+  cors:
+    enabled: true
+    allowedOrigins: [] # Domain is also allowed
   subdomains:
     api: "" # Parameter Store
     headlamp: "" # Parameter Store

@@ -22,6 +22,17 @@ tempo:
 headlamp:
   port: 80
 
+ingress:
+  cors:
+    allowedMethods:
+      - GET
+      - POST
+      - OPTIONS
+    allowedHeaders:
+      - Authorization
+      - Content-Type
+    maxAge: 600
+
 env:
   OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-service:4318
   CORS_MIDDLEWARE_ENABLED: "false"

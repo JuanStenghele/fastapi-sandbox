@@ -29,6 +29,10 @@ externalSecrets:
 ingress:
   tls: false
   domain: 127.0.0.1.nip.io
+  cors:
+    enabled: true
+    allowedOrigins:
+      - http://localhost:5173
   subdomains:
     api: api
     headlamp: headlamp

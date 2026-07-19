@@ -10,6 +10,10 @@ spec:
   routes:
     - match: Host(`{{ $host }}`) || Host(`www.{{ $host }}`)
       kind: Rule
+      {{- if and .Values.ingress.cors .Values.ingress.cors.enabled }}
+      middlewares:
+        - name: api-cors-middleware
+      {{- end }}
       services:
         - name: fastapi-sandbox-service
           port: 80
