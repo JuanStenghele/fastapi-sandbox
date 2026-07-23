@@ -7,7 +7,8 @@ from opentelemetry._logs import get_logger_provider
 from constants import (
   POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_SSLMODE,
   OTEL_EXPORTER_OTLP_ENDPOINT, AUTH_ISSUER, AUTH_AUDIENCE, AUTH_JWKS_URI,
-  STORAGE_SERVICE_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, STORAGE_BUCKET_NAME
+  STORAGE_SERVICE_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, 
+  STORAGE_BUCKET_NAME, ENV, ENV_TESTING
 )
 from system.test_utils.env_vars import set_env_vars
 from system.test_utils.test_containers import otel_collector_instance, postgres_instance, minio_instance, mock_oauth2_server_instance
@@ -54,6 +55,7 @@ def context(request: FixtureRequest):
   minio_endpoint = f"http://{minio_host}:{minio_port}"
 
   with set_env_vars({
+    ENV: ENV_TESTING,
     POSTGRES_DB: db_name,
     POSTGRES_USER: db_user,
     POSTGRES_PASSWORD: db_password,
@@ -68,7 +70,7 @@ def context(request: FixtureRequest):
     STORAGE_PUBLIC_URL: minio_endpoint,
     STORAGE_ACCESS_KEY_ID: minio_user,
     STORAGE_SECRET_ACCESS_KEY: minio_password,
-    STORAGE_BUCKET_NAME: minio_bucket,
+    STORAGE_BUCKET_NAME: minio_bucket
   }):
     default_app = app()
 
