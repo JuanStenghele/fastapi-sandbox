@@ -1,4 +1,4 @@
-import logging, sys, logging.config
+import sys
 
 
 from constants import LOGGER_NAME
@@ -47,6 +47,3 @@ LOGGING_CONFIG = {
     }
   }
 }
-
-def setup_logger():
-  logging.config.dictConfig(LOGGING_CONFIG)

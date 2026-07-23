@@ -1,11 +1,11 @@
 #!/bin/bash
 
 if [ "$ENV" = "test" ] || [ "$ENV" = "local" ]; then
-  echo "Starting application with fastapi development mode..."
-  MODE="dev"
+  echo "Starting application with development mode..."
+  RELOAD="--reload"
 else
-  echo "Starting application with fastapi production mode..."
-  MODE="run"
+  echo "Starting application with production mode..."
+  RELOAD=""
 fi
 
-exec fastapi $MODE /fastapi-sandbox/src/main.py --port ${PORT:-8000} --host 0.0.0.0
+exec uvicorn main:app --factory --app-dir /fastapi-sandbox/src --host 0.0.0.0 --port ${PORT:-8000} $RELOAD

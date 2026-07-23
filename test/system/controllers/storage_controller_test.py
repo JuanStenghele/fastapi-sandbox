@@ -1,7 +1,7 @@
 import pytest
 
 
-from system.utils.storage_utils import get_test_image_path, save_file, clean_bucket
+from system.test_utils.storage_utils import get_test_image_path, save_file, clean_bucket
 from system.conftest import Context
 
 

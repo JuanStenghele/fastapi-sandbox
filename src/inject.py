@@ -24,6 +24,7 @@ from utils.env_vars_parsing import parse_bool_env_var, parse_list_env_var
 from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT, ENV, ENV_PRODUCTION, AUTH_AUDIENCE, AUTH_ISSUER, AUTH_JWKS_URI, S3_SERVICE_NAME, STORAGE_SERVICE_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, STORAGE_BUCKET_NAME, STORAGE_REGION, STORAGE_REGION_DEFAULT, CORS_MIDDLEWARE_ENABLED, CORS_MIDDLEWARE_ENABLED_DEFAULT, CORS_ALLOWED_ORIGINS, CORS_ALLOWED_ORIGINS_DEFAULT
 
 
+# DI container works at a class level
 class Container(DeclarativeContainer):
   wiring_config = WiringConfiguration(
     modules = [
@@ -31,42 +32,38 @@ class Container(DeclarativeContainer):
       "controllers.author_controller",
       "controllers.book_controller",
       "controllers.health_check",
-      "controllers.storage_controller",
-      "middlewares.cors_middleware"
+      "controllers.storage_controller"
     ]
   )
 
   config = providers.Configuration()
 
-  config.env.from_env(ENV, default = ENV_PRODUCTION)
+  @classmethod
+  def load_config(cls) -> None:
+    cls.config.env.from_env(ENV, default = ENV_PRODUCTION)
 
-  # DB configuration
-  config.db.name.from_env(POSTGRES_DB)
-  config.db.user.from_env(POSTGRES_USER)
-  config.db.password.from_env(POSTGRES_PASSWORD)
-  config.db.host.from_env(POSTGRES_HOST, default = POSTGRES_HOST_DEFAULT)
-  config.db.port.from_env(POSTGRES_PORT, default = POSTGRES_PORT_DEFAULT)
-  config.db.sslmode.from_env(POSTGRES_SSLMODE, default = POSTGRES_SSLMODE_DEFAULT)
+    cls.config.db.name.from_env(POSTGRES_DB)
+    cls.config.db.user.from_env(POSTGRES_USER)
+    cls.config.db.password.from_env(POSTGRES_PASSWORD)
+    cls.config.db.host.from_env(POSTGRES_HOST, default = POSTGRES_HOST_DEFAULT)
+    cls.config.db.port.from_env(POSTGRES_PORT, default = POSTGRES_PORT_DEFAULT)
+    cls.config.db.sslmode.from_env(POSTGRES_SSLMODE, default = POSTGRES_SSLMODE_DEFAULT)
 
-  # OTel configuration
-  config.otel.otlp_endpoint.from_env(OTEL_EXPORTER_OTLP_ENDPOINT, default = OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT)
+    cls.config.otel.otlp_endpoint.from_env(OTEL_EXPORTER_OTLP_ENDPOINT, default = OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT)
 
-  # Auth configuration
-  config.auth.issuer.from_env(AUTH_ISSUER)
-  config.auth.audience.from_env(AUTH_AUDIENCE)
-  config.auth.jwks_uri.from_env(AUTH_JWKS_URI)
+    cls.config.auth.issuer.from_env(AUTH_ISSUER)
+    cls.config.auth.audience.from_env(AUTH_AUDIENCE)
+    cls.config.auth.jwks_uri.from_env(AUTH_JWKS_URI)
 
-  # CORS configuration
-  config.cors.middleware_enabled.from_env(CORS_MIDDLEWARE_ENABLED, default = CORS_MIDDLEWARE_ENABLED_DEFAULT, as_ = parse_bool_env_var)
-  config.cors.allowed_origins.from_env(CORS_ALLOWED_ORIGINS, default = CORS_ALLOWED_ORIGINS_DEFAULT, as_ = parse_list_env_var)
+    cls.config.cors.middleware_enabled.from_env(CORS_MIDDLEWARE_ENABLED, default = CORS_MIDDLEWARE_ENABLED_DEFAULT, as_ = parse_bool_env_var)
+    cls.config.cors.allowed_origins.from_env(CORS_ALLOWED_ORIGINS, default = CORS_ALLOWED_ORIGINS_DEFAULT, as_ = parse_list_env_var)
 
-  # Storage configuration
-  config.storage.service_url.from_env(STORAGE_SERVICE_URL, default = None)
-  config.storage.public_url.from_env(STORAGE_PUBLIC_URL)
-  config.storage.access_key_id.from_env(STORAGE_ACCESS_KEY_ID)
-  config.storage.secret_access_key.from_env(STORAGE_SECRET_ACCESS_KEY)
-  config.storage.bucket_name.from_env(STORAGE_BUCKET_NAME)
-  config.storage.region.from_env(STORAGE_REGION, default = STORAGE_REGION_DEFAULT)
+    cls.config.storage.service_url.from_env(STORAGE_SERVICE_URL, default = None)
+    cls.config.storage.public_url.from_env(STORAGE_PUBLIC_URL)
+    cls.config.storage.access_key_id.from_env(STORAGE_ACCESS_KEY_ID)
+    cls.config.storage.secret_access_key.from_env(STORAGE_SECRET_ACCESS_KEY)
+    cls.config.storage.bucket_name.from_env(STORAGE_BUCKET_NAME)
+    cls.config.storage.region.from_env(STORAGE_REGION, default = STORAGE_REGION_DEFAULT)
 
   logger = providers.Callable(
     getLogger,

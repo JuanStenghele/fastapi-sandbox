@@ -1,5 +1,5 @@
 from system.conftest import Context
-from system.utils.auth_utils import get_auth_headers, get_user_auth_token
+from system.test_utils.auth_utils import get_auth_headers, get_user_auth_token
 
 
 class TestAuth():

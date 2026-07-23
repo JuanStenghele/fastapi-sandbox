@@ -1,8 +1,8 @@
 import pytest
 
 
-from system.utils.db_utils import delete_all_authors
-from system.utils.auth_utils import get_admin_auth_token, get_auth_headers, get_user_auth_token
+from system.test_utils.db_utils import delete_all_authors
+from system.test_utils.auth_utils import get_admin_auth_token, get_auth_headers, get_user_auth_token
 from system.conftest import Context
 
 

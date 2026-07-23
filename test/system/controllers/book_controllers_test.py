@@ -1,9 +1,9 @@
 import pytest
 
 from uuid import uuid4
-from system.utils.db_utils import insert_author, insert_book, clean_all_tables
-from system.utils.auth_utils import get_auth_headers, get_user_auth_token, get_admin_auth_token
-from system.utils.storage_utils import get_test_image_path, clean_bucket, file_exists
+from system.test_utils.db_utils import insert_author, insert_book, clean_all_tables
+from system.test_utils.auth_utils import get_auth_headers, get_user_auth_token, get_admin_auth_token
+from system.test_utils.storage_utils import get_test_image_path, clean_bucket, file_exists
 from system.conftest import Context
 
 
