@@ -4,7 +4,7 @@ import uuid
 from math import ceil
 from datetime import datetime, timezone
 from uuid import UUID
-from constants import BOOKS_PAGE_SIZES
+from constants import DEFAULT_PAGE_SIZES
 from dal.book_dal import BookDAL
 from objects.book import Book, GetBooksResult, GetBooksPaginatedResult
 from objects.book_creation import BookCreationRequest
@@ -49,7 +49,7 @@ class BookService():
     return GetBooksResult(books = books, total_books = total_books)
 
   def get_books_paginated(self, session: Session, search_term: str | None, page: int, page_size: int) -> GetBooksPaginatedResult:
-    if page_size not in BOOKS_PAGE_SIZES:
+    if page_size not in DEFAULT_PAGE_SIZES:
       raise ValidationError(detail = "INVALID_PAGE_SIZE")
     if page < 1:
       raise ValidationError(detail = "INVALID_PAGE")

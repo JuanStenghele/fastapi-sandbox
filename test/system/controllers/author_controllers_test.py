@@ -1,7 +1,8 @@
 import pytest
 
 
-from system.test_utils.db_utils import delete_all_authors
+from uuid import uuid4
+from system.test_utils.db_utils import delete_all_authors, insert_author
 from system.test_utils.auth_utils import get_admin_auth_token, get_auth_headers, get_user_auth_token
 from system.conftest import Context
 
@@ -9,13 +10,14 @@ from system.conftest import Context
 class TestAuthorController():
   @pytest.fixture(autouse = True)
   def after_each(self, context: Context):
-    self.auth_token = get_admin_auth_token(context.auth_token_url, "test-admin")
+    self.user_auth_token = get_user_auth_token(context.auth_token_url, "test-user")
+    self.admin_auth_token = get_admin_auth_token(context.auth_token_url, "test-admin")
     yield
     delete_all_authors(context.db_url)
 
   def test_create_author(self, context: Context):
     author_name = 'J. K. Rowling'
-    response = context.client.post("/v1/authors", json = { "name": author_name }, headers = get_auth_headers(self.auth_token))
+    response = context.client.post("/v1/authors", json = { "name": author_name }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] is not None
@@ -23,7 +25,7 @@ class TestAuthorController():
 
   def test_create_author_with_duplicate_name(self, context: Context):
     author_name = 'J. K. Rowling'
-    auth_header = get_auth_headers(self.auth_token)
+    auth_header = get_auth_headers(self.admin_auth_token)
     first_response = context.client.post("/v1/authors", json = { "name": author_name }, headers = auth_header)
     second_response = context.client.post("/v1/authors", json = { "name": author_name }, headers = auth_header)
     assert first_response.status_code == 200
@@ -44,3 +46,63 @@ class TestAuthorController():
     assert data == {
       'detail': 'INSUFFICIENT_PERMISSIONS'
     }
+
+  def test_get_authors_no_search_term(self, context: Context):
+    author_id_1 = uuid4()
+    author_id_2 = uuid4()
+    insert_author(context.db_url, author_id_1, 'J. K. Rowling')
+    insert_author(context.db_url, author_id_2, 'J. R. R. Tolkien')
+    response = context.client.get("/v1/authors", headers = get_auth_headers(self.user_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['total_authors'] == 2
+    assert data['total_pages'] == 1
+    assert data['current_page'] == 1
+    assert data['page_size'] == 10
+    assert len(data['authors']) == 2
+    returned_ids = { author['id'] for author in data['authors'] }
+    assert str(author_id_1) in returned_ids
+    assert str(author_id_2) in returned_ids
+
+  def test_get_authors_with_search_term(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    insert_author(context.db_url, uuid4(), 'J. R. R. Tolkien')
+    response = context.client.get("/v1/authors", params = { "search_term": "Rowling" }, headers = get_auth_headers(self.user_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['total_authors'] == 1
+    assert len(data['authors']) == 1
+    assert data['authors'][0]['id'] == str(author_id)
+    assert data['authors'][0]['name'] == 'J. K. Rowling'
+
+  def test_get_authors_pagination(self, context: Context):
+    author_id_1 = uuid4()
+    author_id_2 = uuid4()
+    insert_author(context.db_url, author_id_1, 'J. K. Rowling')
+    insert_author(context.db_url, author_id_2, 'J. R. R. Tolkien')
+    response = context.client.get("/v1/authors", params = { "page": 1, "page_size": 50 }, headers = get_auth_headers(self.user_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['total_authors'] == 2
+    assert data['current_page'] == 1
+    assert data['page_size'] == 50
+    assert len(data['authors']) == 2
+    returned_ids = { author['id'] for author in data['authors'] }
+    assert str(author_id_1) in returned_ids
+    assert str(author_id_2) in returned_ids
+
+  def test_get_authors_invalid_page_size(self, context: Context):
+    response = context.client.get("/v1/authors", params = { "page_size": 7 }, headers = get_auth_headers(self.user_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data == { 'detail': 'INVALID_PAGE_SIZE' }
+
+  def test_get_authors_no_results(self, context: Context):
+    insert_author(context.db_url, uuid4(), 'J. K. Rowling')
+    response = context.client.get("/v1/authors", params = { "search_term": "NonExistent" }, headers = get_auth_headers(self.user_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['total_authors'] == 0
+    assert len(data['authors']) == 0
+    assert data['total_pages'] == 0

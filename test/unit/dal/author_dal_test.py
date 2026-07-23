@@ -7,6 +7,7 @@ from uuid import uuid4
 from sqlmodel import Session
 from objects.author import Author
 from dal.author_dal import AuthorDAL
+from db_schema.author_db import Author as DBAuthor
 
 
 class TestAuthorDal():
@@ -53,3 +54,139 @@ class TestAuthorDal():
       instance.create_author(session_mock, author)
     assert str(exc_info.value) == expected_message
     assert session_mock.add.call_count == 1
+
+  def test_get_author_success(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    author_id = uuid4()
+    author_name = 'J. K. Rowling'
+    db_author = DBAuthor(id = author_id, name = author_name, created_at = now, updated_at = now)
+    exec_mock = MagicMock()
+    exec_mock.first.return_value = db_author
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_author(session_mock, author_id)
+    assert result is not None
+    assert result.id == author_id
+    assert result.name == author_name
+    assert session_mock.exec.call_count == 1
+
+  def test_get_author_not_found(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.first.return_value = None
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_author(session_mock, uuid4())
+    assert result is None
+
+  def test_get_author_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    instance = AuthorDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.get_author(session_mock, uuid4())
+    assert str(exc_info.value) == expected_message
+    assert session_mock.exec.call_count == 1
+
+  def test_get_authors_success(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    author_id = uuid4()
+    author_name = 'J. K. Rowling'
+    db_author = DBAuthor(id = author_id, name = author_name, created_at = now, updated_at = now)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = [db_author]
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_authors(session_mock, None, 10, 0)
+    assert len(result) == 1
+    assert result[0].id == author_id
+    assert result[0].name == author_name
+    assert session_mock.exec.call_count == 1
+
+  def test_get_authors_success_with_search_term(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    author_id = uuid4()
+    author_name = 'J. K. Rowling'
+    db_author = DBAuthor(id = author_id, name = author_name, created_at = now, updated_at = now)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = [db_author]
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_authors(session_mock, 'Rowling', 10, 0)
+    assert len(result) == 1
+    assert result[0].id == author_id
+    assert result[0].name == author_name
+    assert session_mock.exec.call_count == 1
+
+  def test_get_authors_success_multiple_results(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    author_id_1 = uuid4()
+    author_id_2 = uuid4()
+    db_author_1 = DBAuthor(id = author_id_1, name = 'J. K. Rowling', created_at = now, updated_at = now)
+    db_author_2 = DBAuthor(id = author_id_2, name = 'J. R. R. Tolkien', created_at = now, updated_at = now)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = [db_author_1, db_author_2]
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_authors(session_mock, None, 10, 0)
+    assert len(result) == 2
+    assert result[0].id == author_id_1
+    assert result[0].name == 'J. K. Rowling'
+    assert result[1].id == author_id_2
+    assert result[1].name == 'J. R. R. Tolkien'
+    assert session_mock.exec.call_count == 1
+
+  def test_get_authors_empty_results(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = []
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_authors(session_mock, None, 10, 0)
+    assert result == []
+    assert session_mock.exec.call_count == 1
+
+  def test_get_authors_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    instance = AuthorDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.get_authors(session_mock, None, 10, 0)
+    assert str(exc_info.value) == expected_message
+    assert session_mock.exec.call_count == 1
+
+  def test_count_authors_success_no_search_term(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.one.return_value = 5
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.count_authors(session_mock, None)
+    assert result == 5
+    assert session_mock.exec.call_count == 1
+
+  def test_count_authors_success_with_search_term(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.one.return_value = 3
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.count_authors(session_mock, 'Rowling')
+    assert result == 3
+    assert session_mock.exec.call_count == 1
+
+  def test_count_authors_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    instance = AuthorDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.count_authors(session_mock, None)
+    assert str(exc_info.value) == expected_message
+    assert session_mock.exec.call_count == 1
