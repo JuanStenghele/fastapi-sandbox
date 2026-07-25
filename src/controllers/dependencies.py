@@ -9,6 +9,7 @@ from services.auth import AuthService
 from objects.auth import AuthClaims
 from objects.error import UnauthenticatedError, UnauthorizedError
 from constants import AUTH_SCOPE_ADMIN
+from dependency_injector.wiring import inject, Provide
 
 
 def get_auth_claims(
@@ -26,20 +27,23 @@ def get_auth_claims(
     raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = e.detail)
 
 
+@inject
 def get_user_auth_claims(
   credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error = False)),
-  auth_service: AuthService = Depends(lambda: Container.auth_service())
+  auth_service: AuthService = Depends(Provide[Container.auth_service])
 ) -> AuthClaims:
   return get_auth_claims(None, credentials, auth_service)
 
 
+@inject
 def get_admin_auth_claims(
   credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error = False)),
-  auth_service: AuthService = Depends(lambda: Container.auth_service())
+  auth_service: AuthService = Depends(Provide[Container.auth_service])
 ) -> AuthClaims:
   return get_auth_claims(AUTH_SCOPE_ADMIN, credentials, auth_service)
 
 
+# Using lambdas as it is a generator
 def get_session(
   db: Database = Depends(lambda: Container.db()),
   logger: Logger = Depends(lambda: Container.logger())
