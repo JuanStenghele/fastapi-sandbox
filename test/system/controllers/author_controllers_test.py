@@ -207,3 +207,40 @@ class TestAuthorController():
     assert response.status_code == 400
     data = response.json()
     assert data['detail'] == 'INVALID_UUID: badly formed hexadecimal UUID string'
+
+  def test_get_authors_excludes_deleted(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    context.client.delete("/v1/authors", params = { "ids": [str(author_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    response = context.client.get("/v1/authors", headers = get_auth_headers(self.user_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['total_authors'] == 0
+    assert len(data['authors']) == 0
+
+  def test_get_author_by_id_deleted(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    context.client.delete("/v1/authors", params = { "ids": [str(author_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    response = context.client.get(f"/v1/authors/{author_id}", headers = get_auth_headers(self.user_auth_token))
+    assert response.status_code == 404
+    data = response.json()
+    assert data == { 'detail': 'AUTHOR_NOT_FOUND' }
+
+  def test_delete_author_already_deleted(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    context.client.delete("/v1/authors", params = { "ids": [str(author_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    response = context.client.delete("/v1/authors", params = { "ids": [str(author_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data['detail'].startswith('AUTHORS_NOT_FOUND')
+
+  def test_update_author_deleted(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    context.client.delete("/v1/authors", params = { "ids": [str(author_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    response = context.client.patch(f"/v1/authors/{author_id}", json = { "name": "Robert Galbraith" }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data == { 'detail': 'AUTHOR_NOT_FOUND' }

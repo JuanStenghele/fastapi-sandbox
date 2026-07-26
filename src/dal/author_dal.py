@@ -20,14 +20,14 @@ class AuthorDAL():
     return author
 
   def get_author(self, session: Session, id: UUID) -> Author | None:
-    query = select(DBAuthor).where(DBAuthor.id == id)
+    query = select(DBAuthor).where(DBAuthor.id == id, DBAuthor.deleted_at == None)
     result = session.exec(query).first()
     if result is None:
       return None
     return Author.model_validate(result)
 
   def get_authors(self, session: Session, search_term: str | None, limit: int, offset: int) -> list[Author]:
-    query = select(DBAuthor)
+    query = select(DBAuthor).where(DBAuthor.deleted_at == None)
     if search_term:
       query = query.filter(DBAuthor.name.icontains(search_term, autoescape = True))
     query = query.order_by(DBAuthor.id.asc()).limit(limit).offset(offset)
@@ -35,7 +35,7 @@ class AuthorDAL():
     return [Author.model_validate(result) for result in results]
 
   def get_authors_by_ids(self, session: Session, ids: list) -> list[Author]:
-    query = select(DBAuthor).where(DBAuthor.id.in_(ids))
+    query = select(DBAuthor).where(DBAuthor.id.in_(ids), DBAuthor.deleted_at == None)
     results = session.exec(query).all()
     return [Author.model_validate(result) for result in results]
 
@@ -48,7 +48,7 @@ class AuthorDAL():
     return [result for result in results]
 
   def update_author(self, session: Session, id: UUID, name: str, updated_at: datetime) -> Author | None:
-    query = select(DBAuthor).where(DBAuthor.id == id)
+    query = select(DBAuthor).where(DBAuthor.id == id, DBAuthor.deleted_at == None)
     result = session.exec(query).first()
     if result is None:
       return None
@@ -62,7 +62,7 @@ class AuthorDAL():
     session.exec(stmt)
 
   def count_authors(self, session: Session, search_term: str | None) -> int:
-    query = select(func.count()).select_from(DBAuthor)
+    query = select(func.count()).select_from(DBAuthor).where(DBAuthor.deleted_at == None)
     if search_term:
       query = query.filter(DBAuthor.name.icontains(search_term, autoescape = True))
     return session.exec(query).one()
