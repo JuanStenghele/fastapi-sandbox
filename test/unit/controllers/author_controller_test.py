@@ -93,3 +93,23 @@ class TestAuthorController():
     assert e.value.status_code == 400
     assert e.value.detail == 'AUTHORS_NOT_FOUND'
     assert author_service_mock.delete_authors.call_count == 1
+
+  def test_get_author_500_error(self):
+    from controllers.author_controller import get_author
+    claims_mock = MagicMock(spec = AuthClaims)
+    author_service_mock = MagicMock(spec = AuthorService)
+    author_service_mock.get_author.side_effect = Exception('error')
+    session_mock = MagicMock(spec = Session)
+    logger_mock = MagicMock(spec = Logger)
+    author_id = uuid4()
+    with pytest.raises(HTTPException) as e:
+      get_author(
+        id = author_id,
+        _ = claims_mock,
+        author_service = author_service_mock,
+        session = session_mock,
+        logger = logger_mock
+      )
+    assert e.value.status_code == 500
+    assert e.value.detail == 'UNKNOWN_ERROR'
+    assert author_service_mock.get_author.call_count == 1

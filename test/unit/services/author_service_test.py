@@ -184,3 +184,35 @@ class TestAuthorService():
     with pytest.raises(Exception) as exc_info:
       instance.delete_authors(session_mock, author_ids)
     assert str(exc_info.value) == 'error'
+
+  def test_get_author_success(self):
+    now = datetime.now(timezone.utc)
+    author_id = uuid4()
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    expected_author = Author(id = author_id, name = 'J. K. Rowling', created_at = now, updated_at = now, deleted_at = None)
+    author_dal_mock.get_author.return_value = expected_author
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    session_mock = MagicMock(spec = Session)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
+    result = instance.get_author(session_mock, author_id)
+    assert result == expected_author
+    author_dal_mock.get_author.assert_called_once_with(session_mock, author_id)
+
+  def test_get_author_not_found(self):
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    author_dal_mock.get_author.return_value = None
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    session_mock = MagicMock(spec = Session)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
+    result = instance.get_author(session_mock, uuid4())
+    assert result is None
+
+  def test_get_author_fail(self):
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    author_dal_mock.get_author.side_effect = Exception('error')
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    session_mock = MagicMock(spec = Session)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
+    with pytest.raises(Exception) as exc_info:
+      instance.get_author(session_mock, uuid4())
+    assert str(exc_info.value) == 'error'

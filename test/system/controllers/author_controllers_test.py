@@ -48,6 +48,21 @@ class TestAuthorController():
       'detail': 'INSUFFICIENT_PERMISSIONS'
     }
 
+  def test_get_author_by_id(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    response = context.client.get(f"/v1/authors/{author_id}", headers = get_auth_headers(self.user_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['id'] == str(author_id)
+    assert data['name'] == 'J. K. Rowling'
+
+  def test_get_author_by_id_not_found(self, context: Context):
+    response = context.client.get(f"/v1/authors/{uuid4()}", headers = get_auth_headers(self.user_auth_token))
+    assert response.status_code == 404
+    data = response.json()
+    assert data == { 'detail': 'AUTHOR_NOT_FOUND' }
+
   def test_get_authors_no_search_term(self, context: Context):
     author_id_1 = uuid4()
     author_id_2 = uuid4()

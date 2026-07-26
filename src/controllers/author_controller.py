@@ -3,7 +3,7 @@ from dependency_injector.wiring import inject, Provide
 from sqlmodel import Session
 from constants import Tags, MAX_DELETE_IDS
 from inject import Container
-from objects.display import AuthorCreationHTTPRequest, AuthorCreationHTTPResponse, AuthorsHTTPResponse
+from objects.display import AuthorCreationHTTPRequest, AuthorCreationHTTPResponse, AuthorHTTPResponse, AuthorsHTTPResponse
 from objects.error import ValidationError
 from services.author_service import AuthorService
 from logging import Logger
@@ -31,6 +31,25 @@ def create_author(
   except Exception as e:
     logger.error(f"Error creating author: {e}")
     raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.get("/authors/{id}", response_model = AuthorHTTPResponse, tags = [Tags.AUTHORS])
+@inject
+def get_author(
+  id: UUID,
+  _: AuthClaims = Depends(get_user_auth_claims),
+  author_service: AuthorService = Depends(Provide[Container.author_service]),
+  session: Session = Depends(get_session),
+  logger: Logger = Depends(Provide[Container.logger])
+):
+  try:
+    author = author_service.get_author(session, id)
+  except Exception as e:
+    logger.error(f"Error getting author: {e}")
+    raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
+  if author is None:
+    raise HTTPException(detail = "AUTHOR_NOT_FOUND", status_code = status.HTTP_404_NOT_FOUND)
+  return author
 
 
 @router.get("/authors", response_model = AuthorsHTTPResponse, tags = [Tags.AUTHORS])

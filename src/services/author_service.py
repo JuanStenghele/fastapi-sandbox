@@ -3,6 +3,7 @@ import uuid
 
 from math import ceil
 from datetime import datetime, timezone
+from uuid import UUID
 from dal.author_dal import AuthorDAL
 from objects.author import Author, GetAuthorsResult, GetAuthorsPaginatedResult
 from objects.error import ValidationError
@@ -34,6 +35,9 @@ class AuthorService():
     total_authors = self.author_dal.count_authors(session, search_term)
     authors = self.author_dal.get_authors(session, search_term, limit, offset)
     return GetAuthorsResult(authors = authors, total_authors = total_authors)
+
+  def get_author(self, session: Session, id: UUID) -> Author | None:
+    return self.author_dal.get_author(session, id)
 
   def get_authors_paginated(self, session: Session, search_term: str | None, page: int, page_size: int) -> GetAuthorsPaginatedResult:
     if page_size not in DEFAULT_PAGE_SIZES:
