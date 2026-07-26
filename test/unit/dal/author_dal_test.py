@@ -8,6 +8,7 @@ from sqlmodel import Session
 from objects.author import Author
 from dal.author_dal import AuthorDAL
 from db_schema.author_db import Author as DBAuthor
+from db_schema.book_author_db import BookAuthor as DBBookAuthor
 
 
 class TestAuthorDal():
@@ -188,5 +189,95 @@ class TestAuthorDal():
     instance = AuthorDAL()
     with pytest.raises(Exception) as exc_info:
       instance.count_authors(session_mock, None)
+    assert str(exc_info.value) == expected_message
+    assert session_mock.exec.call_count == 1
+
+  def test_get_authors_by_ids_success(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    author_id_1 = uuid4()
+    author_id_2 = uuid4()
+    db_author_1 = DBAuthor(id = author_id_1, name = 'J. K. Rowling', created_at = now, updated_at = now)
+    db_author_2 = DBAuthor(id = author_id_2, name = 'J. R. R. Tolkien', created_at = now, updated_at = now)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = [db_author_1, db_author_2]
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_authors_by_ids(session_mock, [author_id_1, author_id_2])
+    assert len(result) == 2
+    assert result[0].id == author_id_1
+    assert result[0].name == 'J. K. Rowling'
+    assert result[1].id == author_id_2
+    assert result[1].name == 'J. R. R. Tolkien'
+    assert session_mock.exec.call_count == 1
+
+  def test_get_authors_by_ids_empty_results(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = []
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_authors_by_ids(session_mock, [uuid4()])
+    assert result == []
+    assert session_mock.exec.call_count == 1
+
+  def test_get_authors_by_ids_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    instance = AuthorDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.get_authors_by_ids(session_mock, [uuid4()])
+    assert str(exc_info.value) == expected_message
+    assert session_mock.exec.call_count == 1
+
+  def test_get_author_ids_with_books_success(self):
+    session_mock = MagicMock(spec = Session)
+    author_id_1 = uuid4()
+    author_id_2 = uuid4()
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = [author_id_1, author_id_2]
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_author_ids_with_books(session_mock, [author_id_1, author_id_2])
+    assert result == [author_id_1, author_id_2]
+    assert session_mock.exec.call_count == 1
+
+  def test_get_author_ids_with_books_empty_results(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = []
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.get_author_ids_with_books(session_mock, [uuid4()])
+    assert result == []
+    assert session_mock.exec.call_count == 1
+
+  def test_get_author_ids_with_books_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    instance = AuthorDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.get_author_ids_with_books(session_mock, [uuid4()])
+    assert str(exc_info.value) == expected_message
+    assert session_mock.exec.call_count == 1
+
+  def test_soft_delete_authors_success(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    author_id = uuid4()
+    instance = AuthorDAL()
+    instance.soft_delete_authors(session_mock, [author_id], now)
+    assert session_mock.exec.call_count == 1
+
+  def test_soft_delete_authors_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    now = datetime.now(timezone.utc)
+    instance = AuthorDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.soft_delete_authors(session_mock, [uuid4()], now)
     assert str(exc_info.value) == expected_message
     assert session_mock.exec.call_count == 1

@@ -1,7 +1,9 @@
+from datetime import datetime
 from uuid import UUID
 from sqlalchemy import func
-from sqlmodel import select, Session
+from sqlmodel import select, update, Session
 from db_schema.author_db import Author as DBAuthor
+from db_schema.book_author_db import BookAuthor as DBBookAuthor
 from objects.author import Author
 
 
@@ -31,6 +33,23 @@ class AuthorDAL():
     query = query.order_by(DBAuthor.id.asc()).limit(limit).offset(offset)
     results = session.exec(query).all()
     return [Author.model_validate(result) for result in results]
+
+  def get_authors_by_ids(self, session: Session, ids: list) -> list[Author]:
+    query = select(DBAuthor).where(DBAuthor.id.in_(ids))
+    results = session.exec(query).all()
+    return [Author.model_validate(result) for result in results]
+
+  def get_author_ids_with_books(self, session: Session, author_ids: list) -> list:
+    query = select(DBBookAuthor.author_id).where(
+      DBBookAuthor.author_id.in_(author_ids),
+      DBBookAuthor.deleted_at == None
+    )
+    results = session.exec(query).all()
+    return [result for result in results]
+
+  def soft_delete_authors(self, session: Session, ids: list, deleted_at: datetime) -> None:
+    stmt = update(DBAuthor).where(DBAuthor.id.in_(ids)).values(deleted_at = deleted_at)
+    session.exec(stmt)
 
   def count_authors(self, session: Session, search_term: str | None) -> int:
     query = select(func.count()).select_from(DBAuthor)

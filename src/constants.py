@@ -67,6 +67,7 @@ PRIVATE_PATH = "private"
 DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
 DEFAULT_PAGE_SIZES = [10, 20, 50, 100]
+MAX_DELETE_IDS = 100
 
 class Tags(Enum):
   HEALTH_CHECK = "Health check"

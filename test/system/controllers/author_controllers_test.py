@@ -2,7 +2,7 @@ import pytest
 
 
 from uuid import uuid4
-from system.test_utils.db_utils import delete_all_authors, insert_author
+from system.test_utils.db_utils import delete_all_authors, delete_all_books, insert_author, insert_book
 from system.test_utils.auth_utils import get_admin_auth_token, get_auth_headers, get_user_auth_token
 from system.conftest import Context
 
@@ -13,6 +13,7 @@ class TestAuthorController():
     self.user_auth_token = get_user_auth_token(context.auth_token_url, "test-user")
     self.admin_auth_token = get_admin_auth_token(context.auth_token_url, "test-admin")
     yield
+    delete_all_books(context.db_url)
     delete_all_authors(context.db_url)
 
   def test_create_author(self, context: Context):
@@ -106,3 +107,60 @@ class TestAuthorController():
     assert data['total_authors'] == 0
     assert len(data['authors']) == 0
     assert data['total_pages'] == 0
+
+  def test_delete_authors_success(self, context: Context):
+    author_id_1 = uuid4()
+    author_id_2 = uuid4()
+    insert_author(context.db_url, author_id_1, 'J. K. Rowling')
+    insert_author(context.db_url, author_id_2, 'J. R. R. Tolkien')
+    response = context.client.delete("/v1/authors", params = { "ids": [str(author_id_1), str(author_id_2)] }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 204
+
+  def test_delete_authors_without_admin_scope(self, context: Context):
+    auth_token = get_user_auth_token(context.auth_token_url, "test-user")
+    response = context.client.delete("/v1/authors", params = { "ids": [str(uuid4())] }, headers = get_auth_headers(auth_token))
+    assert response.status_code == 403
+    data = response.json()
+    assert data == {
+      'detail': 'INSUFFICIENT_PERMISSIONS'
+    }
+
+  def test_delete_authors_no_auth(self, context: Context):
+    response = context.client.delete("/v1/authors", params = { "ids": [str(uuid4())] })
+    assert response.status_code == 401
+    data = response.json()
+    assert data == {
+      'detail': 'MISSING_TOKEN'
+    }
+
+  def test_delete_authors_nonexistent_ids(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    nonexistent_id = uuid4()
+    response = context.client.delete("/v1/authors", params = { "ids": [str(author_id), str(nonexistent_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data['detail'] == f"AUTHORS_NOT_FOUND: ['{str(nonexistent_id)}']"
+
+  def test_delete_authors_with_existing_books(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_id = uuid4()
+    insert_book(context.db_url, book_id, "Harry Potter", author_id)
+    response = context.client.delete("/v1/authors", params = { "ids": [str(author_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data['detail'] == f"AUTHORS_HAVE_BOOKS: ['{str(author_id)}']"
+
+  def test_delete_authors_too_many_ids(self, context: Context):
+    too_many_ids = [str(uuid4()) for _ in range(101)]
+    response = context.client.delete("/v1/authors", params = { "ids": too_many_ids }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data == { 'detail': 'INVALID_AUTHOR_IDS_COUNT' }
+
+  def test_delete_authors_invalid_uuid(self, context: Context):
+    response = context.client.delete("/v1/authors", params = { "ids": ["not-a-uuid"] }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data['detail'] == 'INVALID_UUID: badly formed hexadecimal UUID string'

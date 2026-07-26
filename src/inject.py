@@ -9,6 +9,7 @@ from services.auth import AuthService
 from dal.author_dal import AuthorDAL
 from dal.book_dal import BookDAL
 from validators.book_validator import BookValidator
+from validators.author_validator import AuthorValidator
 from dal.health_check_dal import HealthCheckDAL
 from database import Database
 from services.author_service import AuthorService
@@ -118,9 +119,15 @@ class Container(DeclarativeContainer):
     BookDAL
   )
 
+  author_validator = providers.Factory(
+    AuthorValidator,
+    author_dal = author_dal
+  )
+
   author_service = providers.Factory(
     AuthorService,
-    author_dal = author_dal
+    author_dal = author_dal,
+    author_validator = author_validator
   )
 
   boto3_client = providers.Singleton(

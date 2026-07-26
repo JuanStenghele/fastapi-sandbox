@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 from uuid import uuid4
 from services.author_service import AuthorService
 from dal.author_dal import AuthorDAL
+from validators.author_validator import AuthorValidator
 from objects.author import Author, GetAuthorsResult, GetAuthorsPaginatedResult
 from objects.error import ValidationError
 from sqlmodel import Session
@@ -23,7 +24,8 @@ class TestAuthorService():
       deleted_at = None
     )
     session_mock = MagicMock(spec = Session)
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     author_result = instance.create_author(session_mock, author_name)
     assert author_result.id is not None
     assert author_result.name == author_name
@@ -36,7 +38,8 @@ class TestAuthorService():
     author_dal_mock = MagicMock(spec = AuthorDAL)
     author_dal_mock.create_author.side_effect = Exception('error')
     session_mock = MagicMock(spec = Session)
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     with pytest.raises(Exception) as e:
       instance.create_author(session_mock, author_name)
     assert str(e.value) == 'error'
@@ -49,7 +52,8 @@ class TestAuthorService():
     author_2 = Author(id = uuid4(), name = 'J. R. R. Tolkien', created_at = now, updated_at = now, deleted_at = None)
     author_dal_mock.count_authors.return_value = 2
     author_dal_mock.get_authors.return_value = [author_1, author_2]
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     result = instance.get_authors(session_mock, None, 10, 0)
     assert result.authors == [author_1, author_2]
     assert result.total_authors == 2
@@ -63,7 +67,8 @@ class TestAuthorService():
     author = Author(id = uuid4(), name = 'J. K. Rowling', created_at = now, updated_at = now, deleted_at = None)
     author_dal_mock.count_authors.return_value = 1
     author_dal_mock.get_authors.return_value = [author]
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     result = instance.get_authors(session_mock, 'Rowling', 10, 0)
     assert len(result.authors) == 1
     assert result.authors[0].name == 'J. K. Rowling'
@@ -75,7 +80,8 @@ class TestAuthorService():
     session_mock = MagicMock(spec = Session)
     author_dal_mock.count_authors.return_value = 0
     author_dal_mock.get_authors.return_value = []
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     result = instance.get_authors(session_mock, None, 10, 0)
     assert result.authors == []
     assert result.total_authors == 0
@@ -83,7 +89,8 @@ class TestAuthorService():
   def test_get_authors_invalid_offset(self):
     author_dal_mock = MagicMock(spec = AuthorDAL)
     session_mock = MagicMock(spec = Session)
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     with pytest.raises(ValidationError) as exc_info:
       instance.get_authors(session_mock, None, 10, -1)
     assert exc_info.value.detail == 'INVALID_OFFSET'
@@ -92,7 +99,8 @@ class TestAuthorService():
     author_dal_mock = MagicMock(spec = AuthorDAL)
     author_dal_mock.count_authors.side_effect = Exception('error')
     session_mock = MagicMock(spec = Session)
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     with pytest.raises(Exception) as exc_info:
       instance.get_authors(session_mock, None, 10, 0)
     assert str(exc_info.value) == 'error'
@@ -105,7 +113,8 @@ class TestAuthorService():
     author_2 = Author(id = uuid4(), name = 'J. R. R. Tolkien', created_at = now, updated_at = now, deleted_at = None)
     author_dal_mock.count_authors.return_value = 5
     author_dal_mock.get_authors.return_value = [author_1, author_2]
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     result = instance.get_authors_paginated(session_mock, None, 1, 10)
     assert result.authors == [author_1, author_2]
     assert result.total_authors == 5
@@ -118,7 +127,8 @@ class TestAuthorService():
   def test_get_authors_paginated_invalid_page_size(self):
     author_dal_mock = MagicMock(spec = AuthorDAL)
     session_mock = MagicMock(spec = Session)
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     with pytest.raises(ValidationError) as exc_info:
       instance.get_authors_paginated(session_mock, None, 1, 7)
     assert exc_info.value.detail == 'INVALID_PAGE_SIZE'
@@ -126,7 +136,8 @@ class TestAuthorService():
   def test_get_authors_paginated_invalid_page(self):
     author_dal_mock = MagicMock(spec = AuthorDAL)
     session_mock = MagicMock(spec = Session)
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     with pytest.raises(ValidationError) as exc_info:
       instance.get_authors_paginated(session_mock, None, 0, 10)
     assert exc_info.value.detail == 'INVALID_PAGE'
@@ -135,7 +146,41 @@ class TestAuthorService():
     author_dal_mock = MagicMock(spec = AuthorDAL)
     author_dal_mock.count_authors.side_effect = Exception('error')
     session_mock = MagicMock(spec = Session)
-    instance = AuthorService(author_dal_mock)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
     with pytest.raises(Exception) as exc_info:
       instance.get_authors_paginated(session_mock, None, 1, 10)
+    assert str(exc_info.value) == 'error'
+
+  def test_delete_authors_success(self):
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    session_mock = MagicMock(spec = Session)
+    author_ids = [uuid4(), uuid4()]
+    instance = AuthorService(author_dal_mock, author_validator_mock)
+    instance.delete_authors(session_mock, author_ids)
+    author_validator_mock.validate_deletion.assert_called_once_with(session_mock, author_ids)
+    assert author_dal_mock.soft_delete_authors.call_count == 1
+
+  def test_delete_authors_validation_error(self):
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    author_validator_mock.validate_deletion.side_effect = ValidationError(detail = "AUTHORS_NOT_FOUND")
+    session_mock = MagicMock(spec = Session)
+    author_ids = [uuid4()]
+    instance = AuthorService(author_dal_mock, author_validator_mock)
+    with pytest.raises(ValidationError) as exc_info:
+      instance.delete_authors(session_mock, author_ids)
+    assert exc_info.value.detail == 'AUTHORS_NOT_FOUND'
+    assert author_dal_mock.soft_delete_authors.call_count == 0
+
+  def test_delete_authors_fail(self):
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    author_dal_mock.soft_delete_authors.side_effect = Exception('error')
+    session_mock = MagicMock(spec = Session)
+    author_ids = [uuid4()]
+    instance = AuthorService(author_dal_mock, author_validator_mock)
+    with pytest.raises(Exception) as exc_info:
+      instance.delete_authors(session_mock, author_ids)
     assert str(exc_info.value) == 'error'

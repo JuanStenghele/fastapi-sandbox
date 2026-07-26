@@ -8,11 +8,13 @@ from objects.author import Author, GetAuthorsResult, GetAuthorsPaginatedResult
 from objects.error import ValidationError
 from constants import DEFAULT_PAGE_SIZES
 from sqlmodel import Session
+from validators.author_validator import AuthorValidator
 
 
 class AuthorService():
-  def __init__(self, author_dal: AuthorDAL) -> None:
+  def __init__(self, author_dal: AuthorDAL, author_validator: AuthorValidator) -> None:
     self.author_dal: AuthorDAL = author_dal
+    self.author_validator: AuthorValidator = author_validator
 
   def create_author(self, session: Session, author_name: str) -> Author:
     now = datetime.now(timezone.utc)
@@ -47,3 +49,8 @@ class AuthorService():
       current_page = page,
       page_size = page_size
     )
+
+  def delete_authors(self, session: Session, author_ids: list) -> None:
+    self.author_validator.validate_deletion(session, author_ids)
+    now = datetime.now(timezone.utc)
+    self.author_dal.soft_delete_authors(session, author_ids, now)
