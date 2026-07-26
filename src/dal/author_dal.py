@@ -47,6 +47,16 @@ class AuthorDAL():
     results = session.exec(query).all()
     return [result for result in results]
 
+  def update_author(self, session: Session, id: UUID, name: str, updated_at: datetime) -> Author | None:
+    query = select(DBAuthor).where(DBAuthor.id == id)
+    result = session.exec(query).first()
+    if result is None:
+      return None
+    result.name = name
+    result.updated_at = updated_at
+    session.add(result)
+    return Author.model_validate(result)
+
   def soft_delete_authors(self, session: Session, ids: list, deleted_at: datetime) -> None:
     stmt = update(DBAuthor).where(DBAuthor.id.in_(ids)).values(deleted_at = deleted_at)
     session.exec(stmt)

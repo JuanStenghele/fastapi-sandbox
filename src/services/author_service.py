@@ -54,6 +54,13 @@ class AuthorService():
       page_size = page_size
     )
 
+  def update_author(self, session: Session, id: UUID, name: str) -> Author:
+    now = datetime.now(timezone.utc)
+    author = self.author_dal.update_author(session, id, name, now)
+    if author is None:
+      raise ValidationError(detail = "AUTHOR_NOT_FOUND")
+    return author
+
   def delete_authors(self, session: Session, author_ids: list) -> None:
     self.author_validator.validate_deletion(session, author_ids)
     now = datetime.now(timezone.utc)

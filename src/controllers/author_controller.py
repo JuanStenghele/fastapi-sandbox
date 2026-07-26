@@ -3,7 +3,7 @@ from dependency_injector.wiring import inject, Provide
 from sqlmodel import Session
 from constants import Tags, MAX_DELETE_IDS
 from inject import Container
-from objects.display import AuthorCreationHTTPRequest, AuthorCreationHTTPResponse, AuthorHTTPResponse, AuthorsHTTPResponse
+from objects.display import AuthorCreationHTTPResponse, AuthorHTTPResponse, AuthorUpsertHTTPRequest, AuthorsHTTPResponse
 from objects.error import ValidationError
 from services.author_service import AuthorService
 from logging import Logger
@@ -19,7 +19,7 @@ router = APIRouter()
 @router.post("/authors", response_model = AuthorCreationHTTPResponse, tags = [Tags.AUTHORS])
 @inject
 def create_author(
-  author: AuthorCreationHTTPRequest,
+  author: AuthorUpsertHTTPRequest,
   _: AuthClaims = Depends(get_admin_auth_claims),
   author_service: AuthorService = Depends(Provide[Container.author_service]),
   session: Session = Depends(get_session),
@@ -71,6 +71,26 @@ def get_authors(
     logger.error(f"Error getting authors: {e}")
     raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
   return AuthorsHTTPResponse.from_authors_result(result)
+
+
+@router.patch("/authors/{id}", response_model = AuthorHTTPResponse, tags = [Tags.AUTHORS])
+@inject
+def update_author(
+  id: UUID,
+  author: AuthorUpsertHTTPRequest,
+  _: AuthClaims = Depends(get_admin_auth_claims),
+  author_service: AuthorService = Depends(Provide[Container.author_service]),
+  session: Session = Depends(get_session),
+  logger: Logger = Depends(Provide[Container.logger])
+):
+  try:
+    result = author_service.update_author(session, id, author.name)
+    return AuthorHTTPResponse.from_author(result)
+  except ValidationError as e:
+    raise HTTPException(detail = e.detail, status_code = status.HTTP_400_BAD_REQUEST)
+  except Exception as e:
+    logger.error(f"Error updating author: {e}")
+    raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.delete("/authors", status_code = status.HTTP_204_NO_CONTENT, tags = [Tags.AUTHORS])

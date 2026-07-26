@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import MagicMock
 from uuid import uuid4
 from fastapi import HTTPException
-from objects.display import AuthorCreationHTTPRequest
+from objects.display import AuthorUpsertHTTPRequest
 from objects.auth import AuthClaims
 from objects.error import ValidationError
 from services.author_service import AuthorService
@@ -15,7 +15,7 @@ from logging import Logger
 class TestAuthorController():
   def test_create_author_500_error(self):
     from controllers.author_controller import create_author
-    author = AuthorCreationHTTPRequest(name = 'J. K. Rowling')
+    author = AuthorUpsertHTTPRequest(name = 'J. K. Rowling')
     claims_mock = MagicMock(spec = AuthClaims)
     author_service_mock = MagicMock(spec = AuthorService)
     author_service_mock.create_author.side_effect = Exception('error')
@@ -113,3 +113,47 @@ class TestAuthorController():
     assert e.value.status_code == 500
     assert e.value.detail == 'UNKNOWN_ERROR'
     assert author_service_mock.get_author.call_count == 1
+
+  def test_update_author_500_error(self):
+    from controllers.author_controller import update_author
+    author_id = uuid4()
+    author = AuthorUpsertHTTPRequest(name = 'Robert Galbraith')
+    claims_mock = MagicMock(spec = AuthClaims)
+    author_service_mock = MagicMock(spec = AuthorService)
+    author_service_mock.update_author.side_effect = Exception('error')
+    session_mock = MagicMock(spec = Session)
+    logger_mock = MagicMock(spec = Logger)
+    with pytest.raises(HTTPException) as e:
+      update_author(
+        id = author_id,
+        author = author,
+        _ = claims_mock,
+        author_service = author_service_mock,
+        session = session_mock,
+        logger = logger_mock
+      )
+    assert e.value.status_code == 500
+    assert e.value.detail == 'UNKNOWN_ERROR'
+    assert author_service_mock.update_author.call_count == 1
+
+  def test_update_author_400_error(self):
+    from controllers.author_controller import update_author
+    author_id = uuid4()
+    author = AuthorUpsertHTTPRequest(name = 'Robert Galbraith')
+    claims_mock = MagicMock(spec = AuthClaims)
+    author_service_mock = MagicMock(spec = AuthorService)
+    author_service_mock.update_author.side_effect = ValidationError(detail = "AUTHOR_NOT_FOUND")
+    session_mock = MagicMock(spec = Session)
+    logger_mock = MagicMock(spec = Logger)
+    with pytest.raises(HTTPException) as e:
+      update_author(
+        id = author_id,
+        author = author,
+        _ = claims_mock,
+        author_service = author_service_mock,
+        session = session_mock,
+        logger = logger_mock
+      )
+    assert e.value.status_code == 400
+    assert e.value.detail == 'AUTHOR_NOT_FOUND'
+    assert author_service_mock.update_author.call_count == 1

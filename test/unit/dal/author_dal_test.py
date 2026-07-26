@@ -281,3 +281,41 @@ class TestAuthorDal():
       instance.soft_delete_authors(session_mock, [uuid4()], now)
     assert str(exc_info.value) == expected_message
     assert session_mock.exec.call_count == 1
+
+  def test_update_author_success(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    updated_at = datetime.now(timezone.utc)
+    author_id = uuid4()
+    db_author = DBAuthor(id = author_id, name = 'J. K. Rowling', created_at = now, updated_at = now)
+    exec_mock = MagicMock()
+    exec_mock.first.return_value = db_author
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.update_author(session_mock, author_id, 'Robert Galbraith', updated_at)
+    assert result is not None
+    assert result.id == author_id
+    assert result.name == 'Robert Galbraith'
+    assert result.updated_at == updated_at
+    assert session_mock.exec.call_count == 1
+    session_mock.add.assert_called_once_with(db_author)
+
+  def test_update_author_not_found(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.first.return_value = None
+    session_mock.exec.return_value = exec_mock
+    instance = AuthorDAL()
+    result = instance.update_author(session_mock, uuid4(), 'Robert Galbraith', datetime.now(timezone.utc))
+    assert result is None
+    assert session_mock.exec.call_count == 1
+
+  def test_update_author_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    instance = AuthorDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.update_author(session_mock, uuid4(), 'Robert Galbraith', datetime.now(timezone.utc))
+    assert str(exc_info.value) == expected_message
+    assert session_mock.exec.call_count == 1

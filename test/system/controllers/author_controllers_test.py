@@ -63,6 +63,34 @@ class TestAuthorController():
     data = response.json()
     assert data == { 'detail': 'AUTHOR_NOT_FOUND' }
 
+  def test_update_author_success(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    response = context.client.patch(f"/v1/authors/{author_id}", json = { "name": "Robert Galbraith" }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['id'] == str(author_id)
+    assert data['name'] == 'Robert Galbraith'
+
+  def test_update_author_not_found(self, context: Context):
+    response = context.client.patch(f"/v1/authors/{uuid4()}", json = { "name": "Robert Galbraith" }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data == { 'detail': 'AUTHOR_NOT_FOUND' }
+
+  def test_update_author_without_admin_scope(self, context: Context):
+    auth_token = get_user_auth_token(context.auth_token_url, "test-user")
+    response = context.client.patch(f"/v1/authors/{uuid4()}", json = { "name": "Robert Galbraith" }, headers = get_auth_headers(auth_token))
+    assert response.status_code == 403
+    data = response.json()
+    assert data == { 'detail': 'INSUFFICIENT_PERMISSIONS' }
+
+  def test_update_author_no_auth(self, context: Context):
+    response = context.client.patch(f"/v1/authors/{uuid4()}", json = { "name": "Robert Galbraith" })
+    assert response.status_code == 401
+    data = response.json()
+    assert data == { 'detail': 'MISSING_TOKEN' }
+
   def test_get_authors_no_search_term(self, context: Context):
     author_id_1 = uuid4()
     author_id_2 = uuid4()

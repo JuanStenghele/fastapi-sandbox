@@ -216,3 +216,36 @@ class TestAuthorService():
     with pytest.raises(Exception) as exc_info:
       instance.get_author(session_mock, uuid4())
     assert str(exc_info.value) == 'error'
+
+  def test_update_author_success(self):
+    now = datetime.now(timezone.utc)
+    author_id = uuid4()
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    expected_author = Author(id = author_id, name = 'Robert Galbraith', created_at = now, updated_at = now, deleted_at = None)
+    author_dal_mock.update_author.return_value = expected_author
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    session_mock = MagicMock(spec = Session)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
+    result = instance.update_author(session_mock, author_id, 'Robert Galbraith')
+    assert result == expected_author
+    assert author_dal_mock.update_author.call_count == 1
+
+  def test_update_author_not_found(self):
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    author_dal_mock.update_author.return_value = None
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    session_mock = MagicMock(spec = Session)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
+    with pytest.raises(ValidationError) as exc_info:
+      instance.update_author(session_mock, uuid4(), 'Robert Galbraith')
+    assert exc_info.value.detail == 'AUTHOR_NOT_FOUND'
+
+  def test_update_author_fail(self):
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    author_dal_mock.update_author.side_effect = Exception('error')
+    author_validator_mock = MagicMock(spec = AuthorValidator)
+    session_mock = MagicMock(spec = Session)
+    instance = AuthorService(author_dal_mock, author_validator_mock)
+    with pytest.raises(Exception) as exc_info:
+      instance.update_author(session_mock, uuid4(), 'Robert Galbraith')
+    assert str(exc_info.value) == 'error'

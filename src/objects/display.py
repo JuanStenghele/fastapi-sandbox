@@ -58,11 +58,11 @@ class BookCreationHTTPResponse(BaseObj):
     )
 
 
-class AuthorCreationHTTPRequest(BaseObj):
+class AuthorUpsertHTTPRequest(BaseObj):
   name: str
 
 
-class AuthorCreationHTTPResponse(AuthorCreationHTTPRequest):
+class AuthorCreationHTTPResponse(AuthorUpsertHTTPRequest):
   id: UUID
 
   @classmethod
