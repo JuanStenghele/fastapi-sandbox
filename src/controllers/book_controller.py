@@ -102,6 +102,26 @@ def update_book(
 	return result
 
 
+@router.delete("/books", status_code = status.HTTP_204_NO_CONTENT, tags = [Tags.BOOKS])
+@inject
+def delete_books(
+	ids: list = Query(description = f"List of book IDs to delete (max {MAX_DELETE_IDS})"),
+	_: AuthClaims = Depends(get_admin_auth_claims),
+	book_service: BookService = Depends(Provide[Container.book_service]),
+	session: Session = Depends(get_session),
+	logger: Logger = Depends(Provide[Container.logger])
+):
+	try:
+		book_service.delete_books(session, [UUID(str(id)) for id in ids])
+	except ValidationError as e:
+		raise HTTPException(detail = e.detail, status_code = status.HTTP_400_BAD_REQUEST)
+	except ValueError as e:
+		raise HTTPException(detail = f"INVALID_UUID: {e}", status_code = status.HTTP_400_BAD_REQUEST)
+	except Exception as e:
+		logger.error(f"Error deleting books: {e}")
+		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @router.delete("/books/{id}/cover-images", status_code = status.HTTP_204_NO_CONTENT, tags = [Tags.BOOKS])
 @inject
 def delete_book_cover(
@@ -141,23 +161,3 @@ def update_book_cover(
 		logger.error(f"Error replacing book cover: {e}")
 		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
 	return result
-
-
-@router.delete("/books", status_code = status.HTTP_204_NO_CONTENT, tags = [Tags.BOOKS])
-@inject
-def delete_books(
-	ids: list = Query(description = f"List of book IDs to delete (max {MAX_DELETE_IDS})"),
-	_: AuthClaims = Depends(get_admin_auth_claims),
-	book_service: BookService = Depends(Provide[Container.book_service]),
-	session: Session = Depends(get_session),
-	logger: Logger = Depends(Provide[Container.logger])
-):
-	try:
-		book_service.delete_books(session, [UUID(str(id)) for id in ids])
-	except ValidationError as e:
-		raise HTTPException(detail = e.detail, status_code = status.HTTP_400_BAD_REQUEST)
-	except ValueError as e:
-		raise HTTPException(detail = f"INVALID_UUID: {e}", status_code = status.HTTP_400_BAD_REQUEST)
-	except Exception as e:
-		logger.error(f"Error deleting books: {e}")
-		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
