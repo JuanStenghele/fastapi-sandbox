@@ -74,3 +74,7 @@ class BookService():
     self.cover_image_service.delete(session, book_ids)
     now = datetime.now(timezone.utc)
     self.book_dal.soft_delete_books(session, book_ids, now)
+
+  def delete_book_cover(self, session: Session, book_id: UUID) -> None:
+    self.book_validator.validate_cover_deletion(session, book_id)
+    self.cover_image_service.delete(session, [book_id])

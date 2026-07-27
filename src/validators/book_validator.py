@@ -1,3 +1,4 @@
+from uuid import UUID
 from dal.author_dal import AuthorDAL
 from dal.book_dal import BookDAL
 from objects.book_creation import BookCreationRequest
@@ -29,3 +30,7 @@ class BookValidator():
   def validate_update(self, session: Session, request: BookUpdateHTTPRequest) -> None:
     if request.author_id is not None and self.author_dal.get_author(session, request.author_id) is None:
       raise ValidationError("AUTHOR_NOT_FOUND")
+
+  def validate_cover_deletion(self, session: Session, book_id: UUID) -> None:
+    if self.book_dal.get_book(session, book_id) is None:
+      raise ValidationError(detail = "BOOK_NOT_FOUND")

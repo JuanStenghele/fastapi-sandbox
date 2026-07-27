@@ -104,3 +104,23 @@ class TestBookValidator():
     instance = BookValidator(author_dal_mock, book_dal_mock)
     instance.validate_update(session_mock, request)
     author_dal_mock.get_author.assert_called_once_with(session_mock, author_id)
+
+  def test_validate_cover_deletion_success(self):
+    book_id = uuid4()
+    book_dal_mock = MagicMock(spec = BookDAL)
+    book_dal_mock.get_book.return_value = MagicMock(spec = Book)
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    session_mock = MagicMock(spec = Session)
+    instance = BookValidator(author_dal_mock, book_dal_mock)
+    instance.validate_cover_deletion(session_mock, book_id)
+    book_dal_mock.get_book.assert_called_once_with(session_mock, book_id)
+
+  def test_validate_cover_deletion_not_found(self):
+    book_dal_mock = MagicMock(spec = BookDAL)
+    book_dal_mock.get_book.return_value = None
+    author_dal_mock = MagicMock(spec = AuthorDAL)
+    session_mock = MagicMock(spec = Session)
+    instance = BookValidator(author_dal_mock, book_dal_mock)
+    with pytest.raises(ValidationError) as exc_info:
+      instance.validate_cover_deletion(session_mock, uuid4())
+    assert exc_info.value.detail == "BOOK_NOT_FOUND"

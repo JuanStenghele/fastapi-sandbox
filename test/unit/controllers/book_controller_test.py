@@ -10,7 +10,7 @@ from objects.error import ValidationError
 from services.book_service import BookService
 from sqlalchemy.orm import Session
 from logging import Logger
-from controllers.book_controller import create_books, get_book, get_books, delete_books, update_book
+from controllers.book_controller import create_books, get_book, get_books, delete_books, update_book, delete_book_cover
 
 
 class TestBookController():
@@ -168,3 +168,39 @@ class TestBookController():
     assert e.value.status_code == 404
     assert e.value.detail == 'BOOK_NOT_FOUND'
     assert book_service_mock.update_book.call_count == 1
+
+  def test_delete_book_cover_500_error(self):
+    claims_mock = MagicMock(spec = AuthClaims)
+    book_service_mock = MagicMock(spec = BookService)
+    book_service_mock.delete_book_cover.side_effect = Exception('error')
+    session_mock = MagicMock(spec = Session)
+    logger_mock = MagicMock(spec = Logger)
+    with pytest.raises(HTTPException) as e:
+      delete_book_cover(
+        id = uuid4(),
+        _ = claims_mock,
+        book_service = book_service_mock,
+        session = session_mock,
+        logger = logger_mock
+      )
+    assert e.value.status_code == 500
+    assert e.value.detail == 'UNKNOWN_ERROR'
+    assert book_service_mock.delete_book_cover.call_count == 1
+
+  def test_delete_book_cover_400_error(self):
+    claims_mock = MagicMock(spec = AuthClaims)
+    book_service_mock = MagicMock(spec = BookService)
+    book_service_mock.delete_book_cover.side_effect = ValidationError(detail = "BOOK_NOT_FOUND")
+    session_mock = MagicMock(spec = Session)
+    logger_mock = MagicMock(spec = Logger)
+    with pytest.raises(HTTPException) as e:
+      delete_book_cover(
+        id = uuid4(),
+        _ = claims_mock,
+        book_service = book_service_mock,
+        session = session_mock,
+        logger = logger_mock
+      )
+    assert e.value.status_code == 404
+    assert e.value.detail == 'BOOK_NOT_FOUND'
+    assert book_service_mock.delete_book_cover.call_count == 1
