@@ -10,11 +10,11 @@ from objects.error import ValidationError
 from services.author_service import AuthorService
 from sqlalchemy.orm import Session
 from logging import Logger
+from controllers.author_controller import create_author, get_authors, delete_authors, get_author, update_author
 
 
 class TestAuthorController():
   def test_create_author_500_error(self):
-    from controllers.author_controller import create_author
     author = AuthorUpsertHTTPRequest(name = 'J. K. Rowling')
     claims_mock = MagicMock(spec = AuthClaims)
     author_service_mock = MagicMock(spec = AuthorService)
@@ -34,7 +34,6 @@ class TestAuthorController():
     assert author_service_mock.create_author.call_count == 1
 
   def test_get_authors_500_error(self):
-    from controllers.author_controller import get_authors
     claims_mock = MagicMock(spec = AuthClaims)
     author_service_mock = MagicMock(spec = AuthorService)
     author_service_mock.get_authors_paginated.side_effect = Exception('error')
@@ -55,7 +54,6 @@ class TestAuthorController():
     assert author_service_mock.get_authors_paginated.call_count == 1
 
   def test_delete_authors_500_error(self):
-    from controllers.author_controller import delete_authors
     claims_mock = MagicMock(spec = AuthClaims)
     author_service_mock = MagicMock(spec = AuthorService)
     author_service_mock.delete_authors.side_effect = Exception('error')
@@ -75,7 +73,6 @@ class TestAuthorController():
     assert author_service_mock.delete_authors.call_count == 1
 
   def test_delete_authors_400_error(self):
-    from controllers.author_controller import delete_authors
     claims_mock = MagicMock(spec = AuthClaims)
     author_service_mock = MagicMock(spec = AuthorService)
     author_service_mock.delete_authors.side_effect = ValidationError(detail = "AUTHORS_NOT_FOUND")
@@ -95,7 +92,6 @@ class TestAuthorController():
     assert author_service_mock.delete_authors.call_count == 1
 
   def test_get_author_500_error(self):
-    from controllers.author_controller import get_author
     claims_mock = MagicMock(spec = AuthClaims)
     author_service_mock = MagicMock(spec = AuthorService)
     author_service_mock.get_author.side_effect = Exception('error')
@@ -115,7 +111,6 @@ class TestAuthorController():
     assert author_service_mock.get_author.call_count == 1
 
   def test_update_author_500_error(self):
-    from controllers.author_controller import update_author
     author_id = uuid4()
     author = AuthorUpsertHTTPRequest(name = 'Robert Galbraith')
     claims_mock = MagicMock(spec = AuthClaims)
@@ -137,7 +132,6 @@ class TestAuthorController():
     assert author_service_mock.update_author.call_count == 1
 
   def test_update_author_400_error(self):
-    from controllers.author_controller import update_author
     author_id = uuid4()
     author = AuthorUpsertHTTPRequest(name = 'Robert Galbraith')
     claims_mock = MagicMock(spec = AuthClaims)

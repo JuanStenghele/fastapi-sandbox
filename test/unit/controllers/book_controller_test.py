@@ -10,11 +10,11 @@ from objects.error import ValidationError
 from services.book_service import BookService
 from sqlalchemy.orm import Session
 from logging import Logger
+from controllers.book_controller import create_books, get_book, get_books, delete_books, update_book
 
 
 class TestBookController():
   def test_create_book_500_error(self):
-    from controllers.book_controller import create_books
     http_request = BookCreationHTTPRequest(title = 'Harry Potter', author_id = uuid4())
     claims_mock = MagicMock(spec = AuthClaims)
     book_service_mock = MagicMock(spec = BookService)
@@ -34,7 +34,6 @@ class TestBookController():
     assert book_service_mock.create_book.call_count == 1
 
   def test_get_book_500_error(self):
-    from controllers.book_controller import get_book
     claims_mock = MagicMock(spec = AuthClaims)
     book_service_mock = MagicMock(spec = BookService)
     book_service_mock.get_book.side_effect = Exception('error')
@@ -53,7 +52,6 @@ class TestBookController():
     assert book_service_mock.get_book.call_count == 1
 
   def test_get_books_500_error(self):
-    from controllers.book_controller import get_books
     claims_mock = MagicMock(spec = AuthClaims)
     book_service_mock = MagicMock(spec = BookService)
     book_service_mock.get_books_paginated.side_effect = Exception('error')
@@ -74,7 +72,6 @@ class TestBookController():
     assert book_service_mock.get_books_paginated.call_count == 1
 
   def test_delete_books_500_error(self):
-    from controllers.book_controller import delete_books
     claims_mock = MagicMock(spec = AuthClaims)
     book_service_mock = MagicMock(spec = BookService)
     book_service_mock.delete_books.side_effect = Exception('error')
@@ -94,7 +91,6 @@ class TestBookController():
     assert book_service_mock.delete_books.call_count == 1
 
   def test_delete_books_400_error(self):
-    from controllers.book_controller import delete_books
     claims_mock = MagicMock(spec = AuthClaims)
     book_service_mock = MagicMock(spec = BookService)
     book_service_mock.delete_books.side_effect = ValidationError(detail = "BOOKS_NOT_FOUND")
@@ -114,7 +110,6 @@ class TestBookController():
     assert book_service_mock.delete_books.call_count == 1
 
   def test_update_book_500_error(self):
-    from controllers.book_controller import update_book
     claims_mock = MagicMock(spec = AuthClaims)
     book_service_mock = MagicMock(spec = BookService)
     book_service_mock.update_book.side_effect = Exception('error')
@@ -135,7 +130,6 @@ class TestBookController():
     assert book_service_mock.update_book.call_count == 1
 
   def test_update_book_400_error(self):
-    from controllers.book_controller import update_book
     claims_mock = MagicMock(spec = AuthClaims)
     book_service_mock = MagicMock(spec = BookService)
     book_service_mock.update_book.side_effect = ValidationError(detail = "AUTHOR_NOT_FOUND")
@@ -156,7 +150,6 @@ class TestBookController():
     assert book_service_mock.update_book.call_count == 1
 
   def test_update_book_404_error(self):
-    from controllers.book_controller import update_book
     claims_mock = MagicMock(spec = AuthClaims)
     book_service_mock = MagicMock(spec = BookService)
     book_service_mock.update_book.return_value = None
