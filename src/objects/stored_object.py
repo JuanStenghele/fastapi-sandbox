@@ -9,3 +9,8 @@ class StoredObject(BaseObj):
 
   body: Iterator[bytes]
   content_type: str = DEFAULT_CONTENT_TYPE
+
+
+class StoredObjectUploadResult(BaseObj):
+  url: str | None
+  path: str

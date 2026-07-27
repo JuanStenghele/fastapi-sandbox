@@ -60,6 +60,7 @@ def upgrade() -> None:
     Column('book_id', UUID(as_uuid = True), nullable = False),
     Column('source', String(), nullable = False),
     Column('url', String(), nullable = False),
+    Column('path', String(), nullable = False),
     Column('created_at', DateTime(), nullable = False),
     Column('updated_at', DateTime(), nullable = False),
     Column('deleted_at', DateTime(), nullable = True),

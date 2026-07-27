@@ -175,3 +175,61 @@ class TestBookController():
     assert data['total_books'] == 0
     assert len(data['books']) == 0
     assert data['total_pages'] == 0
+
+  def test_delete_books_success(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_id_1 = uuid4()
+    book_id_2 = uuid4()
+    insert_book(context.db_url, book_id_1, 'Harry Potter', author_id)
+    insert_book(context.db_url, book_id_2, 'The Lord of the Rings', author_id)
+    response = context.client.delete("/v1/books", params = { "ids": [str(book_id_1), str(book_id_2)] }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 204
+
+  def test_delete_books_without_admin_scope(self, context: Context):
+    auth_token = get_user_auth_token(context.auth_token_url, "test-user")
+    response = context.client.delete("/v1/books", params = { "ids": [str(uuid4())] }, headers = get_auth_headers(auth_token))
+    assert response.status_code == 403
+    data = response.json()
+    assert data == { 'detail': 'INSUFFICIENT_PERMISSIONS' }
+
+  def test_delete_books_no_auth(self, context: Context):
+    response = context.client.delete("/v1/books", params = { "ids": [str(uuid4())] })
+    assert response.status_code == 401
+    data = response.json()
+    assert data == { 'detail': 'MISSING_TOKEN' }
+
+  def test_delete_books_nonexistent_ids(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_id = uuid4()
+    insert_book(context.db_url, book_id, 'Harry Potter', author_id)
+    nonexistent_id = uuid4()
+    response = context.client.delete("/v1/books", params = { "ids": [str(book_id), str(nonexistent_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data['detail'] == f"BOOKS_NOT_FOUND: ['{str(nonexistent_id)}']"
+
+  def test_delete_books_too_many_ids(self, context: Context):
+    too_many_ids = [str(uuid4()) for _ in range(101)]
+    response = context.client.delete("/v1/books", params = { "ids": too_many_ids }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data == { 'detail': 'INVALID_BOOK_IDS_COUNT' }
+
+  def test_delete_books_invalid_uuid(self, context: Context):
+    response = context.client.delete("/v1/books", params = { "ids": ["not-a-uuid"] }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data['detail'] == 'INVALID_UUID: badly formed hexadecimal UUID string'
+
+  def test_delete_book_already_deleted(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_id = uuid4()
+    insert_book(context.db_url, book_id, 'Harry Potter', author_id)
+    context.client.delete("/v1/books", params = { "ids": [str(book_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    response = context.client.delete("/v1/books", params = { "ids": [str(book_id)] }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data['detail'].startswith('BOOKS_NOT_FOUND')

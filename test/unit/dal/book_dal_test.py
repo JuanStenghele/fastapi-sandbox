@@ -227,3 +227,56 @@ class TestBookDal():
       instance.count_books(session_mock, None)
     assert str(exc_info.value) == expected_message
     assert session_mock.exec.call_count == 1
+
+  def test_get_books_by_ids_success(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    book_id = uuid4()
+    author_id = uuid4()
+    db_book = DBBook(id = book_id, title = 'Harry Potter', created_at = now, updated_at = now)
+    book_author = DBBookAuthor(book_id = book_id, author_id = author_id, created_at = now)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = [(db_book, book_author, None)]
+    session_mock.exec.return_value = exec_mock
+    instance = BookDAL()
+    result = instance.get_books_by_ids(session_mock, [book_id])
+    assert len(result) == 1
+    assert result[0].id == book_id
+    assert result[0].title == 'Harry Potter'
+    assert session_mock.exec.call_count == 1
+
+  def test_get_books_by_ids_empty_results(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = []
+    session_mock.exec.return_value = exec_mock
+    instance = BookDAL()
+    result = instance.get_books_by_ids(session_mock, [uuid4()])
+    assert result == []
+
+  def test_get_books_by_ids_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    instance = BookDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.get_books_by_ids(session_mock, [uuid4()])
+    assert str(exc_info.value) == expected_message
+
+  def test_soft_delete_books_success(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    book_id = uuid4()
+    instance = BookDAL()
+    instance.soft_delete_books(session_mock, [book_id], now)
+    assert session_mock.exec.call_count == 3
+
+  def test_soft_delete_books_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    now = datetime.now(timezone.utc)
+    instance = BookDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.soft_delete_books(session_mock, [uuid4()], now)
+    assert str(exc_info.value) == expected_message

@@ -1,13 +1,16 @@
 import pytest
 
 
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 from uuid import uuid4
 from sqlmodel import Session
-from clients.storage_client import StorageClient
+from clients.storage_client import StorageClient, StorageClientError
 from dal.book_cover_dal import BookCoverDAL
+from objects.book_cover import BookCover
 from objects.error import ValidationError
 from objects.image import RawImage
+from objects.stored_object import StoredObjectUploadResult
 from services.cover_image_service import CoverImageService, COVER_IMAGES_PATH
 from validators.cover_image_validator import CoverImageValidator
 
@@ -16,7 +19,7 @@ class TestCoverImageService():
   def test_create_success(self):
     storage_client_mock = MagicMock(spec = StorageClient)
     storage_client_mock.source.return_value = "s3"
-    storage_client_mock.upload_user_content.return_value = "https://example.com/cover.jpg"
+    storage_client_mock.upload_user_content.return_value = StoredObjectUploadResult(url = "https://example.com/cover.jpg", path = "public/user-content/cover-images/cover.jpg")
     book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
     cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
     session_mock = MagicMock(spec = Session)
@@ -86,3 +89,43 @@ class TestCoverImageService():
     instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
     result = instance.build_image_path("cover-images/123", "application/x-custom")
     assert result == "cover-images/123"
+
+  def test_delete_success(self):
+    storage_client_mock = MagicMock(spec = StorageClient)
+    book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
+    cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
+    session_mock = MagicMock(spec = Session)
+    book_id = uuid4()
+    now = datetime.now(timezone.utc)
+    book_cover = BookCover(book_id = book_id, source = "s3", url = "https://example.com/user-content/cover-images/test.jpg", path = "public/user-content/cover-images/test.jpg", created_at = now, updated_at = now)
+    book_cover_dal_mock.get_book_covers_by_ids.return_value = [book_cover]
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    instance.delete(session_mock, [book_id])
+    storage_client_mock.delete.assert_called_once_with(["public/user-content/cover-images/test.jpg"])
+    book_cover_dal_mock.soft_delete_book_covers.assert_called_once()
+
+  def test_delete_no_cover(self):
+    storage_client_mock = MagicMock(spec = StorageClient)
+    book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
+    cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
+    session_mock = MagicMock(spec = Session)
+    book_cover_dal_mock.get_book_covers_by_ids.return_value = []
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    instance.delete(session_mock, [uuid4()])
+    storage_client_mock.delete.assert_not_called()
+    book_cover_dal_mock.soft_delete_book_covers.assert_called_once()
+
+  def test_delete_s3_fail_best_effort(self):
+    storage_client_mock = MagicMock(spec = StorageClient)
+    storage_client_mock.delete.side_effect = StorageClientError("s3 error")
+    book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
+    cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
+    session_mock = MagicMock(spec = Session)
+    book_id = uuid4()
+    now = datetime.now(timezone.utc)
+    book_cover = BookCover(book_id = book_id, source = "s3", url = "https://example.com/user-content/cover-images/test.jpg", path = "public/user-content/cover-images/test.jpg", created_at = now, updated_at = now)
+    book_cover_dal_mock.get_book_covers_by_ids.return_value = [book_cover]
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    instance.delete(session_mock, [book_id])
+    storage_client_mock.delete.assert_called_once()
+    book_cover_dal_mock.soft_delete_book_covers.assert_called_once()

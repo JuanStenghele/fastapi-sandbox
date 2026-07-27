@@ -7,6 +7,7 @@ class BookCover(OrmObj):
   book_id: UUID
   source: str
   url: str
+  path: str
   created_at: datetime
   updated_at: datetime
   deleted_at: datetime | None = None

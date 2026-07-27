@@ -3,7 +3,7 @@ from botocore.client import BaseClient
 from botocore.exceptions import BotoCoreError, ClientError
 from clients.storage_client import StorageClient, StorageClientError
 from constants import DEFAULT_CONTENT_TYPE, PUBLIC_PATH, PRIVATE_PATH
-from objects.stored_object import StoredObject
+from objects.stored_object import StoredObject, StoredObjectUploadResult
 from botocore.response import StreamingBody
 
 
@@ -25,7 +25,7 @@ class S3Client(StorageClient):
       self.logger.error(f"Error checking storage health: {e}")
       return False
 
-  def upload(self, name: str, data: bytes, content_type: str, public: bool = False) -> str | None:
+  def upload(self, name: str, data: bytes, content_type: str, public: bool = False) -> StoredObjectUploadResult:
     key = f"{PUBLIC_PATH}/{name}" if public else f"{PRIVATE_PATH}/{name}"
     self.boto3_client.put_object(
       Bucket = self.bucket_name,
@@ -33,7 +33,8 @@ class S3Client(StorageClient):
       Body = data,
       ContentType = content_type
     )
-    return f"{self.public_url}/{name}" if public else None
+    url = f"{self.public_url}/{name}" if public else None
+    return StoredObjectUploadResult(url = url, path = key)
 
   def get(self, name: str) -> StoredObject | None:
     try:
@@ -53,4 +54,14 @@ class S3Client(StorageClient):
         return None
       raise StorageClientError from e
     except BotoCoreError as e:
+      raise StorageClientError from e
+
+  def delete(self, names: list) -> None:
+    try:
+      self.boto3_client.delete_objects(
+        Bucket = self.bucket_name,
+        Delete = { 'Objects': [{ 'Key': name } for name in names] }
+      )
+    except (BotoCoreError, ClientError) as e:
+      self.logger.error(f"Error deleting objects: {e}")
       raise StorageClientError from e

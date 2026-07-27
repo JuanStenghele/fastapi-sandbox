@@ -169,7 +169,8 @@ class Container(DeclarativeContainer):
 
   book_validator = providers.Factory(
     BookValidator,
-    author_dal = author_dal
+    author_dal = author_dal,
+    book_dal = book_dal
   )
 
   book_service = providers.Factory(

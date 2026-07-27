@@ -49,7 +49,8 @@ class TestS3Client():
       Body = b"data",
       ContentType = "image/jpeg"
     )
-    assert result == "https://example.com/images/cover.jpg"
+    assert result.url == "https://example.com/images/cover.jpg"
+    assert result.path == f"{PUBLIC_PATH}/images/cover.jpg"
 
   def test_upload_private(self):
     boto3_mock = MagicMock()
@@ -62,7 +63,8 @@ class TestS3Client():
       Body = b"data",
       ContentType = "image/jpeg"
     )
-    assert result is None
+    assert result.url is None
+    assert result.path == f"{PRIVATE_PATH}/images/cover.jpg"
 
   def test_upload_fail(self):
     boto3_mock = MagicMock()
@@ -138,3 +140,31 @@ class TestS3Client():
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
     with pytest.raises(StorageClientError):
       instance.get("public/broken.txt")
+
+  def test_delete_success(self):
+    boto3_mock = MagicMock()
+    logger_mock = MagicMock()
+    instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
+    instance.delete(["public/user-content/test.txt"])
+    boto3_mock.delete_objects.assert_called_once_with(
+      Bucket = "my-bucket",
+      Delete = { 'Objects': [{ 'Key': "public/user-content/test.txt" }] }
+    )
+
+  def test_delete_multiple_success(self):
+    boto3_mock = MagicMock()
+    logger_mock = MagicMock()
+    instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
+    instance.delete(["public/user-content/a.txt", "public/user-content/b.txt"])
+    boto3_mock.delete_objects.assert_called_once_with(
+      Bucket = "my-bucket",
+      Delete = { 'Objects': [{ 'Key': "public/user-content/a.txt" }, { 'Key': "public/user-content/b.txt" }] }
+    )
+
+  def test_delete_fail(self):
+    boto3_mock = MagicMock()
+    logger_mock = MagicMock()
+    boto3_mock.delete_objects.side_effect = ClientError({"Error": {"Code": "InternalError", "Message": "error"}}, "DeleteObjects")
+    instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
+    with pytest.raises(StorageClientError):
+      instance.delete(["public/user-content/test.txt"])

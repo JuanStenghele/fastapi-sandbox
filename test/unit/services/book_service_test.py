@@ -215,3 +215,40 @@ class TestBookService():
     with pytest.raises(Exception) as exc_info:
       instance.get_books_paginated(session_mock, None, 1, 10)
     assert str(exc_info.value) == 'error'
+
+  def test_delete_books_success(self):
+    book_dal_mock = MagicMock(spec = BookDAL)
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    book_validator_mock = MagicMock(spec = BookValidator)
+    session_mock = MagicMock(spec = Session)
+    book_ids = [uuid4(), uuid4()]
+    instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock)
+    instance.delete_books(session_mock, book_ids)
+    book_validator_mock.validate_deletion.assert_called_once_with(session_mock, book_ids)
+    cover_image_service_mock.delete.assert_called_once_with(session_mock, book_ids)
+    assert book_dal_mock.soft_delete_books.call_count == 1
+
+  def test_delete_books_validation_error(self):
+    book_dal_mock = MagicMock(spec = BookDAL)
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    book_validator_mock = MagicMock(spec = BookValidator)
+    book_validator_mock.validate_deletion.side_effect = ValidationError(detail = "BOOKS_NOT_FOUND")
+    session_mock = MagicMock(spec = Session)
+    book_ids = [uuid4()]
+    instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock)
+    with pytest.raises(ValidationError) as exc_info:
+      instance.delete_books(session_mock, book_ids)
+    assert exc_info.value.detail == 'BOOKS_NOT_FOUND'
+    assert book_dal_mock.soft_delete_books.call_count == 0
+
+  def test_delete_books_fail(self):
+    book_dal_mock = MagicMock(spec = BookDAL)
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    book_validator_mock = MagicMock(spec = BookValidator)
+    book_dal_mock.soft_delete_books.side_effect = Exception('error')
+    session_mock = MagicMock(spec = Session)
+    book_ids = [uuid4()]
+    instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock)
+    with pytest.raises(Exception) as exc_info:
+      instance.delete_books(session_mock, book_ids)
+    assert str(exc_info.value) == 'error'

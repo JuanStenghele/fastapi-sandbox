@@ -71,3 +71,43 @@ class TestBookController():
     assert e.value.status_code == 500
     assert e.value.detail == 'UNKNOWN_ERROR'
     assert book_service_mock.get_books_paginated.call_count == 1
+
+  def test_delete_books_500_error(self):
+    from controllers.book_controller import delete_books
+    claims_mock = MagicMock(spec = AuthClaims)
+    book_service_mock = MagicMock(spec = BookService)
+    book_service_mock.delete_books.side_effect = Exception('error')
+    session_mock = MagicMock(spec = Session)
+    logger_mock = MagicMock(spec = Logger)
+    ids = [uuid4()]
+    with pytest.raises(HTTPException) as e:
+      delete_books(
+        ids = ids,
+        _ = claims_mock,
+        book_service = book_service_mock,
+        session = session_mock,
+        logger = logger_mock
+      )
+    assert e.value.status_code == 500
+    assert e.value.detail == 'UNKNOWN_ERROR'
+    assert book_service_mock.delete_books.call_count == 1
+
+  def test_delete_books_400_error(self):
+    from controllers.book_controller import delete_books
+    claims_mock = MagicMock(spec = AuthClaims)
+    book_service_mock = MagicMock(spec = BookService)
+    book_service_mock.delete_books.side_effect = ValidationError(detail = "BOOKS_NOT_FOUND")
+    session_mock = MagicMock(spec = Session)
+    logger_mock = MagicMock(spec = Logger)
+    ids = [uuid4()]
+    with pytest.raises(HTTPException) as e:
+      delete_books(
+        ids = ids,
+        _ = claims_mock,
+        book_service = book_service_mock,
+        session = session_mock,
+        logger = logger_mock
+      )
+    assert e.value.status_code == 400
+    assert e.value.detail == 'BOOKS_NOT_FOUND'
+    assert book_service_mock.delete_books.call_count == 1

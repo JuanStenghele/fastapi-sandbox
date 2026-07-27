@@ -1,8 +1,8 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from dependency_injector.wiring import inject, Provide
 from sqlmodel import Session
-from constants import Tags
+from constants import Tags, MAX_DELETE_IDS
 from inject import Container
 from objects.book_creation import BookCreationRequest
 from objects.display import BookCreationHTTPRequest, BookCreationHTTPResponse, BookHTTPResponse, BooksHTTPResponse
@@ -77,3 +77,23 @@ def get_books(
 		logger.error(f"Error getting books: {e}")
 		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
 	return BooksHTTPResponse.from_books_result(result)
+
+
+@router.delete("/books", status_code = status.HTTP_204_NO_CONTENT, tags = [Tags.BOOKS])
+@inject
+def delete_books(
+	ids: list = Query(description = f"List of book IDs to delete (max {MAX_DELETE_IDS})"),
+	_: AuthClaims = Depends(get_admin_auth_claims),
+	book_service: BookService = Depends(Provide[Container.book_service]),
+	session: Session = Depends(get_session),
+	logger: Logger = Depends(Provide[Container.logger])
+):
+	try:
+		book_service.delete_books(session, [UUID(str(id)) for id in ids])
+	except ValidationError as e:
+		raise HTTPException(detail = e.detail, status_code = status.HTTP_400_BAD_REQUEST)
+	except ValueError as e:
+		raise HTTPException(detail = f"INVALID_UUID: {e}", status_code = status.HTTP_400_BAD_REQUEST)
+	except Exception as e:
+		logger.error(f"Error deleting books: {e}")
+		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)

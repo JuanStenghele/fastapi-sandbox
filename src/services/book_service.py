@@ -62,3 +62,9 @@ class BookService():
       current_page = page,
       page_size = page_size
     )
+
+  def delete_books(self, session: Session, book_ids: list) -> None:
+    self.book_validator.validate_deletion(session, book_ids)
+    self.cover_image_service.delete(session, book_ids)
+    now = datetime.now(timezone.utc)
+    self.book_dal.soft_delete_books(session, book_ids, now)
