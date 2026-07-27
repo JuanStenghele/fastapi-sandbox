@@ -58,6 +58,14 @@ class BookCreationHTTPResponse(BaseObj):
     )
 
 
+class BookUpdateHTTPRequest(BaseObj):
+  title: str | None = None
+  author_id: UUID | None = None
+  description: str | None = None
+  isbn: str | None = None
+  publication_date: date | None = None
+
+
 class AuthorUpsertHTTPRequest(BaseObj):
   name: str
 

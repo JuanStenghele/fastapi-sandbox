@@ -9,6 +9,7 @@ from services.cover_image_service import CoverImageService
 from dal.book_dal import BookDAL
 from objects.book import Book, GetBooksResult, GetBooksPaginatedResult
 from objects.book_creation import BookCreationRequest
+from objects.display import BookUpdateHTTPRequest
 from objects.error import ValidationError
 from objects.image import RawImage
 from validators.book_validator import BookValidator
@@ -251,4 +252,56 @@ class TestBookService():
     instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock)
     with pytest.raises(Exception) as exc_info:
       instance.delete_books(session_mock, book_ids)
+    assert str(exc_info.value) == 'error'
+
+  def test_update_book_success(self):
+    now = datetime.now(timezone.utc)
+    book_id = uuid4()
+    author_id = uuid4()
+    book_dal_mock = MagicMock(spec = BookDAL)
+    expected_book = Book(id = book_id, title = 'New Title', author_id = author_id, created_at = now, updated_at = now)
+    book_dal_mock.update_book.return_value = expected_book
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    book_validator_mock = MagicMock(spec = BookValidator)
+    session_mock = MagicMock(spec = Session)
+    request = BookUpdateHTTPRequest(title = 'New Title')
+    instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock)
+    result = instance.update_book(session_mock, book_id, request)
+    assert result == expected_book
+    book_validator_mock.validate_update.assert_called_once()
+    book_dal_mock.update_book.assert_called_once()
+
+  def test_update_book_validation_error(self):
+    book_dal_mock = MagicMock(spec = BookDAL)
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    book_validator_mock = MagicMock(spec = BookValidator)
+    book_validator_mock.validate_update.side_effect = ValidationError(detail = "AUTHOR_NOT_FOUND")
+    session_mock = MagicMock(spec = Session)
+    request = BookUpdateHTTPRequest(author_id = uuid4())
+    instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock)
+    with pytest.raises(ValidationError) as exc_info:
+      instance.update_book(session_mock, uuid4(), request)
+    assert exc_info.value.detail == 'AUTHOR_NOT_FOUND'
+
+  def test_update_book_not_found(self):
+    book_dal_mock = MagicMock(spec = BookDAL)
+    book_dal_mock.update_book.return_value = None
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    book_validator_mock = MagicMock(spec = BookValidator)
+    session_mock = MagicMock(spec = Session)
+    request = BookUpdateHTTPRequest(title = 'New Title')
+    instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock)
+    result = instance.update_book(session_mock, uuid4(), request)
+    assert result is None
+
+  def test_update_book_fail(self):
+    book_dal_mock = MagicMock(spec = BookDAL)
+    book_dal_mock.update_book.side_effect = Exception('error')
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    book_validator_mock = MagicMock(spec = BookValidator)
+    session_mock = MagicMock(spec = Session)
+    request = BookUpdateHTTPRequest(title = 'New Title')
+    instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock)
+    with pytest.raises(Exception) as exc_info:
+      instance.update_book(session_mock, uuid4(), request)
     assert str(exc_info.value) == 'error'

@@ -5,7 +5,7 @@ from sqlmodel import Session
 from constants import Tags, MAX_DELETE_IDS
 from inject import Container
 from objects.book_creation import BookCreationRequest
-from objects.display import BookCreationHTTPRequest, BookCreationHTTPResponse, BookHTTPResponse, BooksHTTPResponse
+from objects.display import BookCreationHTTPRequest, BookCreationHTTPResponse, BookHTTPResponse, BookUpdateHTTPRequest, BooksHTTPResponse
 from objects.error import ValidationError
 from objects.image import RawImage
 from services.book_service import BookService
@@ -77,6 +77,28 @@ def get_books(
 		logger.error(f"Error getting books: {e}")
 		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
 	return BooksHTTPResponse.from_books_result(result)
+
+
+@router.patch("/books/{id}", response_model = BookHTTPResponse, tags = [Tags.BOOKS])
+@inject
+def update_book(
+	id: UUID,
+	book: BookUpdateHTTPRequest,
+	_: AuthClaims = Depends(get_admin_auth_claims),
+	book_service: BookService = Depends(Provide[Container.book_service]),
+	session: Session = Depends(get_session),
+	logger: Logger = Depends(Provide[Container.logger])
+):
+	try:
+		result = book_service.update_book(session, id, book)
+	except ValidationError as e:
+		raise HTTPException(detail = e.detail, status_code = status.HTTP_400_BAD_REQUEST)
+	except Exception as e:
+		logger.error(f"Error updating book: {e}")
+		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
+	if result is None:
+		raise HTTPException(detail = "BOOK_NOT_FOUND", status_code = status.HTTP_404_NOT_FOUND)
+	return result
 
 
 @router.delete("/books", status_code = status.HTTP_204_NO_CONTENT, tags = [Tags.BOOKS])

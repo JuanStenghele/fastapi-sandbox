@@ -233,3 +233,56 @@ class TestBookController():
     assert response.status_code == 400
     data = response.json()
     assert data['detail'].startswith('BOOKS_NOT_FOUND')
+
+  def test_update_book_success(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_id = uuid4()
+    insert_book(context.db_url, book_id, 'Harry Potter', author_id)
+    response = context.client.patch(f"/v1/books/{book_id}", json = { "title": "New Title" }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['id'] == str(book_id)
+    assert data['title'] == 'New Title'
+
+  def test_update_book_change_author(self, context: Context):
+    author_id_1 = uuid4()
+    author_id_2 = uuid4()
+    insert_author(context.db_url, author_id_1, 'J. K. Rowling')
+    insert_author(context.db_url, author_id_2, 'Robert Galbraith')
+    book_id = uuid4()
+    insert_book(context.db_url, book_id, 'Harry Potter', author_id_1)
+    response = context.client.patch(f"/v1/books/{book_id}", json = { "author_id": str(author_id_2) }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['id'] == str(book_id)
+    assert data['author_id'] == str(author_id_2)
+
+  def test_update_book_not_found(self, context: Context):
+    response = context.client.patch(f"/v1/books/{uuid4()}", json = { "title": "New Title" }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 404
+    data = response.json()
+    assert data == { 'detail': 'BOOK_NOT_FOUND' }
+
+  def test_update_book_invalid_author(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_id = uuid4()
+    insert_book(context.db_url, book_id, 'Harry Potter', author_id)
+    response = context.client.patch(f"/v1/books/{book_id}", json = { "author_id": str(uuid4()) }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 400
+    data = response.json()
+    assert data == { 'detail': 'AUTHOR_NOT_FOUND' }
+
+  def test_update_book_without_admin_scope(self, context: Context):
+    auth_token = get_user_auth_token(context.auth_token_url, "test-user")
+    response = context.client.patch(f"/v1/books/{uuid4()}", json = { "title": "New Title" }, headers = get_auth_headers(auth_token))
+    assert response.status_code == 403
+    data = response.json()
+    assert data == { 'detail': 'INSUFFICIENT_PERMISSIONS' }
+
+  def test_update_book_no_auth(self, context: Context):
+    response = context.client.patch(f"/v1/books/{uuid4()}", json = { "title": "New Title" })
+    assert response.status_code == 401
+    data = response.json()
+    assert data == { 'detail': 'MISSING_TOKEN' }

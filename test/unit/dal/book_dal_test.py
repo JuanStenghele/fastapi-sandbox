@@ -42,6 +42,59 @@ class TestBookDal():
     assert str(exc_info.value) == expected_message
     assert session_mock.add.call_count == 1
 
+  def test_update_book_success(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    updated_at = datetime.now(timezone.utc)
+    book_id = uuid4()
+    author_id = uuid4()
+    db_book = DBBook(id = book_id, title = 'Harry Potter', created_at = now, updated_at = now)
+    db_book_author = DBBookAuthor(book_id = book_id, author_id = author_id, created_at = now)
+    exec_mock = MagicMock()
+    exec_mock.first.side_effect = [db_book, (db_book, db_book_author, None)]
+    session_mock.exec.return_value = exec_mock
+    instance = BookDAL()
+    result = instance.update_book(session_mock, book_id, 'New Title', None, None, None, None, updated_at)
+    assert result is not None
+    assert result.title == 'New Title'
+    assert session_mock.add.call_count >= 1
+
+  def test_update_book_success_with_author_change(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    updated_at = datetime.now(timezone.utc)
+    book_id = uuid4()
+    old_author_id = uuid4()
+    new_author_id = uuid4()
+    db_book = DBBook(id = book_id, title = 'Harry Potter', created_at = now, updated_at = now)
+    db_book_author_new = DBBookAuthor(book_id = book_id, author_id = new_author_id, created_at = updated_at)
+    exec_mock = MagicMock()
+    exec_mock.first.side_effect = [db_book, (db_book, db_book_author_new, None)]
+    session_mock.exec.return_value = exec_mock
+    instance = BookDAL()
+    result = instance.update_book(session_mock, book_id, None, new_author_id, None, None, None, updated_at)
+    assert result is not None
+    assert result.author_id == new_author_id
+    assert session_mock.exec.call_count >= 2
+
+  def test_update_book_not_found(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.first.return_value = None
+    session_mock.exec.return_value = exec_mock
+    instance = BookDAL()
+    result = instance.update_book(session_mock, uuid4(), None, None, None, None, None, datetime.now(timezone.utc))
+    assert result is None
+
+  def test_update_book_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    instance = BookDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.update_book(session_mock, uuid4(), None, None, None, None, None, datetime.now(timezone.utc))
+    assert str(exc_info.value) == expected_message
+
   def test_get_book_success(self):
     session_mock = MagicMock(spec = Session)
     now = datetime.now(timezone.utc)
