@@ -320,3 +320,59 @@ class TestBookController():
     assert response.status_code == 401
     data = response.json()
     assert data == { 'detail': 'MISSING_TOKEN' }
+
+  def test_update_book_cover_success(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    cover_image = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
+    create_response = context.client.post(
+      "/v1/books",
+      data = { "title": "Harry Potter", "author_id": str(author_id) },
+      files = { "cover_image": ("harry_potter_cover.jpg", cover_image, "image/jpeg") },
+      headers = get_auth_headers(self.admin_auth_token)
+    )
+    cover_image.close()
+    book_id = create_response.json()['id']
+    new_cover = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
+    response = context.client.put(
+      f"/v1/books/{book_id}/cover-images",
+      files = { "cover_image": ("harry_potter_cover.jpg", new_cover, "image/jpeg") },
+      headers = get_auth_headers(self.admin_auth_token)
+    )
+    new_cover.close()
+    assert response.status_code == 200
+    data = response.json()
+    assert data['book_id'] == book_id
+    assert data['url'] is not None
+
+  def test_update_book_cover_book_not_found(self, context: Context):
+    cover_image = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
+    response = context.client.put(
+      f"/v1/books/{uuid4()}/cover-images",
+      files = { "cover_image": ("harry_potter_cover.jpg", cover_image, "image/jpeg") },
+      headers = get_auth_headers(self.admin_auth_token)
+    )
+    cover_image.close()
+    assert response.status_code == 404
+    data = response.json()
+    assert data == { 'detail': 'BOOK_NOT_FOUND' }
+
+  def test_update_book_cover_without_admin_scope(self, context: Context):
+    auth_token = get_user_auth_token(context.auth_token_url, "test-user")
+    cover_image = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
+    response = context.client.put(
+      f"/v1/books/{uuid4()}/cover-images",
+      files = { "cover_image": ("harry_potter_cover.jpg", cover_image, "image/jpeg") },
+      headers = get_auth_headers(auth_token)
+    )
+    cover_image.close()
+    assert response.status_code == 403
+
+  def test_update_book_cover_no_auth(self, context: Context):
+    cover_image = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
+    response = context.client.put(
+      f"/v1/books/{uuid4()}/cover-images",
+      files = { "cover_image": ("harry_potter_cover.jpg", cover_image, "image/jpeg") }
+    )
+    cover_image.close()
+    assert response.status_code == 401

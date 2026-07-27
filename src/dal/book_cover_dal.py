@@ -33,3 +33,7 @@ class BookCoverDAL():
   def soft_delete_book_covers(self, session: Session, book_ids: list, deleted_at: datetime) -> None:
     query = update(DBBookCover).where(DBBookCover.book_id.in_(book_ids)).values(deleted_at = deleted_at)
     session.exec(query)
+
+  def update_book_cover(self, session: Session, book_id: UUID, url: str, path: str, updated_at: datetime) -> None:
+    query = update(DBBookCover).where(DBBookCover.book_id == book_id).values(url = url, path = path, updated_at = updated_at)
+    session.exec(query)

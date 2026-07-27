@@ -55,3 +55,18 @@ class CoverImageService():
         pass
     now = datetime.now(timezone.utc)
     self.book_cover_dal.soft_delete_book_covers(session, book_ids, now)
+
+  def update(self, session: Session, book_id: UUID, image: RawImage) -> CoverImage:
+    self.cover_image_validator.validate_creation(image)
+    image_data = image.file.read()
+    path = self.build_image_path(f"{COVER_IMAGES_PATH}/{book_id}", image.content_type)
+    result = self.storage_client.upload_user_content(path, image_data, image.content_type)
+    now = datetime.now(timezone.utc)
+    old_cover = self.book_cover_dal.get_book_cover(session, book_id)
+    self.book_cover_dal.update_book_cover(session, book_id, result.url, result.path, now)
+    if old_cover is not None:
+      try:
+        self.storage_client.delete([old_cover.path])
+      except StorageClientError:
+        pass
+    return CoverImage(book_id = book_id, url = result.url)

@@ -8,8 +8,10 @@ from constants import DEFAULT_PAGE_SIZES
 from dal.book_dal import BookDAL
 from objects.book import Book, GetBooksResult, GetBooksPaginatedResult
 from objects.book_creation import BookCreationRequest
+from objects.cover_image import CoverImage
 from objects.display import BookUpdateHTTPRequest
 from objects.error import ValidationError
+from objects.image import RawImage
 from services.cover_image_service import CoverImageService
 from sqlmodel import Session
 from validators.book_validator import BookValidator
@@ -78,3 +80,7 @@ class BookService():
   def delete_book_cover(self, session: Session, book_id: UUID) -> None:
     self.book_validator.validate_cover_deletion(session, book_id)
     self.cover_image_service.delete(session, [book_id])
+
+  def update_book_cover(self, session: Session, book_id: UUID, image: RawImage) -> CoverImage:
+    self.book_validator.validate_cover_deletion(session, book_id)
+    return self.cover_image_service.update(session, book_id, image)

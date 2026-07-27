@@ -1,10 +1,11 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from dependency_injector.wiring import inject, Provide
 from sqlmodel import Session
 from constants import Tags, MAX_DELETE_IDS
 from inject import Container
 from objects.book_creation import BookCreationRequest
+from objects.cover_image import CoverImage
 from objects.display import BookCreationHTTPRequest, BookCreationHTTPResponse, BookHTTPResponse, BookUpdateHTTPRequest, BooksHTTPResponse
 from objects.error import ValidationError
 from objects.image import RawImage
@@ -118,6 +119,28 @@ def delete_book_cover(
 	except Exception as e:
 		logger.error(f"Error deleting book cover: {e}")
 		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.put("/books/{id}/cover-images", response_model = CoverImage, tags = [Tags.BOOKS])
+@inject
+def update_book_cover(
+	id: UUID,
+	cover_image: UploadFile = File(...),
+	_: AuthClaims = Depends(get_admin_auth_claims),
+	book_service: BookService = Depends(Provide[Container.book_service]),
+	session: Session = Depends(get_session),
+	logger: Logger = Depends(Provide[Container.logger])
+):
+	try:
+		raw_image = RawImage(file = cover_image.file, content_type = cover_image.content_type, size = cover_image.size)
+		result = book_service.update_book_cover(session, id, raw_image)
+	except ValidationError as e:
+		status_code = status.HTTP_404_NOT_FOUND if e.detail == "BOOK_NOT_FOUND" else status.HTTP_400_BAD_REQUEST
+		raise HTTPException(detail = e.detail, status_code = status_code)
+	except Exception as e:
+		logger.error(f"Error replacing book cover: {e}")
+		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
+	return result
 
 
 @router.delete("/books", status_code = status.HTTP_204_NO_CONTENT, tags = [Tags.BOOKS])
