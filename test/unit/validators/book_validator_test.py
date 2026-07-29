@@ -7,7 +7,7 @@ from dal.author_dal import AuthorDAL
 from dal.book_dal import BookDAL
 from objects.author import Author
 from objects.book_creation import BookCreationRequest
-from objects.display import BookUpdateHTTPRequest
+from objects.book_update import BookUpdateRequest
 from objects.error import ValidationError
 from sqlmodel import Session
 from validators.book_validator import BookValidator
@@ -55,7 +55,7 @@ class TestBookValidator():
     instance = BookValidator(author_dal_mock, book_dal_mock)
     with pytest.raises(ValidationError) as exc_info:
       instance.validate_deletion(session_mock, [book_id])
-    assert exc_info.value.detail == f"BOOKS_NOT_FOUND: ['{str(book_id)}']"
+    assert exc_info.value.detail == f"BOOKS_NOT_FOUND: {str(book_id)}"
 
   def test_validate_deletion_empty_ids(self):
     book_dal_mock = MagicMock(spec = BookDAL)
@@ -79,7 +79,7 @@ class TestBookValidator():
     author_dal_mock = MagicMock(spec = AuthorDAL)
     book_dal_mock = MagicMock(spec = BookDAL)
     session_mock = MagicMock(spec = Session)
-    request = BookUpdateHTTPRequest(title = 'New Title')
+    request = BookUpdateRequest(title = 'New Title')
     instance = BookValidator(author_dal_mock, book_dal_mock)
     instance.validate_update(session_mock, request)
 
@@ -88,7 +88,7 @@ class TestBookValidator():
     author_dal_mock.get_author.return_value = None
     book_dal_mock = MagicMock(spec = BookDAL)
     session_mock = MagicMock(spec = Session)
-    request = BookUpdateHTTPRequest(author_id = uuid4())
+    request = BookUpdateRequest(author_id = uuid4())
     instance = BookValidator(author_dal_mock, book_dal_mock)
     with pytest.raises(ValidationError) as exc_info:
       instance.validate_update(session_mock, request)
@@ -100,7 +100,7 @@ class TestBookValidator():
     author_dal_mock.get_author.return_value = MagicMock(spec = Author)
     book_dal_mock = MagicMock(spec = BookDAL)
     session_mock = MagicMock(spec = Session)
-    request = BookUpdateHTTPRequest(author_id = author_id)
+    request = BookUpdateRequest(author_id = author_id)
     instance = BookValidator(author_dal_mock, book_dal_mock)
     instance.validate_update(session_mock, request)
     author_dal_mock.get_author.assert_called_once_with(session_mock, author_id)

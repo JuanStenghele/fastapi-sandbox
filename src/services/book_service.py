@@ -7,8 +7,8 @@ from constants import DEFAULT_PAGE_SIZES
 from dal.book_dal import BookDAL
 from objects.book import Book, GetBooksResult, GetBooksPaginatedResult
 from objects.book_creation import BookCreationRequest
+from objects.book_update import BookUpdateRequest
 from objects.cover_image import CoverImage
-from objects.display import BookUpdateHTTPRequest
 from objects.error import ValidationError
 from objects.image import RawImage
 from services.cover_image_service import CoverImageService
@@ -67,7 +67,7 @@ class BookService():
       page_size = page_size
     )
 
-  def update_book(self, session: Session, id: UUID, request: BookUpdateHTTPRequest) -> Book | None:
+  def update_book(self, session: Session, id: UUID, request: BookUpdateRequest) -> Book | None:
     self.book_validator.validate_update(session, request)
     now = self.date_provider.now()
     return self.book_dal.update_book(session, id, request.title, request.author_id, request.description, request.isbn, request.publication_date, now)

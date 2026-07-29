@@ -2,7 +2,7 @@ from uuid import UUID
 from dal.author_dal import AuthorDAL
 from dal.book_dal import BookDAL
 from objects.book_creation import BookCreationRequest
-from objects.display import BookUpdateHTTPRequest
+from objects.book_update import BookUpdateRequest
 from objects.error import ValidationError
 from constants import MAX_DELETE_IDS
 from sqlmodel import Session
@@ -17,6 +17,10 @@ class BookValidator():
     if self.author_dal.get_author(session, request.author_id) is None:
       raise ValidationError("AUTHOR_NOT_FOUND")
 
+  def validate_update(self, session: Session, request: BookUpdateRequest) -> None:
+    if request.author_id is not None and self.author_dal.get_author(session, request.author_id) is None:
+      raise ValidationError("AUTHOR_NOT_FOUND")
+
   def validate_deletion(self, session: Session, book_ids: list) -> None:
     if len(book_ids) == 0 or len(book_ids) > MAX_DELETE_IDS:
       raise ValidationError(detail = "INVALID_BOOK_IDS_COUNT")
@@ -24,12 +28,8 @@ class BookValidator():
     existing_books = self.book_dal.get_books_by_ids(session, book_ids)
     existing_books_ids = [book.id for book in existing_books]
     books_ids_not_found = [id for id in book_ids if id not in existing_books_ids]
-    if books_ids_not_found:
-      raise ValidationError(detail = f"BOOKS_NOT_FOUND: {[str(id) for id in books_ids_not_found]}")
-
-  def validate_update(self, session: Session, request: BookUpdateHTTPRequest) -> None:
-    if request.author_id is not None and self.author_dal.get_author(session, request.author_id) is None:
-      raise ValidationError("AUTHOR_NOT_FOUND")
+    if len(books_ids_not_found) != 0:
+      raise ValidationError(detail = f"BOOKS_NOT_FOUND: {', '.join(str(id) for id in books_ids_not_found)}")
 
   def validate_cover_deletion(self, session: Session, book_id: UUID) -> None:
     if self.book_dal.get_book(session, book_id) is None:

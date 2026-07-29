@@ -208,7 +208,7 @@ class TestBookController():
     response = context.client.delete("/v1/books", params = { "ids": [str(book_id), str(nonexistent_id)] }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 400
     data = response.json()
-    assert data['detail'] == f"BOOKS_NOT_FOUND: ['{str(nonexistent_id)}']"
+    assert data['detail'] == f"BOOKS_NOT_FOUND: {str(nonexistent_id)}"
 
   def test_delete_books_too_many_ids(self, context: Context):
     too_many_ids = [str(uuid4()) for _ in range(101)]

@@ -183,7 +183,7 @@ class TestAuthorController():
     response = context.client.delete("/v1/authors", params = { "ids": [str(author_id), str(nonexistent_id)] }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 400
     data = response.json()
-    assert data['detail'] == f"AUTHORS_NOT_FOUND: ['{str(nonexistent_id)}']"
+    assert data['detail'] == f"AUTHORS_NOT_FOUND: {str(nonexistent_id)}"
 
   def test_delete_authors_with_existing_books(self, context: Context):
     author_id = uuid4()
@@ -193,7 +193,7 @@ class TestAuthorController():
     response = context.client.delete("/v1/authors", params = { "ids": [str(author_id)] }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 400
     data = response.json()
-    assert data['detail'] == f"AUTHORS_HAVE_BOOKS: ['{str(author_id)}']"
+    assert data['detail'] == f"AUTHORS_HAVE_BOOKS: {str(author_id)}"
 
   def test_delete_authors_too_many_ids(self, context: Context):
     too_many_ids = [str(uuid4()) for _ in range(101)]

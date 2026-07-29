@@ -5,6 +5,7 @@ from sqlmodel import Session
 from constants import Tags, MAX_DELETE_IDS
 from inject import Container
 from objects.book_creation import BookCreationRequest
+from objects.book_update import BookUpdateRequest
 from objects.cover_image import CoverImage
 from objects.display import BookCreationHTTPRequest, BookCreationHTTPResponse, BookHTTPResponse, BookUpdateHTTPRequest, BooksHTTPResponse
 from objects.error import ValidationError
@@ -91,7 +92,8 @@ def update_book(
 	logger: Logger = Depends(Provide[Container.logger])
 ):
 	try:
-		result = book_service.update_book(session, id, book)
+		update_request = BookUpdateRequest(title = book.title, author_id = book.author_id, description = book.description, isbn = book.isbn, publication_date = book.publication_date)
+		result = book_service.update_book(session, id, update_request)
 	except ValidationError as e:
 		raise HTTPException(detail = e.detail, status_code = status.HTTP_400_BAD_REQUEST)
 	except Exception as e:
