@@ -39,13 +39,19 @@ class AuthorDAL():
     results = session.exec(query).all()
     return [Author.model_validate(result) for result in results]
 
-  def get_author_ids_with_books(self, session: Session, author_ids: list) -> list:
+  def filter_author_ids_with_books(self, session: Session, author_ids: list) -> list:
     query = select(DBBookAuthor.author_id).where(
       DBBookAuthor.author_id.in_(author_ids),
       DBBookAuthor.deleted_at == None
     )
     results = session.exec(query).all()
     return [result for result in results]
+
+  def count_authors(self, session: Session, search_term: str | None) -> int:
+    query = select(func.count()).select_from(DBAuthor).where(DBAuthor.deleted_at == None)
+    if search_term:
+      query = query.filter(DBAuthor.name.icontains(search_term, autoescape = True))
+    return session.exec(query).one()
 
   def update_author(self, session: Session, id: UUID, name: str, updated_at: datetime) -> Author | None:
     query = select(DBAuthor).where(DBAuthor.id == id, DBAuthor.deleted_at == None)
@@ -58,11 +64,5 @@ class AuthorDAL():
     return Author.model_validate(result)
 
   def soft_delete_authors(self, session: Session, ids: list, deleted_at: datetime) -> None:
-    stmt = update(DBAuthor).where(DBAuthor.id.in_(ids)).values(deleted_at = deleted_at)
-    session.exec(stmt)
-
-  def count_authors(self, session: Session, search_term: str | None) -> int:
-    query = select(func.count()).select_from(DBAuthor).where(DBAuthor.deleted_at == None)
-    if search_term:
-      query = query.filter(DBAuthor.name.icontains(search_term, autoescape = True))
-    return session.exec(query).one()
+    query = update(DBAuthor).where(DBAuthor.id.in_(ids)).values(deleted_at = deleted_at)
+    session.exec(query)

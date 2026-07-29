@@ -18,11 +18,11 @@ class AuthorService():
     self.author_validator: AuthorValidator = author_validator
     self.date_provider = date_provider
 
-  def create_author(self, session: Session, author_name: str) -> Author:
+  def create_author(self, session: Session, name: str) -> Author:
     now = self.date_provider.now()
     author = Author(
       id = uuid.uuid4(),
-      name = author_name,
+      name = name,
       created_at = now,
       updated_at = now,
       deleted_at = None
@@ -30,15 +30,15 @@ class AuthorService():
     self.author_dal.create_author(session, author)
     return author
 
+  def get_author(self, session: Session, id: UUID) -> Author | None:
+    return self.author_dal.get_author(session, id)
+
   def get_authors(self, session: Session, search_term: str | None, limit: int, offset: int) -> GetAuthorsResult:
     if offset < 0:
       raise ValidationError(detail = "INVALID_OFFSET")
     total_authors = self.author_dal.count_authors(session, search_term)
     authors = self.author_dal.get_authors(session, search_term, limit, offset)
     return GetAuthorsResult(authors = authors, total_authors = total_authors)
-
-  def get_author(self, session: Session, id: UUID) -> Author | None:
-    return self.author_dal.get_author(session, id)
 
   def get_authors_paginated(self, session: Session, search_term: str | None, page: int, page_size: int) -> GetAuthorsPaginatedResult:
     if page_size not in DEFAULT_PAGE_SIZES:
