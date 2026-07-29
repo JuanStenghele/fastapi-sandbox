@@ -2,23 +2,24 @@ import uuid
 
 
 from math import ceil
-from datetime import datetime, timezone
 from uuid import UUID
 from dal.author_dal import AuthorDAL
 from objects.author import Author, GetAuthorsResult, GetAuthorsPaginatedResult
 from objects.error import ValidationError
 from constants import DEFAULT_PAGE_SIZES
+from services.date_provider import DateProvider
 from sqlmodel import Session
 from validators.author_validator import AuthorValidator
 
 
 class AuthorService():
-  def __init__(self, author_dal: AuthorDAL, author_validator: AuthorValidator) -> None:
+  def __init__(self, author_dal: AuthorDAL, author_validator: AuthorValidator, date_provider: DateProvider) -> None:
     self.author_dal: AuthorDAL = author_dal
     self.author_validator: AuthorValidator = author_validator
+    self.date_provider = date_provider
 
   def create_author(self, session: Session, author_name: str) -> Author:
-    now = datetime.now(timezone.utc)
+    now = self.date_provider.now()
     author = Author(
       id = uuid.uuid4(),
       name = author_name,
@@ -55,7 +56,7 @@ class AuthorService():
     )
 
   def update_author(self, session: Session, id: UUID, name: str) -> Author:
-    now = datetime.now(timezone.utc)
+    now = self.date_provider.now()
     author = self.author_dal.update_author(session, id, name, now)
     if author is None:
       raise ValidationError(detail = "AUTHOR_NOT_FOUND")
@@ -63,5 +64,5 @@ class AuthorService():
 
   def delete_authors(self, session: Session, author_ids: list) -> None:
     self.author_validator.validate_deletion(session, author_ids)
-    now = datetime.now(timezone.utc)
+    now = self.date_provider.now()
     self.author_dal.soft_delete_authors(session, author_ids, now)

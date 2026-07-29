@@ -2,7 +2,6 @@ import uuid
 
 
 from math import ceil
-from datetime import datetime, timezone
 from uuid import UUID
 from constants import DEFAULT_PAGE_SIZES
 from dal.book_dal import BookDAL
@@ -13,19 +12,21 @@ from objects.display import BookUpdateHTTPRequest
 from objects.error import ValidationError
 from objects.image import RawImage
 from services.cover_image_service import CoverImageService
+from services.date_provider import DateProvider
 from sqlmodel import Session
 from validators.book_validator import BookValidator
 
 
 class BookService():
-  def __init__(self, book_dal: BookDAL, cover_image_service: CoverImageService, book_validator: BookValidator) -> None:
+  def __init__(self, book_dal: BookDAL, cover_image_service: CoverImageService, book_validator: BookValidator, date_provider: DateProvider) -> None:
     self.book_dal: BookDAL = book_dal
     self.cover_image_service = cover_image_service
     self.book_validator: BookValidator = book_validator
+    self.date_provider = date_provider
 
   def create_book(self, session: Session, request: BookCreationRequest) -> Book:
     self.book_validator.validate_creation(session, request)
-    now = datetime.now(timezone.utc)
+    now = self.date_provider.now()
     book = Book(
       id = uuid.uuid4(),
       title = request.title,
@@ -68,13 +69,13 @@ class BookService():
 
   def update_book(self, session: Session, id: UUID, request: BookUpdateHTTPRequest) -> Book | None:
     self.book_validator.validate_update(session, request)
-    now = datetime.now(timezone.utc)
+    now = self.date_provider.now()
     return self.book_dal.update_book(session, id, request.title, request.author_id, request.description, request.isbn, request.publication_date, now)
 
   def delete_books(self, session: Session, book_ids: list) -> None:
     self.book_validator.validate_deletion(session, book_ids)
     self.cover_image_service.delete(session, book_ids)
-    now = datetime.now(timezone.utc)
+    now = self.date_provider.now()
     self.book_dal.soft_delete_books(session, book_ids, now)
 
   def delete_book_cover(self, session: Session, book_id: UUID) -> None:

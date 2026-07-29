@@ -12,6 +12,7 @@ from objects.error import ValidationError
 from objects.image import RawImage
 from objects.stored_object import StoredObjectUploadResult
 from services.cover_image_service import CoverImageService, COVER_IMAGES_PATH
+from services.date_provider import DateProvider
 from validators.cover_image_validator import CoverImageValidator
 
 
@@ -27,7 +28,8 @@ class TestCoverImageService():
     file_mock.read.return_value = b"data"
     book_id = uuid4()
     image = RawImage.model_construct(file = file_mock, content_type = "image/jpeg")
-    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock, date_provider_mock)
     result = instance.create(session_mock, book_id, image)
     cover_image_validator_mock.validate_creation.assert_called_once_with(image)
     storage_client_mock.upload_user_content.assert_called_once_with(
@@ -44,7 +46,8 @@ class TestCoverImageService():
     cover_image_validator_mock.validate_creation.side_effect = ValidationError("INVALID_IMAGE")
     session_mock = MagicMock(spec = Session)
     image = RawImage.model_construct(file = MagicMock(), content_type = "image/bmp")
-    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock, date_provider_mock)
     with pytest.raises(ValidationError) as exc_info:
       instance.create(session_mock, uuid4(), image)
     assert exc_info.value.detail == "INVALID_IMAGE"
@@ -60,7 +63,8 @@ class TestCoverImageService():
     file_mock = MagicMock()
     file_mock.read.return_value = b"data"
     image = RawImage.model_construct(file = file_mock, content_type = "image/jpeg")
-    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock, date_provider_mock)
     with pytest.raises(Exception) as exc_info:
       instance.create(session_mock, uuid4(), image)
     assert str(exc_info.value) == "upload failed"
@@ -70,7 +74,8 @@ class TestCoverImageService():
     storage_client_mock = MagicMock(spec = StorageClient)
     book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
     cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
-    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock, date_provider_mock)
     result = instance.build_image_path("cover-images/123", "image/jpeg")
     assert result == "cover-images/123.jpg"
 
@@ -78,7 +83,8 @@ class TestCoverImageService():
     storage_client_mock = MagicMock(spec = StorageClient)
     book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
     cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
-    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock, date_provider_mock)
     result = instance.build_image_path("cover-images/123.png", "image/png")
     assert result == "cover-images/123.png"
 
@@ -86,7 +92,8 @@ class TestCoverImageService():
     storage_client_mock = MagicMock(spec = StorageClient)
     book_cover_dal_mock = MagicMock(spec = BookCoverDAL)
     cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
-    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock, date_provider_mock)
     result = instance.build_image_path("cover-images/123", "application/x-custom")
     assert result == "cover-images/123"
 
@@ -99,7 +106,8 @@ class TestCoverImageService():
     now = datetime.now(timezone.utc)
     book_cover = BookCover(book_id = book_id, source = "s3", url = "https://example.com/user-content/cover-images/test.jpg", path = "public/user-content/cover-images/test.jpg", created_at = now, updated_at = now)
     book_cover_dal_mock.get_book_covers_by_ids.return_value = [book_cover]
-    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock, date_provider_mock)
     instance.delete(session_mock, [book_id])
     storage_client_mock.delete.assert_called_once_with(["public/user-content/cover-images/test.jpg"])
     book_cover_dal_mock.soft_delete_book_covers.assert_called_once()
@@ -110,7 +118,8 @@ class TestCoverImageService():
     cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
     session_mock = MagicMock(spec = Session)
     book_cover_dal_mock.get_book_covers_by_ids.return_value = []
-    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock, date_provider_mock)
     instance.delete(session_mock, [uuid4()])
     storage_client_mock.delete.assert_not_called()
     book_cover_dal_mock.soft_delete_book_covers.assert_called_once()
@@ -125,7 +134,8 @@ class TestCoverImageService():
     now = datetime.now(timezone.utc)
     book_cover = BookCover(book_id = book_id, source = "s3", url = "https://example.com/user-content/cover-images/test.jpg", path = "public/user-content/cover-images/test.jpg", created_at = now, updated_at = now)
     book_cover_dal_mock.get_book_covers_by_ids.return_value = [book_cover]
-    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    instance = CoverImageService(storage_client_mock, book_cover_dal_mock, cover_image_validator_mock, date_provider_mock)
     instance.delete(session_mock, [book_id])
     storage_client_mock.delete.assert_called_once()
     book_cover_dal_mock.soft_delete_book_covers.assert_called_once()

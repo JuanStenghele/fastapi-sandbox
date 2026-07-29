@@ -1,5 +1,6 @@
 import pytest, os
 
+from datetime import datetime
 from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 from opentelemetry import metrics, trace
@@ -10,6 +11,7 @@ from constants import (
   STORAGE_SERVICE_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, 
   STORAGE_BUCKET_NAME, ENV, ENV_TESTING
 )
+from system.test_utils.date_utils import FrozenDateProvider
 from system.test_utils.env_vars import set_env_vars
 from system.test_utils.test_containers import otel_collector_instance, postgres_instance, minio_instance, mock_oauth2_server_instance
 from alembic.config import Config
@@ -26,21 +28,18 @@ minio_user = "admin"
 minio_password = "qwerty123"
 minio_bucket = "fastapi-sandbox-test"
 
+FROZEN_TIME = "2026-01-01T00:00:00Z"
+
 class Context():
-  def __init__(self, default_app, client: TestClient, db_name: str, db_user: str, db_password: str, db_host: str, db_port: str, auth_token_url: str, storage_service_url: str, storage_access_key_id: str, storage_secret_access_key: str, storage_bucket_name: str):
-    self.app = default_app
+  def __init__(self, client: TestClient, db_url: str, auth_token_url: str, storage_service_url: str, storage_access_key_id: str, storage_secret_access_key: str, storage_bucket_name: str, frozen_time: datetime):
     self.client = client
-    self.db_name = db_name
-    self.db_user = db_user
-    self.db_password = db_password
-    self.db_host = db_host
-    self.db_port = db_port
-    self.db_url = f"postgresql+psycopg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
+    self.db_url = db_url
     self.auth_token_url = auth_token_url
     self.storage_service_url = storage_service_url
     self.storage_access_key_id = storage_access_key_id
     self.storage_secret_access_key = storage_secret_access_key
     self.storage_bucket_name = storage_bucket_name
+    self.frozen_time = frozen_time
 
 
 @pytest.fixture(scope = "session", autouse = True)
@@ -83,7 +82,10 @@ def context(request: FixtureRequest):
     alembic_cfg = Config(alembic_ini_path)
     command.upgrade(alembic_cfg, "head")
 
-    yield Context(default_app, TestClient(default_app), db_name, db_user, db_password, db_host, db_port, auth_token_url, minio_endpoint, minio_user, minio_password, minio_bucket)
+    db_url = f"postgresql+psycopg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    frozen_time = datetime.fromisoformat(FROZEN_TIME)
+    default_app.container.date_provider.override(FrozenDateProvider(frozen_time))
+    yield Context(TestClient(default_app), db_url, auth_token_url, minio_endpoint, minio_user, minio_password, minio_bucket, frozen_time)
 
     metrics.get_meter_provider().shutdown()
     trace.get_tracer_provider().shutdown()
