@@ -1,4 +1,3 @@
-from uuid import UUID
 from dal.author_dal import AuthorDAL
 from dal.book_dal import BookDAL
 from objects.book_creation import BookCreationRequest
@@ -30,7 +29,3 @@ class BookValidator():
     books_ids_not_found = [id for id in book_ids if id not in existing_books_ids]
     if len(books_ids_not_found) != 0:
       raise ValidationError(detail = f"BOOKS_NOT_FOUND: {', '.join(str(id) for id in books_ids_not_found)}")
-
-  def validate_cover_deletion(self, session: Session, book_id: UUID) -> None:
-    if self.book_dal.get_book(session, book_id) is None:
-      raise ValidationError(detail = "BOOK_NOT_FOUND")

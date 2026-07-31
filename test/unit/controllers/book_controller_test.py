@@ -10,6 +10,7 @@ from objects.cover_image import CoverImage
 from objects.error import ValidationError
 from objects.image import RawImage
 from services.book_service import BookService
+from services.cover_image_service import CoverImageService
 from sqlalchemy.orm import Session
 from logging import Logger
 from controllers.book_controller import create_books, get_book, get_books, delete_books, update_book, delete_book_cover, update_book_cover
@@ -173,44 +174,44 @@ class TestBookController():
 
   def test_delete_book_cover_500_error(self):
     claims_mock = MagicMock(spec = AuthClaims)
-    book_service_mock = MagicMock(spec = BookService)
-    book_service_mock.delete_book_cover.side_effect = Exception('error')
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    cover_image_service_mock.delete_book_covers.side_effect = Exception('error')
     session_mock = MagicMock(spec = Session)
     logger_mock = MagicMock(spec = Logger)
     with pytest.raises(HTTPException) as e:
       delete_book_cover(
         id = uuid4(),
         _ = claims_mock,
-        book_service = book_service_mock,
+        cover_image_service = cover_image_service_mock,
         session = session_mock,
         logger = logger_mock
       )
     assert e.value.status_code == 500
     assert e.value.detail == 'UNKNOWN_ERROR'
-    assert book_service_mock.delete_book_cover.call_count == 1
+    assert cover_image_service_mock.delete_book_covers.call_count == 1
 
   def test_delete_book_cover_400_error(self):
     claims_mock = MagicMock(spec = AuthClaims)
-    book_service_mock = MagicMock(spec = BookService)
-    book_service_mock.delete_book_cover.side_effect = ValidationError(detail = "BOOK_NOT_FOUND")
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    cover_image_service_mock.delete_book_covers.side_effect = ValidationError(detail = "BOOKS_NOT_FOUND: id")
     session_mock = MagicMock(spec = Session)
     logger_mock = MagicMock(spec = Logger)
     with pytest.raises(HTTPException) as e:
       delete_book_cover(
         id = uuid4(),
         _ = claims_mock,
-        book_service = book_service_mock,
+        cover_image_service = cover_image_service_mock,
         session = session_mock,
         logger = logger_mock
       )
     assert e.value.status_code == 404
-    assert e.value.detail == 'BOOK_NOT_FOUND'
-    assert book_service_mock.delete_book_cover.call_count == 1
+    assert e.value.detail == 'BOOKS_NOT_FOUND: id'
+    assert cover_image_service_mock.delete_book_covers.call_count == 1
 
   def test_update_book_cover_500_error(self):
     claims_mock = MagicMock(spec = AuthClaims)
-    book_service_mock = MagicMock(spec = BookService)
-    book_service_mock.update_book_cover.side_effect = Exception('error')
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    cover_image_service_mock.update_book_cover.side_effect = Exception('error')
     session_mock = MagicMock(spec = Session)
     logger_mock = MagicMock(spec = Logger)
     cover_image_mock = MagicMock()
@@ -222,18 +223,18 @@ class TestBookController():
         id = uuid4(),
         cover_image = cover_image_mock,
         _ = claims_mock,
-        book_service = book_service_mock,
+        cover_image_service = cover_image_service_mock,
         session = session_mock,
         logger = logger_mock
       )
     assert e.value.status_code == 500
     assert e.value.detail == 'UNKNOWN_ERROR'
-    assert book_service_mock.update_book_cover.call_count == 1
+    assert cover_image_service_mock.update_book_cover.call_count == 1
 
   def test_update_book_cover_404_error(self):
     claims_mock = MagicMock(spec = AuthClaims)
-    book_service_mock = MagicMock(spec = BookService)
-    book_service_mock.update_book_cover.side_effect = ValidationError(detail = "BOOK_NOT_FOUND")
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    cover_image_service_mock.update_book_cover.side_effect = ValidationError(detail = "BOOK_NOT_FOUND")
     session_mock = MagicMock(spec = Session)
     logger_mock = MagicMock(spec = Logger)
     cover_image_mock = MagicMock()
@@ -245,10 +246,10 @@ class TestBookController():
         id = uuid4(),
         cover_image = cover_image_mock,
         _ = claims_mock,
-        book_service = book_service_mock,
+        cover_image_service = cover_image_service_mock,
         session = session_mock,
         logger = logger_mock
       )
     assert e.value.status_code == 404
     assert e.value.detail == 'BOOK_NOT_FOUND'
-    assert book_service_mock.update_book_cover.call_count == 1
+    assert cover_image_service_mock.update_book_cover.call_count == 1

@@ -306,7 +306,7 @@ class TestBookController():
     response = context.client.delete(f"/v1/books/{uuid4()}/cover-images", headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 404
     data = response.json()
-    assert data == { 'detail': 'BOOK_NOT_FOUND' }
+    assert data['detail'].startswith('BOOKS_NOT_FOUND')
 
   def test_delete_book_cover_without_admin_scope(self, context: Context):
     auth_token = get_user_auth_token(context.auth_token_url, "test-user")

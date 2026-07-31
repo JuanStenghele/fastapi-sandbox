@@ -8,9 +8,7 @@ from dal.book_dal import BookDAL
 from objects.book import Book, GetBooksResult, GetBooksPaginatedResult
 from objects.book_creation import BookCreationRequest
 from objects.book_update import BookUpdateRequest
-from objects.cover_image import CoverImage
 from objects.error import ValidationError
-from objects.image import RawImage
 from services.cover_image_service import CoverImageService
 from services.date_provider import DateProvider
 from sqlmodel import Session
@@ -39,7 +37,7 @@ class BookService():
     )
     self.book_dal.create_book(session, book)
     if request.cover_image:
-      book.cover_image = self.cover_image_service.create(session, book.id, request.cover_image)
+      book.cover_image = self.cover_image_service.create_book_cover(session, book.id, request.cover_image)
     return book
 
   def get_book(self, session: Session, id: UUID) -> Book | None:
@@ -74,14 +72,6 @@ class BookService():
 
   def delete_books(self, session: Session, book_ids: list) -> None:
     self.book_validator.validate_deletion(session, book_ids)
-    self.cover_image_service.delete(session, book_ids)
+    self.cover_image_service.delete_book_covers(session, book_ids)
     now = self.date_provider.now()
     self.book_dal.soft_delete_books(session, book_ids, now)
-
-  def delete_book_cover(self, session: Session, book_id: UUID) -> None:
-    self.book_validator.validate_cover_deletion(session, book_id)
-    self.cover_image_service.delete(session, [book_id])
-
-  def update_book_cover(self, session: Session, book_id: UUID, image: RawImage) -> CoverImage:
-    self.book_validator.validate_cover_deletion(session, book_id)
-    return self.cover_image_service.update(session, book_id, image)

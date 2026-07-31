@@ -11,6 +11,7 @@ from objects.display import BookCreationHTTPRequest, BookCreationHTTPResponse, B
 from objects.error import ValidationError
 from objects.image import RawImage
 from services.book_service import BookService
+from services.cover_image_service import CoverImageService
 from logging import Logger
 from controllers.dependencies import get_session, get_user_auth_claims, get_admin_auth_claims
 from objects.book import Book
@@ -127,39 +128,39 @@ def delete_books(
 @router.delete("/books/{id}/cover-images", status_code = status.HTTP_204_NO_CONTENT, tags = [Tags.BOOKS])
 @inject
 def delete_book_cover(
-	id: UUID,
-	_: AuthClaims = Depends(get_admin_auth_claims),
-	book_service: BookService = Depends(Provide[Container.book_service]),
-	session: Session = Depends(get_session),
-	logger: Logger = Depends(Provide[Container.logger])
+  id: UUID,
+  _: AuthClaims = Depends(get_admin_auth_claims),
+  cover_image_service: CoverImageService = Depends(Provide[Container.cover_image_service]),
+  session: Session = Depends(get_session),
+  logger: Logger = Depends(Provide[Container.logger])
 ):
-	try:
-		book_service.delete_book_cover(session, id)
-	except ValidationError as e:
-		status_code = status.HTTP_404_NOT_FOUND if e.detail == "BOOK_NOT_FOUND" else status.HTTP_400_BAD_REQUEST
-		raise HTTPException(detail = e.detail, status_code = status_code)
-	except Exception as e:
-		logger.error(f"Error deleting book cover: {e}")
-		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
+  try:
+    cover_image_service.delete_book_covers(session, [id])
+  except ValidationError as e:
+    status_code = status.HTTP_404_NOT_FOUND if e.detail.startswith("BOOKS_NOT_FOUND") else status.HTTP_400_BAD_REQUEST
+    raise HTTPException(detail = e.detail, status_code = status_code)
+  except Exception as e:
+    logger.error(f"Error deleting book cover: {e}")
+    raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.put("/books/{id}/cover-images", response_model = CoverImage, tags = [Tags.BOOKS])
 @inject
 def update_book_cover(
-	id: UUID,
-	cover_image: UploadFile = File(...),
-	_: AuthClaims = Depends(get_admin_auth_claims),
-	book_service: BookService = Depends(Provide[Container.book_service]),
-	session: Session = Depends(get_session),
-	logger: Logger = Depends(Provide[Container.logger])
+  id: UUID,
+  cover_image: UploadFile = File(...),
+  _: AuthClaims = Depends(get_admin_auth_claims),
+  cover_image_service: CoverImageService = Depends(Provide[Container.cover_image_service]),
+  session: Session = Depends(get_session),
+  logger: Logger = Depends(Provide[Container.logger])
 ):
-	try:
-		raw_image = RawImage(file = cover_image.file, content_type = cover_image.content_type, size = cover_image.size)
-		result = book_service.update_book_cover(session, id, raw_image)
-	except ValidationError as e:
-		status_code = status.HTTP_404_NOT_FOUND if e.detail == "BOOK_NOT_FOUND" else status.HTTP_400_BAD_REQUEST
-		raise HTTPException(detail = e.detail, status_code = status_code)
-	except Exception as e:
-		logger.error(f"Error replacing book cover: {e}")
-		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
-	return result
+  try:
+    raw_image = RawImage(file = cover_image.file, content_type = cover_image.content_type, size = cover_image.size)
+    result = cover_image_service.update_book_cover(session, id, raw_image)
+  except ValidationError as e:
+    status_code = status.HTTP_404_NOT_FOUND if e.detail == "BOOK_NOT_FOUND" else status.HTTP_400_BAD_REQUEST
+    raise HTTPException(detail = e.detail, status_code = status_code)
+  except Exception as e:
+    logger.error(f"Error replacing book cover: {e}")
+    raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
+  return result

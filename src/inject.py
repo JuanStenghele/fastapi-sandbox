@@ -163,7 +163,8 @@ class Container(DeclarativeContainer):
   )
 
   cover_image_validator = providers.Singleton(
-    CoverImageValidator
+    CoverImageValidator,
+    book_dal = book_dal
   )
 
   cover_image_service = providers.Singleton(
