@@ -14,18 +14,18 @@ class TestAuthorValidator():
   def test_validate_deletion_success(self):
     author_id = uuid4()
     author_dal_mock = MagicMock(spec = AuthorDAL)
-    author_dal_mock.get_authors_by_ids.return_value = [MagicMock(spec = Author, id = author_id)]
-    author_dal_mock.filter_author_ids_with_books.return_value = []
+    author_dal_mock.get_authors.return_value = [MagicMock(spec = Author, id = author_id)]
+    author_dal_mock.get_author_ids_with_books.return_value = []
     session_mock = MagicMock(spec = Session)
     instance = AuthorValidator(author_dal_mock)
     instance.validate_deletion(session_mock, [author_id])
-    author_dal_mock.get_authors_by_ids.assert_called_once_with(session_mock, [author_id])
-    author_dal_mock.filter_author_ids_with_books.assert_called_once_with(session_mock, [author_id])
+    author_dal_mock.get_authors.assert_called_once_with(session_mock, limit = 1, offset = 0, ids = [author_id])
+    author_dal_mock.get_author_ids_with_books.assert_called_once_with(session_mock, [author_id])
 
   def test_validate_deletion_authors_not_found(self):
     author_id = uuid4()
     author_dal_mock = MagicMock(spec = AuthorDAL)
-    author_dal_mock.get_authors_by_ids.return_value = []
+    author_dal_mock.get_authors.return_value = []
     session_mock = MagicMock(spec = Session)
     instance = AuthorValidator(author_dal_mock)
     with pytest.raises(ValidationError) as exc_info:
@@ -35,8 +35,8 @@ class TestAuthorValidator():
   def test_validate_deletion_authors_have_books(self):
     author_id = uuid4()
     author_dal_mock = MagicMock(spec = AuthorDAL)
-    author_dal_mock.get_authors_by_ids.return_value = [MagicMock(spec = Author, id = author_id)]
-    author_dal_mock.filter_author_ids_with_books.return_value = [author_id]
+    author_dal_mock.get_authors.return_value = [MagicMock(spec = Author, id = author_id)]
+    author_dal_mock.get_author_ids_with_books.return_value = [author_id]
     session_mock = MagicMock(spec = Session)
     instance = AuthorValidator(author_dal_mock)
     with pytest.raises(ValidationError) as exc_info:

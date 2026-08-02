@@ -37,7 +37,7 @@ class AuthorService():
     if offset < 0:
       raise ValidationError(detail = "INVALID_OFFSET")
     total_authors = self.author_dal.count_authors(session, search_term)
-    authors = self.author_dal.get_authors(session, search_term, limit, offset)
+    authors = self.author_dal.get_authors(session, limit = limit, offset = offset, search_term = search_term)
     return GetAuthorsResult(authors = authors, total_authors = total_authors)
 
   def get_authors_paginated(self, session: Session, search_term: str | None, page: int, page_size: int) -> GetAuthorsPaginatedResult:

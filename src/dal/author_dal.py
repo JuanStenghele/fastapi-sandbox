@@ -26,24 +26,18 @@ class AuthorDAL():
       return None
     return Author.model_validate(result)
 
-  def get_authors(self, session: Session, search_term: str | None, limit: int, offset: int) -> list[Author]:
+  def get_authors(self, session: Session, limit: int, offset: int, ids: list | None = None, search_term: str | None = None) -> list[Author]:
     query = select(DBAuthor).where(DBAuthor.deleted_at == None)
-    if search_term:
+    if ids is not None:
+      query = query.where(DBAuthor.id.in_(ids))
+    if search_term is not None:
       query = query.filter(DBAuthor.name.icontains(search_term, autoescape = True))
     query = query.order_by(DBAuthor.id.asc()).limit(limit).offset(offset)
     results = session.exec(query).all()
     return [Author.model_validate(result) for result in results]
 
-  def get_authors_by_ids(self, session: Session, ids: list) -> list[Author]:
-    query = select(DBAuthor).where(DBAuthor.id.in_(ids), DBAuthor.deleted_at == None)
-    results = session.exec(query).all()
-    return [Author.model_validate(result) for result in results]
-
-  def filter_author_ids_with_books(self, session: Session, author_ids: list) -> list:
-    query = select(DBBookAuthor.author_id).where(
-      DBBookAuthor.author_id.in_(author_ids),
-      DBBookAuthor.deleted_at == None
-    )
+  def get_author_ids_with_books(self, session: Session, ids: list) -> list:
+    query = select(DBBookAuthor.author_id).where(DBBookAuthor.deleted_at == None, DBBookAuthor.author_id.in_(ids))
     results = session.exec(query).all()
     return [result for result in results]
 

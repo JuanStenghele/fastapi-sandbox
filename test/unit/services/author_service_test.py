@@ -62,7 +62,7 @@ class TestAuthorService():
     assert result.authors == [author_1, author_2]
     assert result.total_authors == 2
     author_dal_mock.count_authors.assert_called_once()
-    author_dal_mock.get_authors.assert_called_once_with(session_mock, None, 10, 0)
+    author_dal_mock.get_authors.assert_called_once_with(session_mock, limit = 10, offset = 0, search_term = None)
 
   def test_get_authors_success_with_search_term(self):
     now = datetime.now(timezone.utc)
@@ -78,7 +78,7 @@ class TestAuthorService():
     assert len(result.authors) == 1
     assert result.authors[0].name == 'J. K. Rowling'
     assert result.total_authors == 1
-    author_dal_mock.get_authors.assert_called_once_with(session_mock, 'Rowling', 10, 0)
+    author_dal_mock.get_authors.assert_called_once_with(session_mock, limit = 10, offset = 0, search_term = 'Rowling')
 
   def test_get_authors_empty_results(self):
     author_dal_mock = MagicMock(spec = AuthorDAL)
@@ -131,7 +131,7 @@ class TestAuthorService():
     assert result.current_page == 1
     assert result.page_size == 10
     author_dal_mock.count_authors.assert_called_once()
-    author_dal_mock.get_authors.assert_called_once_with(session_mock, None, 10, 0)
+    author_dal_mock.get_authors.assert_called_once_with(session_mock, limit = 10, offset = 0, search_term = None)
 
   def test_get_authors_paginated_invalid_page_size(self):
     author_dal_mock = MagicMock(spec = AuthorDAL)

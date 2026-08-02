@@ -234,7 +234,7 @@ class TestBookController():
   def test_update_book_cover_404_error(self):
     claims_mock = MagicMock(spec = AuthClaims)
     cover_image_service_mock = MagicMock(spec = CoverImageService)
-    cover_image_service_mock.update_book_cover.side_effect = ValidationError(detail = "BOOK_NOT_FOUND")
+    cover_image_service_mock.update_book_cover.side_effect = ValidationError(detail = "BOOKS_NOT_FOUND: some-uuid")
     session_mock = MagicMock(spec = Session)
     logger_mock = MagicMock(spec = Logger)
     cover_image_mock = MagicMock()
@@ -251,5 +251,5 @@ class TestBookController():
         logger = logger_mock
       )
     assert e.value.status_code == 404
-    assert e.value.detail == 'BOOK_NOT_FOUND'
+    assert e.value.detail == 'BOOKS_NOT_FOUND: some-uuid'
     assert cover_image_service_mock.update_book_cover.call_count == 1
