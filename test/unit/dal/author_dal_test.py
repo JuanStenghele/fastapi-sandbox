@@ -8,7 +8,6 @@ from sqlmodel import Session
 from objects.author import Author
 from dal.author_dal import AuthorDAL
 from db_schema.author_db import Author as DBAuthor
-from db_schema.book_author_db import BookAuthor as DBBookAuthor
 
 
 class TestAuthorDal():

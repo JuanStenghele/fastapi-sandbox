@@ -5,10 +5,7 @@ from uuid import uuid4
 from fastapi import HTTPException
 from objects.book import BookCreationHTTPRequest, BookUpdateHTTPRequest
 from objects.auth import AuthClaims
-from objects.book import Book
-from objects.cover_image import CoverImage
 from objects.error import ValidationError
-from objects.image import RawImage
 from services.book_service import BookService
 from services.cover_image_service import CoverImageService
 from sqlalchemy.orm import Session

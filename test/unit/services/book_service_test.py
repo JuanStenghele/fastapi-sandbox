@@ -2,7 +2,7 @@ import pytest
 
 
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
 from uuid import uuid4
 from services.book_service import BookService
 from services.date_provider import DateProvider

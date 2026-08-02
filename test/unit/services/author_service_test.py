@@ -8,7 +8,7 @@ from services.author_service import AuthorService
 from services.date_provider import DateProvider
 from dal.author_dal import AuthorDAL
 from validators.author_validator import AuthorValidator
-from objects.author import Author, GetAuthorsResult, GetAuthorsPaginatedResult
+from objects.author import Author
 from objects.error import ValidationError
 from sqlmodel import Session
 

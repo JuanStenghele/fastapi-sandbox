@@ -1,6 +1,6 @@
 from uuid import UUID
 from sqlmodel import Session
-from clients.storage_client import StorageClient, StorageClientError
+from clients.storage_client import StorageClient
 from objects.cover_image import CoverImage
 from objects.image import RawImage
 from dal.book_dal import BookDAL

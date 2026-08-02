@@ -2,7 +2,7 @@ import uuid
 
 
 from sqlmodel import Session
-from clients.storage_client import StorageClient, StorageClientError
+from clients.storage_client import StorageClient
 from dal.stored_object_dal import StoredObjectDAL
 from dal.book_dal import BookDAL
 from objects.stored_object import ObjectToStore, StoredObject

@@ -7,7 +7,6 @@ from sqlmodel import Session
 from objects.book import Book
 from dal.book_dal import BookDAL
 from db_schema.book_author_db import BookAuthor as DBBookAuthor
-from db_schema.stored_object_db import StoredObject as DBStoredObject
 from db_schema.book_db import Book as DBBook
 
 

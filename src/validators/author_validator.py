@@ -1,4 +1,3 @@
-from uuid import UUID
 from dal.author_dal import AuthorDAL
 from objects.error import ValidationError
 from constants import MAX_DELETE_IDS
