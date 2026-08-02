@@ -8,9 +8,9 @@ from services.book_service import BookService
 from services.date_provider import DateProvider
 from services.cover_image_service import CoverImageService
 from dal.book_dal import BookDAL
-from objects.book import Book, GetBooksResult, GetBooksPaginatedResult
-from objects.book_creation import BookCreationRequest
-from objects.book_update import BookUpdateRequest
+from objects.book import Book
+from objects.book import BookCreationRequest
+from objects.book import BookUpdateRequest
 from objects.error import ValidationError
 from objects.image import RawImage
 from objects.image import RawImage

@@ -3,7 +3,7 @@ from dependency_injector.wiring import inject, Provide
 from sqlmodel import Session
 from constants import Tags, MAX_DELETE_IDS
 from inject import Container
-from objects.display import AuthorCreationHTTPResponse, AuthorHTTPResponse, AuthorUpsertHTTPRequest, AuthorsHTTPResponse
+from objects.author import AuthorCreationHTTPResponse, AuthorHTTPResponse, AuthorUpsertHTTPRequest, AuthorsHTTPResponse
 from objects.error import ValidationError
 from services.author_service import AuthorService
 from logging import Logger

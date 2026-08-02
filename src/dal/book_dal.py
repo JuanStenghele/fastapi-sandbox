@@ -74,7 +74,7 @@ class BookDAL():
       description = db_book.description,
       isbn = db_book.isbn,
       publication_date = db_book.publication_date,
-      cover_image = CoverImage(book_id = db_book.id, url = db_cover.public_url) if db_cover else None,
+      cover_image = CoverImage(stored_object_id = db_cover.id, book_id = db_book.id, url = db_cover.public_url) if db_cover else None,
       created_at = db_book.created_at,
       updated_at = db_book.updated_at,
       deleted_at = db_book.deleted_at
@@ -101,7 +101,7 @@ class BookDAL():
         description = db_book.description,
         isbn = db_book.isbn,
         publication_date = db_book.publication_date,
-        cover_image = CoverImage(book_id = db_book.id, url = db_cover.public_url) if db_cover else None,
+        cover_image = CoverImage(stored_object_id = db_cover.id, book_id = db_book.id, url = db_cover.public_url) if db_cover else None,
         created_at = db_book.created_at,
         updated_at = db_book.updated_at,
         deleted_at = db_book.deleted_at

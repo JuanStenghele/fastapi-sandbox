@@ -4,17 +4,15 @@ from dependency_injector.wiring import inject, Provide
 from sqlmodel import Session
 from constants import Tags, MAX_DELETE_IDS
 from inject import Container
-from objects.book_creation import BookCreationRequest
-from objects.book_update import BookUpdateRequest
+from objects.book import Book, BookCreationRequest, BookCreationHTTPRequest, BookCreationHTTPResponse, BookHTTPResponse, BookUpdateRequest, BookUpdateHTTPRequest, BooksHTTPResponse
 from objects.cover_image import CoverImage
-from objects.display import BookCreationHTTPRequest, BookCreationHTTPResponse, BookHTTPResponse, BookUpdateHTTPRequest, BooksHTTPResponse
 from objects.error import ValidationError
 from objects.image import RawImage
 from services.book_service import BookService
 from services.cover_image_service import CoverImageService
 from logging import Logger
 from controllers.dependencies import get_session, get_user_auth_claims, get_admin_auth_claims
-from objects.book import Book
+from objects.auth import AuthClaims
 from objects.auth import AuthClaims
 
 

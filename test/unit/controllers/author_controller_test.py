@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import MagicMock
 from uuid import uuid4
 from fastapi import HTTPException
-from objects.display import AuthorUpsertHTTPRequest
+from objects.author import AuthorUpsertHTTPRequest
 from objects.auth import AuthClaims
 from objects.error import ValidationError
 from services.author_service import AuthorService

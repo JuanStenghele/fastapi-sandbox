@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 from clients.storage_client import StorageClient
-from objects.stored_object import StoredObject
+from objects.stored_object import StoredObjectContent
 from services.storage_reverse_proxy import StorageReverseProxy
 from constants import PUBLIC_PATH
 
@@ -8,7 +8,7 @@ from constants import PUBLIC_PATH
 class TestStorageReverseProxy():
   def test_get_stored_object_returns_result(self):
     storage_client_mock = MagicMock(spec = StorageClient)
-    stored_object = StoredObject(body = iter([b"data"]), content_type = "image/png")
+    stored_object = StoredObjectContent(body = iter([b"data"]), content_type = "image/png")
     storage_client_mock.get_object.return_value = stored_object
     instance = StorageReverseProxy(storage_client_mock)
     result = instance.get_stored_object("images/photo.png")

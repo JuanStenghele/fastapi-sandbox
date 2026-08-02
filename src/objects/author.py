@@ -22,3 +22,48 @@ class GetAuthorsPaginatedResult(BaseObj):
   total_pages: int
   current_page: int
   page_size: int
+
+
+class AuthorUpsertHTTPRequest(BaseObj):
+  name: str
+
+
+class AuthorCreationHTTPResponse(AuthorUpsertHTTPRequest):
+  id: UUID
+
+  @classmethod
+  def from_author(cls, author: Author):
+    return cls(
+      id = author.id,
+      name = author.name
+    )
+
+
+class AuthorHTTPResponse(BaseObj):
+  id: UUID
+  name: str
+
+  @classmethod
+  def from_author(cls, author: Author):
+    return cls(
+      id = author.id,
+      name = author.name
+    )
+
+
+class AuthorsHTTPResponse(BaseObj):
+  authors: list
+  total_authors: int
+  total_pages: int
+  current_page: int
+  page_size: int
+
+  @classmethod
+  def from_authors_result(cls, result: GetAuthorsPaginatedResult):
+    return cls(
+      authors = [AuthorHTTPResponse.from_author(author) for author in result.authors],
+      total_authors = result.total_authors,
+      total_pages = result.total_pages,
+      current_page = result.current_page,
+      page_size = result.page_size
+    )

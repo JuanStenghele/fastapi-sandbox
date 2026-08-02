@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 from sqlmodel import select, update, Session
 from db_schema.stored_object_db import StoredObject as DBStoredObject
-from objects.stored_object_record import StoredObject
+from objects.stored_object import StoredObject
 
 
 class StoredObjectDAL():

@@ -4,11 +4,23 @@ import mimetypes
 from collections.abc import Iterator
 from pydantic import ConfigDict
 from constants import DEFAULT_CONTENT_TYPE
-from objects.base import BaseObj
+from objects.base import BaseObj, OrmObj
 from abc import ABC, abstractmethod
+from datetime import datetime
+from uuid import UUID
 
 
-class StoredObject(BaseObj):
+class StoredObject(OrmObj):
+  id: UUID
+  source: str
+  key: str
+  public_url: str | None = None
+  created_at: datetime
+  updated_at: datetime
+  deleted_at: datetime | None = None
+
+
+class StoredObjectContent(BaseObj):
   model_config = ConfigDict(arbitrary_types_allowed = True)
 
   body: Iterator[bytes]

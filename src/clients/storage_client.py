@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from objects.stored_object import StoredObject, StoredObjectUploadResult
+from objects.stored_object import StoredObjectContent, StoredObjectUploadResult
 
 
 USER_CONTENT_PATH = "user-content"
@@ -19,7 +19,7 @@ class StorageClient(ABC):
     pass
 
   @abstractmethod
-  def get_object(self, key: str) -> StoredObject | None:
+  def get_object(self, key: str) -> StoredObjectContent | None:
     pass
 
   @abstractmethod

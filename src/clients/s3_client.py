@@ -3,7 +3,7 @@ from botocore.client import BaseClient
 from botocore.exceptions import BotoCoreError, ClientError
 from clients.storage_client import StorageClient, StorageClientError
 from constants import DEFAULT_CONTENT_TYPE, PUBLIC_PATH, PRIVATE_PATH
-from objects.stored_object import StoredObject, StoredObjectUploadResult
+from objects.stored_object import StoredObjectContent, StoredObjectUploadResult
 from botocore.response import StreamingBody
 
 
@@ -36,7 +36,7 @@ class S3Client(StorageClient):
     url = f"{self.public_url}/{key}" if public else None
     return StoredObjectUploadResult(public_url = url, path = key)
 
-  def get_object(self, key: str) -> StoredObject | None:
+  def get_object(self, key: str) -> StoredObjectContent | None:
     try:
       object: dict = self.boto3_client.get_object(
         Bucket = self.bucket_name,
@@ -45,7 +45,7 @@ class S3Client(StorageClient):
       body: StreamingBody = object.get("Body")
       if body is None:
         raise StorageClientError("No body in S3 object")
-      return StoredObject(
+      return StoredObjectContent(
         body = body,
         content_type = object.get("ContentType", DEFAULT_CONTENT_TYPE)
       )

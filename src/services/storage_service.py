@@ -5,9 +5,8 @@ from sqlmodel import Session
 from clients.storage_client import StorageClient, StorageClientError
 from dal.stored_object_dal import StoredObjectDAL
 from dal.book_dal import BookDAL
-from objects.stored_object_record import StoredObject
+from objects.stored_object import ObjectToStore, StoredObject
 from services.date_provider import DateProvider
-from objects.stored_object import ObjectToStore
 
 
 class StorageService():

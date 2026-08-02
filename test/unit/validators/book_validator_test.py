@@ -6,8 +6,8 @@ from uuid import uuid4
 from dal.author_dal import AuthorDAL
 from dal.book_dal import BookDAL
 from objects.author import Author
-from objects.book_creation import BookCreationRequest
-from objects.book_update import BookUpdateRequest
+from objects.book import BookCreationRequest
+from objects.book import BookUpdateRequest
 from objects.error import ValidationError
 from sqlmodel import Session
 from validators.book_validator import BookValidator

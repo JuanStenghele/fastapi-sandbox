@@ -6,7 +6,7 @@ from uuid import uuid4
 from sqlmodel import Session
 from dal.stored_object_dal import StoredObjectDAL
 from db_schema.stored_object_db import StoredObject as DBStoredObject
-from objects.stored_object_record import StoredObject
+from objects.stored_object import StoredObject
 
 
 class TestStoredObjectDal():

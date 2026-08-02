@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 from clients.storage_client import StorageClient, USER_CONTENT_PATH
-from objects.stored_object import StoredObject, StoredObjectUploadResult
+from objects.stored_object import StoredObjectContent, StoredObjectUploadResult
 
 
 class FakeStorageClient(StorageClient):
@@ -10,7 +10,7 @@ class FakeStorageClient(StorageClient):
   def health_check(self) -> bool:
     return True
 
-  def get_object(self, key: str) -> StoredObject | None:
+  def get_object(self, key: str) -> StoredObjectContent | None:
     pass
 
   def upload_object(self, name: str, data: bytes, content_type: str, public: bool = False) -> StoredObjectUploadResult:

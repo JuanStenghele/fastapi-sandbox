@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import MagicMock
 from uuid import uuid4
 from fastapi import HTTPException
-from objects.display import BookCreationHTTPRequest, BookUpdateHTTPRequest
+from objects.book import BookCreationHTTPRequest, BookUpdateHTTPRequest
 from objects.auth import AuthClaims
 from objects.book import Book
 from objects.cover_image import CoverImage
