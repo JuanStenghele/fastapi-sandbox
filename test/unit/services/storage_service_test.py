@@ -92,14 +92,14 @@ class TestStorageService():
     stored_object_dal_mock = MagicMock(spec = StoredObjectDAL)
     stored_object_id = uuid4()
     stored_object = StoredObject.model_construct(id = stored_object_id, source = "s3", key = "public/file.jpg", created_at = now, updated_at = now)
-    stored_object_dal_mock.get_stored_objects_by_ids.return_value = [stored_object]
+    stored_object_dal_mock.get_stored_objects.return_value = [stored_object]
     session_mock = MagicMock(spec = Session)
     storage_client_mock = MagicMock(spec = StorageClient)
     instance = StorageService(date_provider_mock, book_dal_mock, stored_object_dal_mock)
 
     instance.delete_stored_objects(session_mock, storage_client_mock, [stored_object_id])
 
-    stored_object_dal_mock.get_stored_objects_by_ids.assert_called_once_with(session_mock, [stored_object_id])
+    stored_object_dal_mock.get_stored_objects.assert_called_once_with(session_mock, 1, 0, ids = [stored_object_id])
     date_provider_mock.now.assert_called_once()
     stored_object_dal_mock.soft_delete_stored_objects.assert_called_once_with(session_mock, [stored_object_id], now)
     storage_client_mock.delete_objects.assert_called_once_with(["public/file.jpg"])
@@ -108,14 +108,14 @@ class TestStorageService():
     date_provider_mock = MagicMock(spec = DateProvider)
     book_dal_mock = MagicMock(spec = BookDAL)
     stored_object_dal_mock = MagicMock(spec = StoredObjectDAL)
-    stored_object_dal_mock.get_stored_objects_by_ids.return_value = []
+    stored_object_dal_mock.get_stored_objects.return_value = []
     session_mock = MagicMock(spec = Session)
     storage_client_mock = MagicMock(spec = StorageClient)
     instance = StorageService(date_provider_mock, book_dal_mock, stored_object_dal_mock)
 
     instance.delete_stored_objects(session_mock, storage_client_mock, [uuid4()])
 
-    stored_object_dal_mock.get_stored_objects_by_ids.assert_called_once()
+    stored_object_dal_mock.get_stored_objects.assert_called_once()
     date_provider_mock.now.assert_not_called()
     stored_object_dal_mock.soft_delete_stored_objects.assert_not_called()
     storage_client_mock.delete_objects.assert_not_called()
@@ -124,7 +124,7 @@ class TestStorageService():
     date_provider_mock = MagicMock(spec = DateProvider)
     book_dal_mock = MagicMock(spec = BookDAL)
     stored_object_dal_mock = MagicMock(spec = StoredObjectDAL)
-    stored_object_dal_mock.get_stored_objects_by_ids.side_effect = Exception("dal error")
+    stored_object_dal_mock.get_stored_objects.side_effect = Exception("dal error")
     session_mock = MagicMock(spec = Session)
     storage_client_mock = MagicMock(spec = StorageClient)
     instance = StorageService(date_provider_mock, book_dal_mock, stored_object_dal_mock)
@@ -141,7 +141,7 @@ class TestStorageService():
     book_dal_mock = MagicMock(spec = BookDAL)
     stored_object_dal_mock = MagicMock(spec = StoredObjectDAL)
     stored_object = StoredObject.model_construct(id = uuid4(), source = "s3", key = "public/file.jpg", created_at = now, updated_at = now)
-    stored_object_dal_mock.get_stored_objects_by_ids.return_value = [stored_object]
+    stored_object_dal_mock.get_stored_objects.return_value = [stored_object]
     storage_client_mock = MagicMock(spec = StorageClient)
     storage_client_mock.delete_objects.side_effect = StorageClientError("s3 error")
     session_mock = MagicMock(spec = Session)

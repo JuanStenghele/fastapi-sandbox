@@ -25,8 +25,11 @@ class StoredObjectDAL():
       return None
     return StoredObject.model_validate(result)
 
-  def get_stored_objects_by_ids(self, session: Session, ids: list) -> list[StoredObject]:
-    query = select(DBStoredObject).where(DBStoredObject.id.in_(ids), DBStoredObject.deleted_at == None)
+  def get_stored_objects(self, session: Session, limit: int, offset: int, ids: list | None = None) -> list[StoredObject]:
+    query = select(DBStoredObject).where(DBStoredObject.deleted_at == None)
+    if ids is not None:
+      query = query.where(DBStoredObject.id.in_(ids))
+    query = query.order_by(DBStoredObject.id.asc()).limit(limit).offset(offset)
     results = session.exec(query).all()
     return [StoredObject.model_validate(result) for result in results]
 

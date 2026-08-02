@@ -37,7 +37,7 @@ class StorageService():
     return stored_object
 
   def delete_stored_objects(self, session: Session, storage_client: StorageClient, ids: list) -> None:
-    stored_objects = self.stored_object_dal.get_stored_objects_by_ids(session, ids)
+    stored_objects = self.stored_object_dal.get_stored_objects(session, len(ids), 0, ids = ids)
     if len(stored_objects) == 0:
       return
     now = self.date_provider.now()

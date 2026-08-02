@@ -116,7 +116,7 @@ class TestStoredObjectDal():
     exec_mock.all.return_value = [db_stored_object_1, db_stored_object_2]
     session_mock.exec.return_value = exec_mock
     instance = StoredObjectDAL()
-    result = instance.get_stored_objects_by_ids(session_mock, [stored_object_id_1, stored_object_id_2])
+    result = instance.get_stored_objects(session_mock, limit = 10, offset = 0, ids = [stored_object_id_1, stored_object_id_2])
     assert len(result) == 2
     assert result[0].id == stored_object_id_1
     assert result[0].source == "s3"
@@ -129,7 +129,7 @@ class TestStoredObjectDal():
     exec_mock.all.return_value = []
     session_mock.exec.return_value = exec_mock
     instance = StoredObjectDAL()
-    result = instance.get_stored_objects_by_ids(session_mock, [uuid4()])
+    result = instance.get_stored_objects(session_mock, limit = 10, offset = 0, ids = [uuid4()])
     assert result == []
     assert session_mock.exec.call_count == 1
 
@@ -139,7 +139,7 @@ class TestStoredObjectDal():
     session_mock.exec.side_effect = Exception(expected_message)
     instance = StoredObjectDAL()
     with pytest.raises(Exception) as exc_info:
-      instance.get_stored_objects_by_ids(session_mock, [uuid4()])
+      instance.get_stored_objects(session_mock, limit = 10, offset = 0, ids = [uuid4()])
     assert str(exc_info.value) == expected_message
     assert session_mock.exec.call_count == 1
 
