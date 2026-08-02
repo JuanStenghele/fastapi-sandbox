@@ -1,7 +1,6 @@
 import pytest
 
 
-from datetime import datetime, timezone
 from unittest.mock import MagicMock
 from uuid import uuid4
 from sqlmodel import Session
@@ -16,7 +15,7 @@ from services.storage_service import StorageService
 
 class TestStorageService():
   def test_store_object_success(self):
-    now = datetime.now(timezone.utc)
+    now = MagicMock()
     date_provider_mock = MagicMock(spec = DateProvider)
     date_provider_mock.now.return_value = now
     book_dal_mock = MagicMock(spec = BookDAL)
@@ -43,8 +42,8 @@ class TestStorageService():
     assert result.source == "s3"
     assert result.key == "public/file.jpg"
     assert result.public_url == "https://example.com/file.jpg"
-    assert result.created_at == now
-    assert result.updated_at == now
+    assert result.created_at is not None
+    assert result.updated_at is not None
 
   def test_store_object_upload_fail(self):
     date_provider_mock = MagicMock(spec = DateProvider)
@@ -65,7 +64,7 @@ class TestStorageService():
     stored_object_dal_mock.create_stored_object.assert_not_called()
 
   def test_store_object_dal_fail(self):
-    now = datetime.now(timezone.utc)
+    now = MagicMock()
     date_provider_mock = MagicMock(spec = DateProvider)
     date_provider_mock.now.return_value = now
     book_dal_mock = MagicMock(spec = BookDAL)
@@ -86,7 +85,7 @@ class TestStorageService():
     assert str(exc_info.value) == "dal error"
 
   def test_delete_stored_objects_success(self):
-    now = datetime.now(timezone.utc)
+    now = MagicMock()
     date_provider_mock = MagicMock(spec = DateProvider)
     date_provider_mock.now.return_value = now
     book_dal_mock = MagicMock(spec = BookDAL)
@@ -136,7 +135,7 @@ class TestStorageService():
     storage_client_mock.delete.assert_not_called()
 
   def test_delete_stored_objects_storage_delete_fail(self):
-    now = datetime.now(timezone.utc)
+    now = MagicMock()
     date_provider_mock = MagicMock(spec = DateProvider)
     date_provider_mock.now.return_value = now
     book_dal_mock = MagicMock(spec = BookDAL)

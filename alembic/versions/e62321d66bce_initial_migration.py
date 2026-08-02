@@ -31,15 +31,30 @@ def upgrade() -> None:
   op.create_index(op.f('ix_authors_id'), 'authors', ['id'], unique = False)
 
   op.create_table(
+    'stored_objects',
+    Column('id', UUID(as_uuid = True), nullable = False),
+    Column('source', String(), nullable = False),
+    Column('key', String(), nullable = False),
+    Column('public_url', String(), nullable = True),
+    Column('created_at', DateTime(), nullable = False),
+    Column('updated_at', DateTime(), nullable = False),
+    Column('deleted_at', DateTime(), nullable = True),
+    PrimaryKeyConstraint('id')
+  )
+  op.create_index(op.f('ix_stored_objects_id'), 'stored_objects', ['id'], unique = False)
+
+  op.create_table(
     'books',
     Column('id', UUID(as_uuid = True), nullable = False),
     Column('title', String(), nullable = False),
     Column('description', String(), nullable = True),
     Column('isbn', String(), nullable = True),
     Column('publication_date', Date(), nullable = True),
+    Column('cover_image_stored_object_id', UUID(as_uuid = True), nullable = True),
     Column('created_at', DateTime(), nullable = False),
     Column('updated_at', DateTime(), nullable = False),
     Column('deleted_at', DateTime(), nullable = True),
+    ForeignKeyConstraint(['cover_image_stored_object_id'], ['stored_objects.id']),
     PrimaryKeyConstraint('id')
   )
   op.create_index(op.f('ix_books_id'), 'books', ['id'], unique = False)
@@ -74,5 +89,7 @@ def downgrade() -> None:
   op.drop_table('book_authors')
   op.drop_index(op.f('ix_books_id'), table_name = 'books')
   op.drop_table('books')
+  op.drop_index(op.f('ix_stored_objects_id'), table_name = 'stored_objects')
+  op.drop_table('stored_objects')
   op.drop_index(op.f('ix_authors_id'), table_name = 'authors')
   op.drop_table('authors')
