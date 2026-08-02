@@ -7,7 +7,7 @@ from sqlmodel import Session
 from objects.book import Book
 from dal.book_dal import BookDAL
 from db_schema.book_author_db import BookAuthor as DBBookAuthor
-from db_schema.book_cover_db import BookCover as DBBookCover
+from db_schema.stored_object_db import StoredObject as DBStoredObject
 from db_schema.book_db import Book as DBBook
 
 
@@ -120,19 +120,15 @@ class TestBookDal():
     now = datetime.now(timezone.utc)
     book_id = uuid4()
     author_id = uuid4()
-    cover_url = 'https://example.com/cover.jpg'
     db_book = DBBook(id = book_id, title = 'Harry Potter', created_at = now, updated_at = now)
     db_book_author = DBBookAuthor(book_id = book_id, author_id = author_id, created_at = now)
-    db_cover = DBBookCover(book_id = book_id, source = 's3', url = cover_url, created_at = now, updated_at = now)
     exec_mock = MagicMock()
-    exec_mock.first.return_value = (db_book, db_book_author, db_cover)
+    exec_mock.first.return_value = (db_book, db_book_author, None)
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
     result = instance.get_book(session_mock, book_id)
     assert result is not None
-    assert result.cover_image is not None
-    assert result.cover_image.book_id == book_id
-    assert result.cover_image.url == cover_url
+    assert result.cover_image is None
 
   def test_get_book_not_found(self):
     session_mock = MagicMock(spec = Session)
@@ -196,18 +192,14 @@ class TestBookDal():
     now = datetime.now(timezone.utc)
     book_id = uuid4()
     author_id = uuid4()
-    cover_url = 'https://example.com/cover.jpg'
     db_book = DBBook(id = book_id, title = 'Harry Potter', created_at = now, updated_at = now)
     db_book_author = DBBookAuthor(book_id = book_id, author_id = author_id, created_at = now)
-    db_cover = DBBookCover(book_id = book_id, source = 's3', url = cover_url, created_at = now, updated_at = now)
     exec_mock = MagicMock()
-    exec_mock.all.return_value = [(db_book, db_book_author, db_cover)]
+    exec_mock.all.return_value = [(db_book, db_book_author, None)]
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
     result = instance.get_books(session_mock, 'Harry', 10, 0)
-    assert result[0].cover_image is not None
-    assert result[0].cover_image.book_id == book_id
-    assert result[0].cover_image.url == cover_url
+    assert result[0].cover_image is None
 
   def test_get_books_success_multiple_results(self):
     session_mock = MagicMock(spec = Session)
@@ -316,13 +308,40 @@ class TestBookDal():
       instance.get_books_by_ids(session_mock, [uuid4()])
     assert str(exc_info.value) == expected_message
 
+  def test_update_book_cover_stored_object_id_success(self):
+    session_mock = MagicMock(spec = Session)
+    updated_at_mock = MagicMock()
+    book_id = uuid4()
+    stored_object_id = uuid4()
+    instance = BookDAL()
+    instance.update_book_cover_stored_object_ids(session_mock, [book_id], stored_object_id, updated_at_mock)
+    assert session_mock.exec.call_count == 1
+
+  def test_update_book_cover_stored_object_id_none(self):
+    session_mock = MagicMock(spec = Session)
+    updated_at_mock = MagicMock()
+    book_id = uuid4()
+    instance = BookDAL()
+    instance.update_book_cover_stored_object_ids(session_mock, [book_id], None, updated_at_mock)
+    assert session_mock.exec.call_count == 1
+
+  def test_update_book_cover_stored_object_id_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    updated_at_mock = MagicMock()
+    instance = BookDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.update_book_cover_stored_object_ids(session_mock, [uuid4()], uuid4(), updated_at_mock)
+    assert str(exc_info.value) == expected_message
+
   def test_soft_delete_books_success(self):
     session_mock = MagicMock(spec = Session)
     now = datetime.now(timezone.utc)
     book_id = uuid4()
     instance = BookDAL()
     instance.soft_delete_books(session_mock, [book_id], now)
-    assert session_mock.exec.call_count == 3
+    assert session_mock.exec.call_count == 2
 
   def test_soft_delete_books_fail(self):
     session_mock = MagicMock(spec = Session)
