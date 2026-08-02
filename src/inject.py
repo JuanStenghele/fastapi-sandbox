@@ -20,7 +20,8 @@ from services.date_provider import DateProvider
 from services.storage_reverse_proxy import StorageReverseProxy
 from validators.cover_image_validator import CoverImageValidator
 from clients.s3_client import S3Client
-from dal.book_cover_dal import BookCoverDAL
+from dal.stored_object_dal import StoredObjectDAL
+from services.storage_service import StorageService
 from utils.database import build_db_url
 from utils.env_vars_parsing import parse_bool_env_var, parse_list_env_var
 from constants import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_HOST_DEFAULT, POSTGRES_PORT_DEFAULT, POSTGRES_SSLMODE, POSTGRES_SSLMODE_DEFAULT, LOGGER_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT_DEFAULT, ENV, ENV_PRODUCTION, AUTH_AUDIENCE, AUTH_ISSUER, AUTH_JWKS_URI, S3_SERVICE_NAME, STORAGE_SERVICE_URL, STORAGE_PUBLIC_URL, STORAGE_ACCESS_KEY_ID, STORAGE_SECRET_ACCESS_KEY, STORAGE_BUCKET_NAME, STORAGE_REGION, STORAGE_REGION_DEFAULT, CORS_MIDDLEWARE_ENABLED, CORS_MIDDLEWARE_ENABLED_DEFAULT, CORS_ALLOWED_ORIGINS, CORS_ALLOWED_ORIGINS_DEFAULT
@@ -158,8 +159,15 @@ class Container(DeclarativeContainer):
     storage_client = s3_client
   )
 
-  book_cover_dal = providers.Factory(
-    BookCoverDAL
+  stored_object_dal = providers.Factory(
+    StoredObjectDAL
+  )
+
+  storage_service = providers.Singleton(
+    StorageService,
+    date_provider = date_provider,
+    book_dal = book_dal,
+    stored_object_dal = stored_object_dal
   )
 
   cover_image_validator = providers.Singleton(
@@ -170,9 +178,9 @@ class Container(DeclarativeContainer):
   cover_image_service = providers.Singleton(
     CoverImageService,
     storage_client = s3_client,
-    book_cover_dal = book_cover_dal,
     cover_image_validator = cover_image_validator,
-    date_provider = date_provider
+    date_provider = date_provider,
+    storage_service = storage_service
   )
 
   book_validator = providers.Factory(
