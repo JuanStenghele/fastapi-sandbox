@@ -8,4 +8,4 @@ class StorageReverseProxy():
 
   def get_stored_object(self, path: str) -> StoredObject | None:
     key = f"{PUBLIC_PATH}/{path}"
-    return self.storage_client.get(key)
+    return self.storage_client.get_object(key)

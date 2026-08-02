@@ -42,28 +42,28 @@ class TestS3Client():
     boto3_mock = MagicMock()
     logger_mock = MagicMock()
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
-    result = instance.upload("images/cover.jpg", b"data", "image/jpeg", public = True)
+    result = instance.upload_object("images/cover.jpg", b"data", "image/jpeg", public = True)
     boto3_mock.put_object.assert_called_once_with(
       Bucket = "my-bucket",
       Key = f"{PUBLIC_PATH}/images/cover.jpg",
       Body = b"data",
       ContentType = "image/jpeg"
     )
-    assert result.url == "https://example.com/images/cover.jpg"
+    assert result.public_url == "https://example.com/images/cover.jpg"
     assert result.path == f"{PUBLIC_PATH}/images/cover.jpg"
 
   def test_upload_private(self):
     boto3_mock = MagicMock()
     logger_mock = MagicMock()
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
-    result = instance.upload("images/cover.jpg", b"data", "image/jpeg", public = False)
+    result = instance.upload_object("images/cover.jpg", b"data", "image/jpeg", public = False)
     boto3_mock.put_object.assert_called_once_with(
       Bucket = "my-bucket",
       Key = f"{PRIVATE_PATH}/images/cover.jpg",
       Body = b"data",
       ContentType = "image/jpeg"
     )
-    assert result.url is None
+    assert result.public_url is None
     assert result.path == f"{PRIVATE_PATH}/images/cover.jpg"
 
   def test_upload_fail(self):
@@ -72,7 +72,7 @@ class TestS3Client():
     boto3_mock.put_object.side_effect = Exception("upload failed")
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
     with pytest.raises(Exception) as exc_info:
-      instance.upload("images/cover.jpg", b"data", "image/jpeg", public = True)
+      instance.upload_object("images/cover.jpg", b"data", "image/jpeg", public = True)
     assert str(exc_info.value) == "upload failed"
 
   def test_get_success(self):
@@ -84,7 +84,7 @@ class TestS3Client():
       "ContentType": "image/png"
     }
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
-    result = instance.get("public/image.png")
+    result = instance.get_object("public/image.png")
     boto3_mock.get_object.assert_called_once_with(
       Bucket = "my-bucket",
       Key = "public/image.png"
@@ -100,7 +100,7 @@ class TestS3Client():
       "Body": body_mock
     }
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
-    result = instance.get("public/file.bin")
+    result = instance.get_object("public/file.bin")
     assert result.body == body_mock
     assert result.content_type == DEFAULT_CONTENT_TYPE
 
@@ -110,7 +110,7 @@ class TestS3Client():
     boto3_mock.get_object.return_value = {}
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
     with pytest.raises(StorageClientError) as exc_info:
-      instance.get("public/missing.txt")
+      instance.get_object("public/missing.txt")
     assert str(exc_info.value) == "No body in S3 object"
 
   def test_get_not_found(self):
@@ -120,7 +120,7 @@ class TestS3Client():
       {"Error": {"Code": "NoSuchKey"}}, "get_object"
     )
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
-    result = instance.get("public/nonexistent.txt")
+    result = instance.get_object("public/nonexistent.txt")
     assert result is None
 
   def test_get_client_error(self):
@@ -131,7 +131,7 @@ class TestS3Client():
     )
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
     with pytest.raises(StorageClientError):
-      instance.get("public/secret.txt")
+      instance.get_object("public/secret.txt")
 
   def test_get_boto_core_error(self):
     boto3_mock = MagicMock()
@@ -139,13 +139,13 @@ class TestS3Client():
     boto3_mock.get_object.side_effect = BotoCoreError()
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
     with pytest.raises(StorageClientError):
-      instance.get("public/broken.txt")
+      instance.get_object("public/broken.txt")
 
   def test_delete_success(self):
     boto3_mock = MagicMock()
     logger_mock = MagicMock()
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
-    instance.delete(["public/user-content/test.txt"])
+    instance.delete_objects(["public/user-content/test.txt"])
     boto3_mock.delete_objects.assert_called_once_with(
       Bucket = "my-bucket",
       Delete = { 'Objects': [{ 'Key': "public/user-content/test.txt" }] }
@@ -155,7 +155,7 @@ class TestS3Client():
     boto3_mock = MagicMock()
     logger_mock = MagicMock()
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
-    instance.delete(["public/user-content/a.txt", "public/user-content/b.txt"])
+    instance.delete_objects(["public/user-content/a.txt", "public/user-content/b.txt"])
     boto3_mock.delete_objects.assert_called_once_with(
       Bucket = "my-bucket",
       Delete = { 'Objects': [{ 'Key': "public/user-content/a.txt" }, { 'Key': "public/user-content/b.txt" }] }
@@ -167,4 +167,4 @@ class TestS3Client():
     boto3_mock.delete_objects.side_effect = ClientError({"Error": {"Code": "InternalError", "Message": "error"}}, "DeleteObjects")
     instance = S3Client(boto3_mock, "my-bucket", "https://example.com", logger_mock)
     with pytest.raises(StorageClientError):
-      instance.delete(["public/user-content/test.txt"])
+      instance.delete_objects(["public/user-content/test.txt"])

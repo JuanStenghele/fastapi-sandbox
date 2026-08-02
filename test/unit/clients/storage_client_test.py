@@ -10,21 +10,21 @@ class FakeStorageClient(StorageClient):
   def health_check(self) -> bool:
     return True
 
-  def get(self, key: str) -> StoredObject | None:
+  def get_object(self, key: str) -> StoredObject | None:
     pass
 
-  def upload(self, name: str, data: bytes, content_type: str, public: bool = False) -> StoredObjectUploadResult:
+  def upload_object(self, name: str, data: bytes, content_type: str, public: bool = False) -> StoredObjectUploadResult:
     pass
 
-  def delete(self, names: list) -> None:
+  def delete_objects(self, names: list) -> None:
     pass
 
 
 class TestStorageClient():
   def test_upload_user_content_calls_upload_with_correct_path(self):
     instance = FakeStorageClient()
-    instance.upload = MagicMock(return_value = StoredObjectUploadResult(url = "https://example.com/file.jpg", path = "public/user-content/images/123"))
+    instance.upload_object = MagicMock(return_value = StoredObjectUploadResult(public_url = "https://example.com/file.jpg", path = "public/user-content/images/123"))
     result = instance.upload_user_content("images/123", b"data", "image/jpeg")
-    instance.upload.assert_called_once_with(f"{USER_CONTENT_PATH}/images/123", b"data", "image/jpeg", public = True)
-    assert result.url == "https://example.com/file.jpg"
+    instance.upload_object.assert_called_once_with(f"{USER_CONTENT_PATH}/images/123", b"data", "image/jpeg", public = True)
+    assert result.public_url == "https://example.com/file.jpg"
     assert result.path == "public/user-content/images/123"

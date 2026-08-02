@@ -23,7 +23,7 @@ class TestStorageService():
     session_mock = MagicMock(spec = Session)
     storage_client_mock = MagicMock(spec = StorageClient)
     storage_client_mock.source.return_value = "s3"
-    storage_client_mock.upload.return_value = StoredObjectUploadResult(url = "https://example.com/file.jpg", path = "public/file.jpg")
+    storage_client_mock.upload.return_value = StoredObjectUploadResult(public_url = "https://example.com/file.jpg", path = "public/file.jpg")
     object_mock = MagicMock(spec = ObjectToStore)
     expected_key = "public/file.jpg"
     object_mock.key.return_value = expected_key
@@ -73,7 +73,7 @@ class TestStorageService():
     session_mock = MagicMock(spec = Session)
     storage_client_mock = MagicMock(spec = StorageClient)
     storage_client_mock.source.return_value = "s3"
-    storage_client_mock.upload.return_value = StoredObjectUploadResult(url = "https://example.com/file.jpg", path = "public/file.jpg")
+    storage_client_mock.upload.return_value = StoredObjectUploadResult(public_url = "https://example.com/file.jpg", path = "public/file.jpg")
     object_mock = MagicMock(spec = ObjectToStore)
     object_mock.key.return_value = "public/file.jpg"
     object_mock.data = b"data"

@@ -19,16 +19,16 @@ class StorageClient(ABC):
     pass
 
   @abstractmethod
-  def get(self, key: str) -> StoredObject | None:
+  def get_object(self, key: str) -> StoredObject | None:
     pass
 
   @abstractmethod
-  def upload(self, name: str, data: bytes, content_type: str, public: bool = False) -> StoredObjectUploadResult:
+  def upload_object(self, key: str, data: bytes, content_type: str, public: bool = False) -> StoredObjectUploadResult:
     pass
 
   @abstractmethod
-  def delete(self, names: list) -> None:
+  def delete_objects(self, keys: list) -> None:
     pass
 
   def upload_user_content(self, name: str, data: bytes, content_type: str) -> StoredObjectUploadResult:
-    return self.upload(f"{USER_CONTENT_PATH}/{name}", data, content_type, public = True)
+    return self.upload_object(f"{USER_CONTENT_PATH}/{name}", data, content_type, public = True)

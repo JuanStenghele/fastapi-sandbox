@@ -16,7 +16,7 @@ class StoredObject(BaseObj):
 
 
 class StoredObjectUploadResult(BaseObj):
-  url: str | None
+  public_url: str | None
   path: str
 
 

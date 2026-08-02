@@ -18,7 +18,7 @@ class StorageService():
 
   def store_object(self, session: Session, storage_client: StorageClient, object: ObjectToStore) -> StoredObject:
     id = uuid.uuid4()
-    result = storage_client.upload(
+    result = storage_client.upload_object(
       object.key(id), 
       object.data, 
       object.content_type
@@ -28,7 +28,7 @@ class StorageService():
       id = id,
       source = storage_client.source(),
       key = result.path,
-      public_url = result.url,
+      public_url = result.public_url,
       created_at = now,
       updated_at = now
     )
@@ -41,4 +41,4 @@ class StorageService():
       return
     now = self.date_provider.now()
     self.stored_object_dal.soft_delete_stored_objects(session, ids, now)
-    storage_client.delete([object.key for object in stored_objects])
+    storage_client.delete_objects([object.key for object in stored_objects])
