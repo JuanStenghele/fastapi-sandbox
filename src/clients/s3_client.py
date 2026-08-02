@@ -26,10 +26,10 @@ class S3Client(StorageClient):
       return False
 
   def upload_object(self, key: str, data: bytes, content_type: str, public: bool = False) -> StoredObjectUploadResult:
-    key = f"{PUBLIC_PATH}/{key}" if public else f"{PRIVATE_PATH}/{key}"
+    s3_key = f"{PUBLIC_PATH}/{key}" if public else f"{PRIVATE_PATH}/{key}"
     self.boto3_client.put_object(
       Bucket = self.bucket_name,
-      Key = key,
+      Key = s3_key,
       Body = data,
       ContentType = content_type
     )

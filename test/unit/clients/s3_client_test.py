@@ -49,8 +49,8 @@ class TestS3Client():
       Body = b"data",
       ContentType = "image/jpeg"
     )
-    assert result.public_url == "https://example.com/public/images/cover.jpg"
-    assert result.path == f"{PUBLIC_PATH}/images/cover.jpg"
+    assert result.public_url == "https://example.com/images/cover.jpg"
+    assert result.path == "images/cover.jpg"
 
   def test_upload_private(self):
     boto3_mock = MagicMock()
@@ -64,7 +64,7 @@ class TestS3Client():
       ContentType = "image/jpeg"
     )
     assert result.public_url is None
-    assert result.path == f"{PRIVATE_PATH}/images/cover.jpg"
+    assert result.path == "images/cover.jpg"
 
   def test_upload_fail(self):
     boto3_mock = MagicMock()
