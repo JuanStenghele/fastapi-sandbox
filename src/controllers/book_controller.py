@@ -158,7 +158,7 @@ def update_book_cover(
     raw_image = RawImage(file = cover_image.file, content_type = cover_image.content_type, size = cover_image.size)
     result = cover_image_service.update_book_cover(session, id, raw_image)
   except ValidationError as e:
-    status_code = status.HTTP_404_NOT_FOUND if e.detail == "BOOK_NOT_FOUND" else status.HTTP_400_BAD_REQUEST
+    status_code = status.HTTP_404_NOT_FOUND if e.detail.startswith("BOOKS_NOT_FOUND") else status.HTTP_400_BAD_REQUEST
     raise HTTPException(detail = e.detail, status_code = status_code)
   except Exception as e:
     logger.error(f"Error replacing book cover: {e}")

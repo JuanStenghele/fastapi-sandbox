@@ -180,7 +180,8 @@ class Container(DeclarativeContainer):
     storage_client = s3_client,
     cover_image_validator = cover_image_validator,
     date_provider = date_provider,
-    storage_service = storage_service
+    storage_service = storage_service,
+    book_dal = book_dal
   )
 
   book_validator = providers.Factory(

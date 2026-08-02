@@ -21,7 +21,8 @@ class StorageService():
     result = storage_client.upload_object(
       object.key(id), 
       object.data, 
-      object.content_type
+      object.content_type,
+      public = True
     )
     now = self.date_provider.now()
     stored_object = StoredObject(

@@ -49,7 +49,7 @@ class TestS3Client():
       Body = b"data",
       ContentType = "image/jpeg"
     )
-    assert result.public_url == "https://example.com/images/cover.jpg"
+    assert result.public_url == "https://example.com/public/images/cover.jpg"
     assert result.path == f"{PUBLIC_PATH}/images/cover.jpg"
 
   def test_upload_private(self):

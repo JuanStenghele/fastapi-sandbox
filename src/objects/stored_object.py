@@ -46,8 +46,8 @@ class ObjectToStoreInS3(ObjectToStore):
   def key(self, id: str) -> str:
     if self.s3_key is not None:
       return self.s3_key
-    key = self.key_template.replace(self.ID, id)
+    key = self.key_template.replace(self.ID, str(id))
     if self.EXT in key:
       ext = mimetypes.guess_extension(self.content_type) or ''
-      key = self.key_template.replace(self.EXT, ext.lstrip('.'))
+      key = key.replace(self.EXT, ext.lstrip('.'))
     return key
