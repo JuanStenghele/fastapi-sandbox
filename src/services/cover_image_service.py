@@ -25,7 +25,7 @@ class CoverImageService():
     image_data = image.file.read()
     object_to_store = ObjectToStoreInS3.with_key_template(f'{COVER_IMAGES_PATH}/{ObjectToStoreInS3.ID}.{ObjectToStoreInS3.EXT}', image_data, image.content_type)
     result = self.storage_service.store_object(session, self.storage_client, object_to_store)
-    self.book_dal.update_book_cover_stored_object_ids(session, [book_id], result.id, self.date_provider.now())
+    self.book_dal.update_book_cover_stored_object_id(session, book_id, result.id, self.date_provider.now())
     return CoverImage(book_id = book_id, url = result.public_url)
 
   def update_book_cover(self, session: Session, book_id: UUID, image: RawImage) -> CoverImage:
@@ -35,4 +35,4 @@ class CoverImageService():
   def delete_book_covers(self, session: Session, book_ids: list) -> None:
     self.cover_image_validator.validate_deletion(session, book_ids)
     self.storage_service.delete_stored_objects(session, self.storage_client, book_ids)
-    self.book_dal.update_book_cover_stored_object_ids(session, book_ids, None, self.date_provider.now())
+    self.book_dal.delete_book_cover_stored_object_ids(session, book_ids, self.date_provider.now())

@@ -109,8 +109,18 @@ class BookDAL():
       for db_book, book_author, db_cover in results
     ]
 
-  def update_book_cover_stored_object_ids(self, session: Session, ids: list, stored_object_id: UUID | None, updated_at: datetime) -> None:
-    query = update(DBBook).where(DBBook.id.in_(ids)).values(cover_image_stored_object_id = stored_object_id, updated_at = updated_at)
+  def count_books(self, session: Session, search_term: str | None) -> int:
+    query = select(func.count()).select_from(DBBook).where(DBBook.deleted_at == None)
+    if search_term:
+      query = query.filter(DBBook.title.icontains(search_term, autoescape = True))
+    return session.exec(query).one()
+
+  def update_book_cover_stored_object_id(self, session: Session, id: UUID, stored_object_id: UUID, updated_at: datetime) -> None:
+    query = update(DBBook).where(DBBook.id == id).values(cover_image_stored_object_id = stored_object_id, updated_at = updated_at)
+    session.exec(query)
+
+  def delete_book_cover_stored_object_ids(self, session: Session, ids: list, updated_at: datetime) -> None:
+    query = update(DBBook).where(DBBook.id.in_(ids)).values(cover_image_stored_object_id = None, updated_at = updated_at)
     session.exec(query)
 
   def soft_delete_books(self, session: Session, ids: list, deleted_at: datetime) -> None:
@@ -118,9 +128,3 @@ class BookDAL():
     session.exec(query)
     query = update(DBBookAuthor).where(DBBookAuthor.book_id.in_(ids)).values(deleted_at = deleted_at)
     session.exec(query)
-
-  def count_books(self, session: Session, search_term: str | None) -> int:
-    query = select(func.count()).select_from(DBBook).where(DBBook.deleted_at == None)
-    if search_term:
-      query = query.filter(DBBook.title.icontains(search_term, autoescape = True))
-    return session.exec(query).one()

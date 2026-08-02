@@ -314,15 +314,7 @@ class TestBookDal():
     book_id = uuid4()
     stored_object_id = uuid4()
     instance = BookDAL()
-    instance.update_book_cover_stored_object_ids(session_mock, [book_id], stored_object_id, updated_at_mock)
-    assert session_mock.exec.call_count == 1
-
-  def test_update_book_cover_stored_object_id_none(self):
-    session_mock = MagicMock(spec = Session)
-    updated_at_mock = MagicMock()
-    book_id = uuid4()
-    instance = BookDAL()
-    instance.update_book_cover_stored_object_ids(session_mock, [book_id], None, updated_at_mock)
+    instance.update_book_cover_stored_object_id(session_mock, book_id, stored_object_id, updated_at_mock)
     assert session_mock.exec.call_count == 1
 
   def test_update_book_cover_stored_object_id_fail(self):
@@ -332,7 +324,25 @@ class TestBookDal():
     updated_at_mock = MagicMock()
     instance = BookDAL()
     with pytest.raises(Exception) as exc_info:
-      instance.update_book_cover_stored_object_ids(session_mock, [uuid4()], uuid4(), updated_at_mock)
+      instance.update_book_cover_stored_object_id(session_mock, uuid4(), uuid4(), updated_at_mock)
+    assert str(exc_info.value) == expected_message
+
+  def test_delete_book_cover_stored_object_ids_success(self):
+    session_mock = MagicMock(spec = Session)
+    updated_at_mock = MagicMock()
+    book_id = uuid4()
+    instance = BookDAL()
+    instance.delete_book_cover_stored_object_ids(session_mock, [book_id], updated_at_mock)
+    assert session_mock.exec.call_count == 1
+
+  def test_delete_book_cover_stored_object_ids_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    updated_at_mock = MagicMock()
+    instance = BookDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.delete_book_cover_stored_object_ids(session_mock, [uuid4()], updated_at_mock)
     assert str(exc_info.value) == expected_message
 
   def test_soft_delete_books_success(self):

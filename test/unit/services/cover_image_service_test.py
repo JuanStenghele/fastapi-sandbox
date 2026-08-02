@@ -38,7 +38,7 @@ class TestCoverImageService():
 
     cover_image_validator_mock.validate_upsert.assert_called_once_with(session_mock, book_id, image)
     storage_service_mock.store_object.assert_called_once()
-    book_dal_mock.update_book_cover_stored_object_ids.assert_called_once_with(session_mock, [book_id], stored_object_id, now)
+    book_dal_mock.update_book_cover_stored_object_id.assert_called_once_with(session_mock, book_id, stored_object_id, now)
     assert result.book_id == book_id
     assert result.url == "https://example.com/cover.jpg"
 
@@ -57,7 +57,7 @@ class TestCoverImageService():
       instance.create_book_cover(session_mock, uuid4(), image)
     assert exc_info.value.detail == "INVALID_IMAGE"
     storage_service_mock.store_object.assert_not_called()
-    book_dal_mock.update_book_cover_stored_object_ids.assert_not_called()
+    book_dal_mock.delete_book_cover_stored_object_ids.assert_not_called()
 
   def test_create_storage_service_fail(self):
     storage_client_mock = MagicMock(spec = StorageClient)
@@ -75,7 +75,7 @@ class TestCoverImageService():
     with pytest.raises(StorageClientError) as exc_info:
       instance.create_book_cover(session_mock, uuid4(), image)
     assert str(exc_info.value) == "upload failed"
-    book_dal_mock.update_book_cover_stored_object_ids.assert_not_called()
+    book_dal_mock.delete_book_cover_stored_object_ids.assert_not_called()
 
   def test_delete_success(self):
     now = MagicMock()
@@ -93,7 +93,7 @@ class TestCoverImageService():
 
     cover_image_validator_mock.validate_deletion.assert_called_once_with(session_mock, [book_id])
     storage_service_mock.delete_stored_objects.assert_called_once_with(session_mock, storage_client_mock, [book_id])
-    book_dal_mock.update_book_cover_stored_object_ids.assert_called_once_with(session_mock, [book_id], None, now)
+    book_dal_mock.delete_book_cover_stored_object_ids.assert_called_once_with(session_mock, [book_id], now)
 
   def test_delete_validation_fail(self):
     storage_client_mock = MagicMock(spec = StorageClient)
@@ -109,7 +109,7 @@ class TestCoverImageService():
       instance.delete_book_covers(session_mock, [uuid4()])
     assert exc_info.value.detail == "BOOKS_NOT_FOUND"
     storage_service_mock.delete_stored_objects.assert_not_called()
-    book_dal_mock.update_book_cover_stored_object_ids.assert_not_called()
+    book_dal_mock.delete_book_cover_stored_object_ids.assert_not_called()
 
   def test_delete_storage_service_fail(self):
     storage_client_mock = MagicMock(spec = StorageClient)
@@ -126,7 +126,7 @@ class TestCoverImageService():
       instance.delete_book_covers(session_mock, [book_id])
     assert str(exc_info.value) == "s3 error"
     cover_image_validator_mock.validate_deletion.assert_called_once_with(session_mock, [book_id])
-    book_dal_mock.update_book_cover_stored_object_ids.assert_not_called()
+    book_dal_mock.delete_book_cover_stored_object_ids.assert_not_called()
 
   def test_update_book_cover_success(self):
     now = MagicMock()
@@ -150,7 +150,7 @@ class TestCoverImageService():
 
     storage_service_mock.delete_stored_objects.assert_called_once_with(session_mock, storage_client_mock, [book_id])
     storage_service_mock.store_object.assert_called_once()
-    book_dal_mock.update_book_cover_stored_object_ids.assert_called_with(session_mock, [book_id], stored_object_id, now)
+    book_dal_mock.update_book_cover_stored_object_id.assert_called_with(session_mock, book_id, stored_object_id, now)
     assert result.book_id == book_id
     assert result.url == "https://example.com/cover.jpg"
 
