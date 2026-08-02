@@ -6,7 +6,7 @@ from uuid import uuid4
 from sqlmodel import Session
 from dal.stored_object_dal import StoredObjectDAL
 from db_schema.stored_object_db import StoredObject as DBStoredObject
-from objects.stored_object import StoredObject
+from objects.stored_object import StoredObjectRecord
 
 
 class TestStoredObjectDal():
@@ -14,7 +14,7 @@ class TestStoredObjectDal():
     session_mock = MagicMock(spec = Session)
     now = MagicMock()
     stored_object_id = uuid4()
-    stored_object = StoredObject.model_construct(
+    stored_object = StoredObjectRecord.model_construct(
       id = stored_object_id,
       source = "s3",
       key = "public/file.jpg",
@@ -36,7 +36,7 @@ class TestStoredObjectDal():
     expected_message = 'Test Exception'
     session_mock.add.side_effect = Exception(expected_message)
     now = MagicMock()
-    stored_object = StoredObject.model_construct(
+    stored_object = StoredObjectRecord.model_construct(
       id = uuid4(),
       source = "s3",
       key = "public/file.jpg",

@@ -1,11 +1,21 @@
-from clients.storage_client import StorageClient, StoredObjectContent
+from abc import ABC, abstractmethod
+from clients.s3_client import S3Client
+from services.storage_service import StorageService
+from objects.stored_object import StoredObjectContent
 from constants import PUBLIC_PATH
 
 
-class StorageReverseProxy():
-  def __init__(self, storage_client: StorageClient):
-    self.storage_client = storage_client
+class StorageReverseProxy(ABC):
+  @abstractmethod
+  def get_stored_object(self, path: str) -> StoredObjectContent | None:
+    pass
+
+
+class S3StorageReverseProxy(StorageReverseProxy):
+  def __init__(self, storage_service: StorageService, s3_storage_client: S3Client) -> None:
+    self.storage_service = storage_service
+    self.s3_storage_client = s3_storage_client
 
   def get_stored_object(self, path: str) -> StoredObjectContent | None:
     key = f"{PUBLIC_PATH}/{path}"
-    return self.storage_client.get_object(key)
+    return self.storage_service.get_stored_object_content_by_key(self.s3_storage_client, key)

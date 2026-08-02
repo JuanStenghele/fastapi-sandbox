@@ -5,7 +5,7 @@ from sqlmodel import Session
 from clients.storage_client import StorageClient
 from dal.stored_object_dal import StoredObjectDAL
 from dal.book_dal import BookDAL
-from objects.stored_object import ObjectToStore, StoredObject
+from objects.stored_object import ObjectToStore, StoredObjectRecord, StoredObjectContent
 from services.date_provider import DateProvider
 
 
@@ -15,16 +15,16 @@ class StorageService():
     self.book_dal = book_dal
     self.stored_object_dal = stored_object_dal
 
-  def store_object(self, session: Session, storage_client: StorageClient, object: ObjectToStore) -> StoredObject:
+  def store_object(self, session: Session, storage_client: StorageClient, object: ObjectToStore) -> StoredObjectRecord:
     id = uuid.uuid4()
     result = storage_client.upload_object(
       object.key(id), 
       object.data, 
       object.content_type,
-      public = True
+      public = object.public
     )
     now = self.date_provider.now()
-    stored_object = StoredObject(
+    stored_object = StoredObjectRecord(
       id = id,
       source = storage_client.source(),
       key = result.path,
@@ -34,6 +34,9 @@ class StorageService():
     )
     self.stored_object_dal.create_stored_object(session, stored_object)
     return stored_object
+
+  def get_stored_object_content_by_key(self, storage_client: StorageClient, key: str) -> StoredObjectContent:
+    return storage_client.get_object(key)
 
   def delete_stored_objects(self, session: Session, storage_client: StorageClient, ids: list) -> None:
     stored_objects = self.stored_object_dal.get_stored_objects(session, len(ids), 0, ids = ids)

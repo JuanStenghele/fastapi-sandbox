@@ -8,7 +8,7 @@ from clients.storage_client import StorageClient, StorageClientError
 from dal.book_dal import BookDAL
 from objects.error import ValidationError
 from objects.image import RawImage
-from objects.stored_object import StoredObject as StoredObjectRecord
+from objects.stored_object import StoredObjectRecord
 from services.cover_image_service import CoverImageService
 from services.date_provider import DateProvider
 from services.storage_service import StorageService

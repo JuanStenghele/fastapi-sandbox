@@ -10,7 +10,7 @@ from datetime import datetime
 from uuid import UUID
 
 
-class StoredObject(OrmObj):
+class StoredObjectRecord(OrmObj):
   id: UUID
   source: str
   key: str
@@ -33,9 +33,10 @@ class StoredObjectUploadResult(BaseObj):
 
 
 class ObjectToStore(ABC):
-  def __init__(self, data: bytes, content_type: str = DEFAULT_CONTENT_TYPE):
+  def __init__(self, data: bytes, content_type: str = DEFAULT_CONTENT_TYPE, public: bool = False):
     self.data = data
     self.content_type = content_type
+    self.public = public
 
   @abstractmethod
   def key(self, id: str) -> str:
@@ -46,14 +47,14 @@ class ObjectToStoreInS3(ObjectToStore):
   ID = '{id}'
   EXT = '{ext}'
 
-  def __init__(self, key: str | None, data: bytes, key_template: str | None = None, content_type: str = DEFAULT_CONTENT_TYPE):
-    super().__init__(data, content_type)
+  def __init__(self, key: str | None, data: bytes, key_template: str | None = None, content_type: str = DEFAULT_CONTENT_TYPE, public: bool = False):
+    super().__init__(data, content_type, public)
     self.s3_key = key
     self.key_template = key_template
 
   @classmethod
-  def with_key_template(cls, key_template: str, data: bytes, content_type: str = DEFAULT_CONTENT_TYPE):
-    return cls(None, data, key_template, content_type)
+  def with_key_template(cls, key_template: str, data: bytes, content_type: str = DEFAULT_CONTENT_TYPE, public: bool = False):
+    return cls(None, data, key_template, content_type, public)
 
   def key(self, id: str) -> str:
     if self.s3_key is not None:

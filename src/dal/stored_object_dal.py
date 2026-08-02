@@ -2,11 +2,11 @@ from datetime import datetime
 from uuid import UUID
 from sqlmodel import select, update, Session
 from db_schema.stored_object_db import StoredObject as DBStoredObject
-from objects.stored_object import StoredObject
+from objects.stored_object import StoredObjectRecord
 
 
 class StoredObjectDAL():
-  def create_stored_object(self, session: Session, stored_object: StoredObject) -> StoredObject:
+  def create_stored_object(self, session: Session, stored_object: StoredObjectRecord) -> StoredObjectRecord:
     db_stored_object = DBStoredObject(
       id = stored_object.id,
       source = stored_object.source,
@@ -18,20 +18,20 @@ class StoredObjectDAL():
     session.add(db_stored_object)
     return stored_object
 
-  def get_stored_object(self, session: Session, id: UUID) -> StoredObject | None:
+  def get_stored_object(self, session: Session, id: UUID) -> StoredObjectRecord | None:
     query = select(DBStoredObject).where(DBStoredObject.id == id, DBStoredObject.deleted_at == None)
     result = session.exec(query).first()
     if result is None:
       return None
-    return StoredObject.model_validate(result)
+    return StoredObjectRecord.model_validate(result)
 
-  def get_stored_objects(self, session: Session, limit: int, offset: int, ids: list | None = None) -> list[StoredObject]:
+  def get_stored_objects(self, session: Session, limit: int, offset: int, ids: list | None = None) -> list[StoredObjectRecord]:
     query = select(DBStoredObject).where(DBStoredObject.deleted_at == None)
     if ids is not None:
       query = query.where(DBStoredObject.id.in_(ids))
     query = query.order_by(DBStoredObject.id.asc()).limit(limit).offset(offset)
     results = session.exec(query).all()
-    return [StoredObject.model_validate(result) for result in results]
+    return [StoredObjectRecord.model_validate(result) for result in results]
 
   def soft_delete_stored_objects(self, session: Session, ids: list, deleted_at: datetime) -> None:
     query = update(DBStoredObject).where(DBStoredObject.id.in_(ids)).values(deleted_at = deleted_at)

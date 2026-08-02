@@ -23,7 +23,7 @@ class CoverImageService():
   def create_book_cover(self, session: Session, book_id: UUID, image: RawImage) -> CoverImage:
     self.cover_image_validator.validate_upsert(session, book_id, image)
     image_data = image.file.read()
-    object_to_store = ObjectToStoreInS3.with_key_template(f'{COVER_IMAGES_PATH}/{ObjectToStoreInS3.ID}.{ObjectToStoreInS3.EXT}', image_data, image.content_type)
+    object_to_store = ObjectToStoreInS3.with_key_template(f'{COVER_IMAGES_PATH}/{ObjectToStoreInS3.ID}.{ObjectToStoreInS3.EXT}', image_data, image.content_type, True)
     result = self.storage_service.store_object(session, self.storage_client, object_to_store)
     self.book_dal.update_book_cover_stored_object_id(session, book_id, result.id, self.date_provider.now())
     return CoverImage(stored_object_id = result.id, book_id = book_id, url = result.public_url)

@@ -17,7 +17,7 @@ from services.book_service import BookService
 from services.observability import ObservabilityService
 from services.cover_image_service import CoverImageService
 from services.date_provider import DateProvider
-from services.storage_reverse_proxy import StorageReverseProxy
+from services.storage_reverse_proxy import S3StorageReverseProxy
 from validators.cover_image_validator import CoverImageValidator
 from clients.s3_client import S3Client
 from dal.stored_object_dal import StoredObjectDAL
@@ -154,11 +154,6 @@ class Container(DeclarativeContainer):
     logger = logger
   )
 
-  storage_reverse_proxy = providers.Factory(
-    StorageReverseProxy,
-    storage_client = s3_client
-  )
-
   stored_object_dal = providers.Factory(
     StoredObjectDAL
   )
@@ -168,6 +163,12 @@ class Container(DeclarativeContainer):
     date_provider = date_provider,
     book_dal = book_dal,
     stored_object_dal = stored_object_dal
+  )
+
+  storage_reverse_proxy = providers.Factory(
+    S3StorageReverseProxy,
+    storage_service = storage_service,
+    s3_storage_client = s3_client
   )
 
   cover_image_validator = providers.Singleton(

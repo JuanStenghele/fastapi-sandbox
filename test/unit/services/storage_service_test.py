@@ -7,7 +7,7 @@ from sqlmodel import Session
 from clients.storage_client import StorageClient, StorageClientError
 from dal.stored_object_dal import StoredObjectDAL
 from dal.book_dal import BookDAL
-from objects.stored_object import StoredObjectUploadResult, ObjectToStore, StoredObject
+from objects.stored_object import StoredObjectUploadResult, ObjectToStore, StoredObjectRecord, StoredObjectContent
 from services.date_provider import DateProvider
 from services.storage_service import StorageService
 
@@ -28,6 +28,7 @@ class TestStorageService():
     object_mock.key.return_value = expected_key
     object_mock.data = b"data"
     object_mock.content_type = "image/jpeg"
+    object_mock.public = True
     instance = StorageService(date_provider_mock, book_dal_mock, stored_object_dal_mock)
 
     result = instance.store_object(session_mock, storage_client_mock, object_mock)
@@ -55,6 +56,7 @@ class TestStorageService():
     object_mock.key.return_value = "public/file.jpg"
     object_mock.data = b"data"
     object_mock.content_type = "image/jpeg"
+    object_mock.public = True
     instance = StorageService(date_provider_mock, book_dal_mock, stored_object_dal_mock)
 
     with pytest.raises(StorageClientError) as exc_info:
@@ -77,6 +79,7 @@ class TestStorageService():
     object_mock.key.return_value = "public/file.jpg"
     object_mock.data = b"data"
     object_mock.content_type = "image/jpeg"
+    object_mock.public = True
     instance = StorageService(date_provider_mock, book_dal_mock, stored_object_dal_mock)
 
     with pytest.raises(Exception) as exc_info:
@@ -90,7 +93,7 @@ class TestStorageService():
     book_dal_mock = MagicMock(spec = BookDAL)
     stored_object_dal_mock = MagicMock(spec = StoredObjectDAL)
     stored_object_id = uuid4()
-    stored_object = StoredObject.model_construct(id = stored_object_id, source = "s3", key = "public/file.jpg", created_at = now, updated_at = now)
+    stored_object = StoredObjectRecord.model_construct(id = stored_object_id, source = "s3", key = "public/file.jpg", created_at = now, updated_at = now)
     stored_object_dal_mock.get_stored_objects.return_value = [stored_object]
     session_mock = MagicMock(spec = Session)
     storage_client_mock = MagicMock(spec = StorageClient)
@@ -139,7 +142,7 @@ class TestStorageService():
     date_provider_mock.now.return_value = now
     book_dal_mock = MagicMock(spec = BookDAL)
     stored_object_dal_mock = MagicMock(spec = StoredObjectDAL)
-    stored_object = StoredObject.model_construct(id = uuid4(), source = "s3", key = "public/file.jpg", created_at = now, updated_at = now)
+    stored_object = StoredObjectRecord.model_construct(id = uuid4(), source = "s3", key = "public/file.jpg", created_at = now, updated_at = now)
     stored_object_dal_mock.get_stored_objects.return_value = [stored_object]
     storage_client_mock = MagicMock(spec = StorageClient)
     storage_client_mock.delete_objects.side_effect = StorageClientError("s3 error")
@@ -151,3 +154,33 @@ class TestStorageService():
     assert str(exc_info.value) == "s3 error"
     stored_object_dal_mock.soft_delete_stored_objects.assert_called_once()
     storage_client_mock.delete_objects.assert_called_once()
+
+  def test_get_stored_object_content_by_key_success(self):
+    storage_client_mock = MagicMock(spec = StorageClient)
+    stored_object_content = StoredObjectContent.model_construct(body = iter([b"data"]), content_type = "image/png")
+    storage_client_mock.get_object.return_value = stored_object_content
+    instance = StorageService(MagicMock(spec = DateProvider), MagicMock(spec = BookDAL), MagicMock(spec = StoredObjectDAL))
+
+    result = instance.get_stored_object_content_by_key(storage_client_mock, "public/file.jpg")
+
+    storage_client_mock.get_object.assert_called_once_with("public/file.jpg")
+    assert result == stored_object_content
+
+  def test_get_stored_object_content_by_key_returns_none(self):
+    storage_client_mock = MagicMock(spec = StorageClient)
+    storage_client_mock.get_object.return_value = None
+    instance = StorageService(MagicMock(spec = DateProvider), MagicMock(spec = BookDAL), MagicMock(spec = StoredObjectDAL))
+
+    result = instance.get_stored_object_content_by_key(storage_client_mock, "missing.txt")
+
+    storage_client_mock.get_object.assert_called_once_with("missing.txt")
+    assert result is None
+
+  def test_get_stored_object_content_by_key_storage_fail(self):
+    storage_client_mock = MagicMock(spec = StorageClient)
+    storage_client_mock.get_object.side_effect = StorageClientError("s3 error")
+    instance = StorageService(MagicMock(spec = DateProvider), MagicMock(spec = BookDAL), MagicMock(spec = StoredObjectDAL))
+
+    with pytest.raises(StorageClientError) as exc_info:
+      instance.get_stored_object_content_by_key(storage_client_mock, "broken.txt")
+    assert str(exc_info.value) == "s3 error"
