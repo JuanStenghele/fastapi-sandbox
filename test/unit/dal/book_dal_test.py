@@ -161,7 +161,7 @@ class TestBookDal():
     exec_mock.all.return_value = [(db_book, db_book_author, None)]
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
-    result = instance.get_books(session_mock, None, 10, 0)
+    result = instance.get_books(session_mock, 10, 0)
     assert len(result) == 1
     assert result[0].id == book_id
     assert result[0].title == book_title
@@ -181,7 +181,7 @@ class TestBookDal():
     exec_mock.all.return_value = [(db_book, db_book_author, None)]
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
-    result = instance.get_books(session_mock, 'Harry', 10, 0)
+    result = instance.get_books(session_mock, 10, 0, search_term = 'Harry')
     assert len(result) == 1
     assert result[0].id == book_id
     assert result[0].title == book_title
@@ -198,7 +198,7 @@ class TestBookDal():
     exec_mock.all.return_value = [(db_book, db_book_author, None)]
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
-    result = instance.get_books(session_mock, 'Harry', 10, 0)
+    result = instance.get_books(session_mock, 10, 0, search_term = 'Harry')
     assert result[0].cover_image is None
 
   def test_get_books_success_multiple_results(self):
@@ -215,7 +215,7 @@ class TestBookDal():
     exec_mock.all.return_value = [(db_book_1, db_book_author_1, None), (db_book_2, db_book_author_2, None)]
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
-    result = instance.get_books(session_mock, None, 10, 0)
+    result = instance.get_books(session_mock, 10, 0)
     assert len(result) == 2
     assert result[0].id == book_id_1
     assert result[0].title == 'Harry Potter'
@@ -229,7 +229,7 @@ class TestBookDal():
     exec_mock.all.return_value = []
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
-    result = instance.get_books(session_mock, None, 10, 0)
+    result = instance.get_books(session_mock, 10, 0)
     assert result == []
     assert session_mock.exec.call_count == 1
 
@@ -239,7 +239,7 @@ class TestBookDal():
     session_mock.exec.side_effect = Exception(expected_message)
     instance = BookDAL()
     with pytest.raises(Exception) as exc_info:
-      instance.get_books(session_mock, None, 10, 0)
+      instance.get_books(session_mock, 10, 0)
     assert str(exc_info.value) == expected_message
     assert session_mock.exec.call_count == 1
 
@@ -284,7 +284,7 @@ class TestBookDal():
     exec_mock.all.return_value = [(db_book, book_author, None)]
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
-    result = instance.get_books_by_ids(session_mock, [book_id])
+    result = instance.get_books(session_mock, 1, 0, ids = [book_id])
     assert len(result) == 1
     assert result[0].id == book_id
     assert result[0].title == 'Harry Potter'
@@ -296,7 +296,7 @@ class TestBookDal():
     exec_mock.all.return_value = []
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
-    result = instance.get_books_by_ids(session_mock, [uuid4()])
+    result = instance.get_books(session_mock, 1, 0, ids = [uuid4()])
     assert result == []
 
   def test_get_books_by_ids_fail(self):
@@ -305,7 +305,7 @@ class TestBookDal():
     session_mock.exec.side_effect = Exception(expected_message)
     instance = BookDAL()
     with pytest.raises(Exception) as exc_info:
-      instance.get_books_by_ids(session_mock, [uuid4()])
+      instance.get_books(session_mock, 1, 0, ids = [uuid4()])
     assert str(exc_info.value) == expected_message
 
   def test_update_book_cover_stored_object_id_success(self):

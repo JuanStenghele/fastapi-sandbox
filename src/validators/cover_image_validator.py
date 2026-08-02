@@ -19,7 +19,7 @@ class CoverImageValidator():
       raise ValidationError(f"Image exceeds maximum allowed size of {COVER_IMAGE_MAX_SIZE_BYTES // (1024 * 1024)} MB")
 
   def validate_deletion(self, session: Session, book_ids: list) -> None:
-    existing_books = self.book_dal.get_books_by_ids(session, book_ids)
+    existing_books = self.book_dal.get_books(session, len(book_ids), 0, ids = book_ids)
     existing_books_ids = [book.id for book in existing_books]
     books_ids_not_found = [id for id in book_ids if id not in existing_books_ids]
     if len(books_ids_not_found) != 0:

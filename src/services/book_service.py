@@ -47,7 +47,7 @@ class BookService():
     if offset < 0:
       raise ValidationError(detail = "INVALID_OFFSET")
     total_books = self.book_dal.count_books(session, search_term)
-    books = self.book_dal.get_books(session, search_term, limit, offset)
+    books = self.book_dal.get_books(session, limit, offset, search_term = search_term)
     return GetBooksResult(books = books, total_books = total_books)
 
   def get_books_paginated(self, session: Session, search_term: str | None, page: int, page_size: int) -> GetBooksPaginatedResult:

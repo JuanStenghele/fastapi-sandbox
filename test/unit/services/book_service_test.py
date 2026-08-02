@@ -124,7 +124,7 @@ class TestBookService():
     assert result.books == [book_1, book_2]
     assert result.total_books == 2
     book_dal_mock.count_books.assert_called_once()
-    book_dal_mock.get_books.assert_called_once_with(session_mock, None, 10, 0)
+    book_dal_mock.get_books.assert_called_once_with(session_mock, 10, 0, search_term = None)
 
   def test_get_books_success_with_search_term(self):
     now = datetime.now(timezone.utc)
@@ -141,7 +141,7 @@ class TestBookService():
     assert len(result.books) == 1
     assert result.books[0].title == 'Harry Potter'
     assert result.total_books == 1
-    book_dal_mock.get_books.assert_called_once_with(session_mock, 'Harry', 10, 0)
+    book_dal_mock.get_books.assert_called_once_with(session_mock, 10, 0, search_term = 'Harry')
 
   def test_get_books_empty_results(self):
     book_dal_mock = MagicMock(spec = BookDAL)
@@ -198,7 +198,7 @@ class TestBookService():
     assert result.current_page == 1
     assert result.page_size == 10
     book_dal_mock.count_books.assert_called_once()
-    book_dal_mock.get_books.assert_called_once_with(session_mock, None, 10, 0)
+    book_dal_mock.get_books.assert_called_once_with(session_mock, 10, 0, search_term = None)
 
   def test_get_books_paginated_invalid_page_size(self):
     book_dal_mock = MagicMock(spec = BookDAL)

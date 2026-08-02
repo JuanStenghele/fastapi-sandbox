@@ -56,15 +56,15 @@ class TestCoverImageValidator():
   def test_validate_deletion_success(self):
     book_id = uuid4()
     book_dal_mock = MagicMock(spec = BookDAL)
-    book_dal_mock.get_books_by_ids.return_value = [MagicMock(spec = Book, id = book_id)]
+    book_dal_mock.get_books.return_value = [MagicMock(spec = Book, id = book_id)]
     session_mock = MagicMock(spec = Session)
     instance = CoverImageValidator(book_dal_mock)
     instance.validate_deletion(session_mock, [book_id])
-    book_dal_mock.get_books_by_ids.assert_called_once_with(session_mock, [book_id])
+    book_dal_mock.get_books.assert_called_once_with(session_mock, 1, 0, ids = [book_id])
 
   def test_validate_deletion_not_found(self):
     book_dal_mock = MagicMock(spec = BookDAL)
-    book_dal_mock.get_books_by_ids.return_value = []
+    book_dal_mock.get_books.return_value = []
     session_mock = MagicMock(spec = Session)
     missing_id = uuid4()
     instance = CoverImageValidator(book_dal_mock)
