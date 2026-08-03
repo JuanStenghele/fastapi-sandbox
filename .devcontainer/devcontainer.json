@@ -4,15 +4,14 @@
 	"runArgs": ["--name", "dev-fastapi-sandbox"],
 	// Add the Dev Container Dockerfile
 	"build": {
-		"dockerfile": "Dockerfile"
+		"dockerfile": "Dockerfile",
+    "context": ".."
 	},
-	// Run post create script
-	"postCreateCommand": "bash ./.devcontainer/post_create_command.sh",
-	// Choose dev as the default user
-	"remoteUser": "dev",
+	// Choose vscode as the default user
+	"remoteUser": "vscode",
 	// Mount the .ssh repository to use GitHub
 	"mounts": [
-		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/dev/.ssh,readonly,type=bind"
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,readonly,type=bind"
 	],
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {
