@@ -180,12 +180,36 @@ class TestBookController():
   def test_delete_books_success(self, context: Context):
     author_id = uuid4()
     insert_author(context.db_url, author_id, 'J. K. Rowling')
-    book_id_1 = uuid4()
-    book_id_2 = uuid4()
-    insert_book(context.db_url, book_id_1, 'Harry Potter', author_id)
-    insert_book(context.db_url, book_id_2, 'The Lord of the Rings', author_id)
+    cover_image = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
+    response_1 = context.client.post(
+      "/v1/books",
+      data = { "title": "Harry Potter", "author_id": str(author_id) },
+      files = { "cover_image": ("harry_potter_cover.jpg", cover_image, "image/jpeg") },
+      headers = get_auth_headers(self.admin_auth_token)
+    )
+    cover_image.close()
+    book_id_1 = response_1.json()['id']
+    cover_url_1 = response_1.json()['cover_image_url']
+    stored_object_id_1 = cover_url_1.split("cover-images/")[1].split(".")[0]
+    cover_key_1 = f"public/cover-images/{stored_object_id_1}.jpg"
+
+    cover_image = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
+    response_2 = context.client.post(
+      "/v1/books",
+      data = { "title": "The Lord of the Rings", "author_id": str(author_id) },
+      files = { "cover_image": ("harry_potter_cover.jpg", cover_image, "image/jpeg") },
+      headers = get_auth_headers(self.admin_auth_token)
+    )
+    cover_image.close()
+    book_id_2 = response_2.json()['id']
+    cover_url_2 = response_2.json()['cover_image_url']
+    stored_object_id_2 = cover_url_2.split("cover-images/")[1].split(".")[0]
+    cover_key_2 = f"public/cover-images/{stored_object_id_2}.jpg"
+
     response = context.client.delete("/v1/books", params = { "ids": [str(book_id_1), str(book_id_2)] }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 204
+    assert not file_exists(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, cover_key_1)
+    assert not file_exists(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, cover_key_2)
 
   def test_delete_books_without_admin_scope(self, context: Context):
     auth_token = get_user_auth_token(context.auth_token_url, "test-user")
@@ -300,8 +324,12 @@ class TestBookController():
     )
     cover_image.close()
     book_id = create_response.json()['id']
+    cover_url = create_response.json()['cover_image_url']
+    stored_object_id = cover_url.split("cover-images/")[1].split(".")[0]
+    cover_key = f"public/cover-images/{stored_object_id}.jpg"
     response = context.client.delete(f"/v1/books/{book_id}/cover-images", headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 204
+    assert not file_exists(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, cover_key)
 
   def test_delete_book_cover_book_not_found(self, context: Context):
     response = context.client.delete(f"/v1/books/{uuid4()}/cover-images", headers = get_auth_headers(self.admin_auth_token))
@@ -334,6 +362,9 @@ class TestBookController():
     )
     cover_image.close()
     book_id = create_response.json()['id']
+    old_cover_url = create_response.json()['cover_image_url']
+    old_stored_object_id = old_cover_url.split("cover-images/")[1].split(".")[0]
+    old_cover_key = f"public/cover-images/{old_stored_object_id}.jpg"
     new_cover = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
     response = context.client.put(
       f"/v1/books/{book_id}/cover-images",
@@ -345,6 +376,11 @@ class TestBookController():
     data = response.json()
     assert data['book_id'] == book_id
     assert data['url'] is not None
+    new_cover_url = data['url']
+    new_stored_object_id = new_cover_url.split("cover-images/")[1].split(".")[0]
+    new_cover_key = f"public/cover-images/{new_stored_object_id}.jpg"
+    assert not file_exists(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, old_cover_key)
+    assert file_exists(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name, new_cover_key)
 
   def test_update_book_cover_book_not_found(self, context: Context):
     cover_image = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
