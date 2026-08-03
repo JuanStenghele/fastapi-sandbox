@@ -34,5 +34,6 @@ class CoverImageService():
 
   def delete_book_covers(self, session: Session, book_ids: list) -> None:
     self.cover_image_validator.validate_deletion(session, book_ids)
-    self.storage_service.delete_stored_objects(session, self.storage_client, book_ids)
+    stored_object_ids = self.book_dal.get_book_cover_stored_object_ids(session, book_ids)
+    self.storage_service.delete_stored_objects(session, self.storage_client, stored_object_ids)
     self.book_dal.delete_book_cover_stored_object_ids(session, book_ids, self.date_provider.now())

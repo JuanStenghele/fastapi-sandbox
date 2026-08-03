@@ -29,7 +29,7 @@ class StoredObjectContent(BaseObj):
 
 class StoredObjectUploadResult(BaseObj):
   public_url: str | None
-  path: str
+  key: str
 
 
 class ObjectToStore(ABC):

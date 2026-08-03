@@ -361,3 +361,36 @@ class TestBookDal():
     with pytest.raises(Exception) as exc_info:
       instance.soft_delete_books(session_mock, [uuid4()], now)
     assert str(exc_info.value) == expected_message
+
+  def test_get_cover_image_stored_object_ids_success(self):
+    session_mock = MagicMock(spec = Session)
+    stored_object_id_1 = uuid4()
+    stored_object_id_2 = uuid4()
+    book_id_1 = uuid4()
+    book_id_2 = uuid4()
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = [stored_object_id_1, stored_object_id_2]
+    session_mock.exec.return_value = exec_mock
+    instance = BookDAL()
+    result = instance.get_book_cover_stored_object_ids(session_mock, [book_id_1, book_id_2])
+    assert result == [stored_object_id_1, stored_object_id_2]
+    assert session_mock.exec.call_count == 1
+
+  def test_get_cover_image_stored_object_ids_empty_results(self):
+    session_mock = MagicMock(spec = Session)
+    exec_mock = MagicMock()
+    exec_mock.all.return_value = []
+    session_mock.exec.return_value = exec_mock
+    instance = BookDAL()
+    result = instance.get_book_cover_stored_object_ids(session_mock, [uuid4()])
+    assert result == []
+    assert session_mock.exec.call_count == 1
+
+  def test_get_cover_image_stored_object_ids_fail(self):
+    session_mock = MagicMock(spec = Session)
+    expected_message = 'Test Exception'
+    session_mock.exec.side_effect = Exception(expected_message)
+    instance = BookDAL()
+    with pytest.raises(Exception) as exc_info:
+      instance.get_book_cover_stored_object_ids(session_mock, [uuid4()])
+    assert str(exc_info.value) == expected_message

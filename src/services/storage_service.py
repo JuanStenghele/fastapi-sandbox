@@ -27,7 +27,7 @@ class StorageService():
     stored_object = StoredObjectRecord(
       id = id,
       source = storage_client.source(),
-      key = result.path,
+      key = result.key,
       public_url = result.public_url,
       created_at = now,
       updated_at = now

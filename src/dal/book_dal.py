@@ -30,32 +30,6 @@ class BookDAL():
     session.add(db_book_author)
     return book
 
-  def update_book(self, session: Session, id: UUID, title: str | None, author_id: UUID | None, description: str | None, isbn: str | None, publication_date: date | None, updated_at: datetime) -> Book | None:
-    query = select(DBBook).where(DBBook.id == id, DBBook.deleted_at == None)
-    db_book = session.exec(query).first()
-    if db_book is None:
-      return None
-    if title is not None:
-      db_book.title = title
-    if description is not None:
-      db_book.description = description
-    if isbn is not None:
-      db_book.isbn = isbn
-    if publication_date is not None:
-      db_book.publication_date = publication_date
-    db_book.updated_at = updated_at
-    session.add(db_book)
-    if author_id is not None:
-      session.exec(update(DBBookAuthor).where(DBBookAuthor.book_id == id).values(deleted_at = updated_at))
-      db_book_author = DBBookAuthor(
-        book_id = id,
-        author_id = author_id,
-        created_at = updated_at,
-      )
-      session.add(db_book_author)
-    session.flush()
-    return self.get_book(session, id)
-
   def get_book(self, session: Session, id: UUID) -> Book | None:
     query = (
       select(DBBook, DBBookAuthor, DBStoredObject)
@@ -109,11 +83,46 @@ class BookDAL():
       for db_book, book_author, db_cover in results
     ]
 
+  def get_book_cover_stored_object_ids(self, session: Session, book_ids: list) -> list[UUID]:
+    query = select(DBBook.cover_image_stored_object_id).where(
+      DBBook.id.in_(book_ids),
+      DBBook.cover_image_stored_object_id != None,
+      DBBook.deleted_at == None
+    )
+    results = session.exec(query).all()
+    return [result for result in results]
+
   def count_books(self, session: Session, search_term: str | None) -> int:
     query = select(func.count()).select_from(DBBook).where(DBBook.deleted_at == None)
     if search_term:
       query = query.filter(DBBook.title.icontains(search_term, autoescape = True))
     return session.exec(query).one()
+
+  def update_book(self, session: Session, id: UUID, title: str | None, author_id: UUID | None, description: str | None, isbn: str | None, publication_date: date | None, updated_at: datetime) -> Book | None:
+    query = select(DBBook).where(DBBook.id == id, DBBook.deleted_at == None)
+    db_book = session.exec(query).first()
+    if db_book is None:
+      return None
+    if title is not None:
+      db_book.title = title
+    if description is not None:
+      db_book.description = description
+    if isbn is not None:
+      db_book.isbn = isbn
+    if publication_date is not None:
+      db_book.publication_date = publication_date
+    db_book.updated_at = updated_at
+    session.add(db_book)
+    if author_id is not None:
+      session.exec(update(DBBookAuthor).where(DBBookAuthor.book_id == id).values(deleted_at = updated_at))
+      db_book_author = DBBookAuthor(
+        book_id = id,
+        author_id = author_id,
+        created_at = updated_at,
+      )
+      session.add(db_book_author)
+    session.flush()
+    return self.get_book(session, id)
 
   def update_book_cover_stored_object_id(self, session: Session, id: UUID, stored_object_id: UUID, updated_at: datetime) -> None:
     query = update(DBBook).where(DBBook.id == id).values(cover_image_stored_object_id = stored_object_id, updated_at = updated_at)

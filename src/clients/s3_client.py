@@ -34,7 +34,7 @@ class S3Client(StorageClient):
       ContentType = content_type
     )
     url = f"{self.public_url}/{key}" if public else None
-    return StoredObjectUploadResult(public_url = url, path = key)
+    return StoredObjectUploadResult(public_url = url, key = s3_key)
 
   def get_object(self, key: str) -> StoredObjectContent | None:
     try:

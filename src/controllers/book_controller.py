@@ -56,7 +56,7 @@ def get_book(
 		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
 	if book is None:
 		raise HTTPException(detail = "BOOK_NOT_FOUND", status_code = status.HTTP_404_NOT_FOUND)
-	return book
+	return BookHTTPResponse.from_book(book)
 
 
 @router.get("/books", response_model = BooksHTTPResponse, tags = [Tags.BOOKS])

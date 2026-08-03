@@ -23,8 +23,8 @@ class FakeStorageClient(StorageClient):
 class TestStorageClient():
   def test_upload_user_content_calls_upload_with_correct_path(self):
     instance = FakeStorageClient()
-    instance.upload_object = MagicMock(return_value = StoredObjectUploadResult(public_url = "https://example.com/file.jpg", path = "public/user-content/images/123"))
+    instance.upload_object = MagicMock(return_value = StoredObjectUploadResult(public_url = "https://example.com/file.jpg", key = "public/user-content/images/123"))
     result = instance.upload_user_content("images/123", b"data", "image/jpeg")
     instance.upload_object.assert_called_once_with(f"{USER_CONTENT_PATH}/images/123", b"data", "image/jpeg", public = True)
     assert result.public_url == "https://example.com/file.jpg"
-    assert result.path == "public/user-content/images/123"
+    assert result.key == "public/user-content/images/123"

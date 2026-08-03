@@ -83,16 +83,20 @@ class TestCoverImageService():
     cover_image_validator_mock = MagicMock(spec = CoverImageValidator)
     session_mock = MagicMock(spec = Session)
     book_id = uuid4()
+    stored_object_id = uuid4()
     date_provider_mock = MagicMock(spec = DateProvider)
     date_provider_mock.now.return_value = now
     storage_service_mock = MagicMock(spec = StorageService)
     book_dal_mock = MagicMock(spec = BookDAL)
+    stored_object_id = uuid4()
+    book_dal_mock.get_book_cover_stored_object_ids.return_value = [stored_object_id]
     instance = CoverImageService(storage_client_mock, cover_image_validator_mock, date_provider_mock, storage_service_mock, book_dal_mock)
 
     instance.delete_book_covers(session_mock, [book_id])
 
     cover_image_validator_mock.validate_deletion.assert_called_once_with(session_mock, [book_id])
-    storage_service_mock.delete_stored_objects.assert_called_once_with(session_mock, storage_client_mock, [book_id])
+    book_dal_mock.get_book_cover_stored_object_ids.assert_called_once_with(session_mock, [book_id])
+    storage_service_mock.delete_stored_objects.assert_called_once_with(session_mock, storage_client_mock, [stored_object_id])
     book_dal_mock.delete_book_cover_stored_object_ids.assert_called_once_with(session_mock, [book_id], now)
 
   def test_delete_validation_fail(self):
@@ -118,8 +122,11 @@ class TestCoverImageService():
     storage_service_mock.delete_stored_objects.side_effect = StorageClientError("s3 error")
     session_mock = MagicMock(spec = Session)
     book_id = uuid4()
+    stored_object_id = uuid4()
     date_provider_mock = MagicMock(spec = DateProvider)
     book_dal_mock = MagicMock(spec = BookDAL)
+    stored_object_id = uuid4()
+    book_dal_mock.get_book_cover_stored_object_ids.return_value = [stored_object_id]
     instance = CoverImageService(storage_client_mock, cover_image_validator_mock, date_provider_mock, storage_service_mock, book_dal_mock)
 
     with pytest.raises(StorageClientError) as exc_info:
@@ -144,11 +151,13 @@ class TestCoverImageService():
     stored_object = StoredObjectRecord.model_construct(id = stored_object_id, public_url = "https://example.com/cover.jpg")
     storage_service_mock.store_object.return_value = stored_object
     book_dal_mock = MagicMock(spec = BookDAL)
+    book_dal_mock.get_book_cover_stored_object_ids.return_value = [stored_object_id]
+    book_dal_mock.update_book_cover_stored_object_id.return_value = None
     instance = CoverImageService(storage_client_mock, cover_image_validator_mock, date_provider_mock, storage_service_mock, book_dal_mock)
 
     result = instance.update_book_cover(session_mock, book_id, image)
 
-    storage_service_mock.delete_stored_objects.assert_called_once_with(session_mock, storage_client_mock, [book_id])
+    storage_service_mock.delete_stored_objects.assert_called_once_with(session_mock, storage_client_mock, [stored_object_id])
     storage_service_mock.store_object.assert_called_once()
     book_dal_mock.update_book_cover_stored_object_id.assert_called_with(session_mock, book_id, stored_object_id, now)
     assert result.book_id == book_id
@@ -165,6 +174,7 @@ class TestCoverImageService():
     image = RawImage.model_construct(file = file_mock, content_type = "image/jpeg")
     date_provider_mock = MagicMock(spec = DateProvider)
     book_dal_mock = MagicMock(spec = BookDAL)
+    book_dal_mock.get_book_cover_stored_object_ids.return_value = [uuid4()]
     instance = CoverImageService(storage_client_mock, cover_image_validator_mock, date_provider_mock, storage_service_mock, book_dal_mock)
 
     with pytest.raises(StorageClientError) as exc_info:
