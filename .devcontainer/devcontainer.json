@@ -7,8 +7,6 @@
 		"dockerfile": "Dockerfile",
     "context": ".."
 	},
-	// Choose vscode as the default user
-	"remoteUser": "vscode",
 	// Mount the .ssh repository to use GitHub
 	"mounts": [
 		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,readonly,type=bind"
