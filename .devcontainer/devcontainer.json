@@ -7,10 +7,6 @@
 		"dockerfile": "Dockerfile",
     "context": ".."
 	},
-	// Mount the .ssh repository to use GitHub
-	"mounts": [
-		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,readonly,type=bind"
-	],
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {
 			"moby": false
