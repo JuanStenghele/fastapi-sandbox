@@ -1,12 +1,9 @@
 {
 	"name": "FastAPI Sandbox Dev Container",
-	// Change name of the container
+	// Change container's name
 	"runArgs": ["--name", "dev-fastapi-sandbox"],
-	// Add the Dev Container Dockerfile
-	"build": {
-		"dockerfile": "Dockerfile",
-    "context": ".."
-	},
+	"image": "mcr.microsoft.com/devcontainers/python:3.13",
+	"postCreateCommand": "pip install -r requirements.txt -r test/requirements.txt",
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {
 			"moby": false
