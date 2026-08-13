@@ -14,6 +14,15 @@
           }
         },
         {
+          "requestParam": "grant_type",
+          "match": "authorization_code",
+          "claims": {
+            "sub": "${clientId}",
+            "aud": ["fastapi-sandbox"],
+            "scope": "admin"
+          }
+        },
+        {
           "requestParam": "client_id",
           "match": ".*",
           "claims": {
