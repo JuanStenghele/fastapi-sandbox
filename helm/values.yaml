@@ -27,6 +27,7 @@ ingress:
     allowedMethods:
       - GET
       - POST
+      - DELETE
       - OPTIONS
     allowedHeaders:
       - Authorization
