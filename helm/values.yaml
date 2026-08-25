@@ -28,6 +28,7 @@ ingress:
       - GET
       - POST
       - DELETE
+      - PATCH
       - OPTIONS
     allowedHeaders:
       - Authorization
