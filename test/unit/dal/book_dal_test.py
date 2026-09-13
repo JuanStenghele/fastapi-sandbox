@@ -75,7 +75,8 @@ class TestBookDal():
     result = instance.update_book(session_mock, book_id, None, new_author_id, None, None, None, updated_at)
     assert result is not None
     assert result.author_id == new_author_id
-    assert session_mock.exec.call_count >= 3
+    assert db_book_author_current.author_id == new_author_id
+    assert session_mock.add.call_count == 2
 
   def test_update_book_success_with_same_author(self):
     session_mock = MagicMock(spec = Session)
@@ -92,6 +93,7 @@ class TestBookDal():
     result = instance.update_book(session_mock, book_id, None, author_id, None, None, None, updated_at)
     assert result is not None
     assert result.author_id == author_id
+    assert db_book_author_current.author_id == author_id
     assert session_mock.add.call_count == 1
 
   def test_update_book_not_found(self):

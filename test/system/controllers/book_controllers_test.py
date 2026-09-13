@@ -294,6 +294,21 @@ class TestBookController():
     assert data['id'] == str(book_id)
     assert data['author_id'] == str(author_id)
 
+  def test_update_book_switch_back_author(self, context: Context):
+    author_id_1 = uuid4()
+    author_id_2 = uuid4()
+    insert_author(context.db_url, author_id_1, 'J. K. Rowling')
+    insert_author(context.db_url, author_id_2, 'Robert Galbraith')
+    book_id = uuid4()
+    insert_book(context.db_url, book_id, 'Harry Potter', author_id_1)
+    response = context.client.patch(f"/v1/books/{book_id}", data = { "author_id": str(author_id_2) }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 200
+    response = context.client.patch(f"/v1/books/{book_id}", data = { "author_id": str(author_id_1) }, headers = get_auth_headers(self.admin_auth_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['id'] == str(book_id)
+    assert data['author_id'] == str(author_id_1)
+
   def test_update_book_not_found(self, context: Context):
     response = context.client.patch(f"/v1/books/{uuid4()}", data = { "title": "New Title" }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 404
