@@ -45,11 +45,14 @@ class GetBooksPaginatedResult(BaseObj):
 
 
 class BookUpdateRequest(BaseObj):
+  model_config = ConfigDict(arbitrary_types_allowed = True)
+
   title: str | None = None
   author_id: UUID | None = None
   description: str | None = None
   isbn: str | None = None
   publication_date: date | None = None
+  cover_image: RawImage | None = None
 
 
 class BookCreationHTTPRequest(BaseObj):
@@ -104,11 +107,33 @@ class BookCreationHTTPResponse(BaseObj):
 
 
 class BookUpdateHTTPRequest(BaseObj):
+  model_config = ConfigDict(arbitrary_types_allowed = True)
+
   title: str | None = None
   author_id: UUID | None = None
   description: str | None = None
   isbn: str | None = None
   publication_date: date | None = None
+  cover_image: UploadFile | None = None
+
+  @classmethod
+  def as_form(
+    cls,
+    title: str | None = Form(None),
+    author_id: UUID | None = Form(None),
+    description: str | None = Form(None),
+    isbn: str | None = Form(None),
+    publication_date: date | None = Form(None),
+    cover_image: UploadFile | None = File(None)
+  ):
+    return cls(
+      title = title,
+      author_id = author_id,
+      description = description,
+      isbn = isbn,
+      publication_date = publication_date,
+      cover_image = cover_image
+    )
 
 
 class BookHTTPResponse(BaseObj):

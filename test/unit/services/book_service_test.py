@@ -294,6 +294,31 @@ class TestBookService():
     book_validator_mock.validate_update.assert_called_once()
     book_dal_mock.update_book.assert_called_once()
 
+  def test_update_book_success_with_cover(self):
+    now = datetime.now(timezone.utc)
+    book_id = uuid4()
+    author_id = uuid4()
+    book_dal_mock = MagicMock(spec = BookDAL)
+    expected_book = Book(id = book_id, title = 'New Title', author_id = author_id, created_at = now, updated_at = now)
+    book_dal_mock.update_book.return_value = expected_book
+    cover_image_service_mock = MagicMock(spec = CoverImageService)
+    book_validator_mock = MagicMock(spec = BookValidator)
+    session_mock = MagicMock(spec = Session)
+    raw_image = RawImage.model_construct(file = MagicMock(), content_type = "image/jpeg")
+    request = BookUpdateRequest(title = 'New Title', cover_image = raw_image)
+    date_provider_mock = MagicMock(spec = DateProvider)
+    date_provider_mock.now.return_value = now
+    instance = BookService(book_dal_mock, cover_image_service_mock, book_validator_mock, date_provider_mock)
+
+    result = instance.update_book(session_mock, book_id, request)
+    assert result == expected_book
+    book_validator_mock.validate_update.assert_called_once()
+    book_dal_mock.update_book.assert_called_once()
+    cover_image_service_mock.update_book_cover.assert_called_once()
+    call_args = cover_image_service_mock.update_book_cover.call_args[0]
+    assert call_args[0] == session_mock
+    assert call_args[2] == raw_image
+
   def test_update_book_validation_error(self):
     book_dal_mock = MagicMock(spec = BookDAL)
     cover_image_service_mock = MagicMock(spec = CoverImageService)

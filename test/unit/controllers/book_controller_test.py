@@ -3,9 +3,11 @@ import pytest
 from unittest.mock import MagicMock
 from uuid import uuid4
 from fastapi import HTTPException
-from objects.book import BookCreationHTTPRequest, BookUpdateHTTPRequest
+from objects.book import Book, BookCreationHTTPRequest, BookUpdateHTTPRequest, BookUpdateRequest
 from objects.auth import AuthClaims
 from objects.error import ValidationError
+from objects.image import RawImage
+from datetime import datetime, timezone
 from services.book_service import BookService
 from services.cover_image_service import CoverImageService
 from sqlalchemy.orm import Session
@@ -119,7 +121,7 @@ class TestBookController():
     with pytest.raises(HTTPException) as e:
       update_book(
         id = uuid4(),
-        book = book_request,
+        http_request = book_request,
         _ = claims_mock,
         book_service = book_service_mock,
         session = session_mock,
@@ -139,7 +141,7 @@ class TestBookController():
     with pytest.raises(HTTPException) as e:
       update_book(
         id = uuid4(),
-        book = book_request,
+        http_request = book_request,
         _ = claims_mock,
         book_service = book_service_mock,
         session = session_mock,
@@ -159,7 +161,7 @@ class TestBookController():
     with pytest.raises(HTTPException) as e:
       update_book(
         id = uuid4(),
-        book = book_request,
+        http_request = book_request,
         _ = claims_mock,
         book_service = book_service_mock,
         session = session_mock,
@@ -168,6 +170,35 @@ class TestBookController():
     assert e.value.status_code == 404
     assert e.value.detail == 'BOOK_NOT_FOUND'
     assert book_service_mock.update_book.call_count == 1
+
+  def test_update_book_with_cover(self):
+    claims_mock = MagicMock(spec = AuthClaims)
+    book_service_mock = MagicMock(spec = BookService)
+    now = datetime.now(timezone.utc)
+    returned_book = Book(id = uuid4(), title = 'New Title', author_id = uuid4(), created_at = now, updated_at = now)
+    book_service_mock.update_book.return_value = returned_book
+    session_mock = MagicMock(spec = Session)
+    logger_mock = MagicMock(spec = Logger)
+    cover_image_mock = MagicMock()
+    cover_image_mock.file = MagicMock()
+    cover_image_mock.content_type = "image/jpeg"
+    cover_image_mock.size = 1024
+    book_request = BookUpdateHTTPRequest.model_construct(title = 'New Title', cover_image = cover_image_mock)
+    result = update_book(
+      id = uuid4(),
+      http_request = book_request,
+      _ = claims_mock,
+      book_service = book_service_mock,
+      session = session_mock,
+      logger = logger_mock
+    )
+    update_request = book_service_mock.update_book.call_args[0][2]
+    assert isinstance(update_request, BookUpdateRequest)
+    assert isinstance(update_request.cover_image, RawImage)
+    assert update_request.cover_image.file == cover_image_mock.file
+    assert update_request.cover_image.content_type == "image/jpeg"
+    assert update_request.cover_image.size == 1024
+    assert result.title == 'New Title'
 
   def test_delete_book_cover_500_error(self):
     claims_mock = MagicMock(spec = AuthClaims)

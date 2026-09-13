@@ -68,7 +68,12 @@ class BookService():
   def update_book(self, session: Session, id: UUID, request: BookUpdateRequest) -> Book | None:
     self.book_validator.validate_update(session, request)
     now = self.date_provider.now()
-    return self.book_dal.update_book(session, id, request.title, request.author_id, request.description, request.isbn, request.publication_date, now)
+    book = self.book_dal.update_book(session, id, request.title, request.author_id, request.description, request.isbn, request.publication_date, now)
+    if book is None:
+      return None
+    if request.cover_image:
+      book.cover_image = self.cover_image_service.update_book_cover(session, id, request.cover_image)
+    return book
 
   def delete_books(self, session: Session, book_ids: list) -> None:
     self.book_validator.validate_deletion(session, book_ids)

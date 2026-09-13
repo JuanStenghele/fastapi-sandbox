@@ -84,14 +84,15 @@ def get_books(
 @inject
 def update_book(
 	id: UUID,
-	book: BookUpdateHTTPRequest,
+	http_request: BookUpdateHTTPRequest = Depends(BookUpdateHTTPRequest.as_form),
 	_: AuthClaims = Depends(get_admin_auth_claims),
 	book_service: BookService = Depends(Provide[Container.book_service]),
 	session: Session = Depends(get_session),
 	logger: Logger = Depends(Provide[Container.logger])
 ):
 	try:
-		update_request = BookUpdateRequest(title = book.title, author_id = book.author_id, description = book.description, isbn = book.isbn, publication_date = book.publication_date)
+		cover_image = RawImage(file = http_request.cover_image.file, content_type = http_request.cover_image.content_type, size = http_request.cover_image.size) if http_request.cover_image else None
+		update_request = BookUpdateRequest(title = http_request.title, author_id = http_request.author_id, description = http_request.description, isbn = http_request.isbn, publication_date = http_request.publication_date, cover_image = cover_image)
 		result = book_service.update_book(session, id, update_request)
 	except ValidationError as e:
 		raise HTTPException(detail = e.detail, status_code = status.HTTP_400_BAD_REQUEST)
@@ -100,7 +101,7 @@ def update_book(
 		raise HTTPException(detail = "UNKNOWN_ERROR", status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
 	if result is None:
 		raise HTTPException(detail = "BOOK_NOT_FOUND", status_code = status.HTTP_404_NOT_FOUND)
-	return result
+	return BookHTTPResponse.from_book(result)
 
 
 @router.delete("/books", status_code = status.HTTP_204_NO_CONTENT, tags = [Tags.BOOKS])

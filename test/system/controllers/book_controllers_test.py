@@ -264,7 +264,7 @@ class TestBookController():
     insert_author(context.db_url, author_id, 'J. K. Rowling')
     book_id = uuid4()
     insert_book(context.db_url, book_id, 'Harry Potter', author_id)
-    response = context.client.patch(f"/v1/books/{book_id}", json = { "title": "New Title" }, headers = get_auth_headers(self.admin_auth_token))
+    response = context.client.patch(f"/v1/books/{book_id}", data = { "title": "New Title" }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] == str(book_id)
@@ -277,14 +277,14 @@ class TestBookController():
     insert_author(context.db_url, author_id_2, 'Robert Galbraith')
     book_id = uuid4()
     insert_book(context.db_url, book_id, 'Harry Potter', author_id_1)
-    response = context.client.patch(f"/v1/books/{book_id}", json = { "author_id": str(author_id_2) }, headers = get_auth_headers(self.admin_auth_token))
+    response = context.client.patch(f"/v1/books/{book_id}", data = { "author_id": str(author_id_2) }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 200
     data = response.json()
     assert data['id'] == str(book_id)
     assert data['author_id'] == str(author_id_2)
 
   def test_update_book_not_found(self, context: Context):
-    response = context.client.patch(f"/v1/books/{uuid4()}", json = { "title": "New Title" }, headers = get_auth_headers(self.admin_auth_token))
+    response = context.client.patch(f"/v1/books/{uuid4()}", data = { "title": "New Title" }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 404
     data = response.json()
     assert data == { 'detail': 'BOOK_NOT_FOUND' }
@@ -294,23 +294,43 @@ class TestBookController():
     insert_author(context.db_url, author_id, 'J. K. Rowling')
     book_id = uuid4()
     insert_book(context.db_url, book_id, 'Harry Potter', author_id)
-    response = context.client.patch(f"/v1/books/{book_id}", json = { "author_id": str(uuid4()) }, headers = get_auth_headers(self.admin_auth_token))
+    response = context.client.patch(f"/v1/books/{book_id}", data = { "author_id": str(uuid4()) }, headers = get_auth_headers(self.admin_auth_token))
     assert response.status_code == 400
     data = response.json()
     assert data == { 'detail': 'AUTHOR_NOT_FOUND' }
 
   def test_update_book_without_admin_scope(self, context: Context):
     auth_token = get_user_auth_token(context.auth_token_url, "test-user")
-    response = context.client.patch(f"/v1/books/{uuid4()}", json = { "title": "New Title" }, headers = get_auth_headers(auth_token))
+    response = context.client.patch(f"/v1/books/{uuid4()}", data = { "title": "New Title" }, headers = get_auth_headers(auth_token))
     assert response.status_code == 403
     data = response.json()
     assert data == { 'detail': 'INSUFFICIENT_PERMISSIONS' }
 
   def test_update_book_no_auth(self, context: Context):
-    response = context.client.patch(f"/v1/books/{uuid4()}", json = { "title": "New Title" })
+    response = context.client.patch(f"/v1/books/{uuid4()}", data = { "title": "New Title" })
     assert response.status_code == 401
     data = response.json()
     assert data == { 'detail': 'MISSING_TOKEN' }
+
+  def test_update_book_with_cover(self, context: Context):
+    author_id = uuid4()
+    insert_author(context.db_url, author_id, 'J. K. Rowling')
+    book_id = uuid4()
+    insert_book(context.db_url, book_id, 'Harry Potter', author_id)
+    cover_image = open(get_test_image_path("harry_potter_cover.jpg"), "rb")
+    response = context.client.patch(
+      f"/v1/books/{book_id}",
+      data = { "title": "New Title" },
+      files = { "cover_image": ("harry_potter_cover.jpg", cover_image, "image/jpeg") },
+      headers = get_auth_headers(self.admin_auth_token)
+    )
+    cover_image.close()
+    assert response.status_code == 200
+    data = response.json()
+    assert data['id'] == str(book_id)
+    assert data['title'] == 'New Title'
+    assert data['cover_image_url'] is not None
+    assert "cover-images/" in data['cover_image_url']
 
   def test_delete_book_cover_success(self, context: Context):
     author_id = uuid4()
