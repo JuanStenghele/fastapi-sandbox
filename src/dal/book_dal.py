@@ -114,13 +114,15 @@ class BookDAL():
     db_book.updated_at = updated_at
     session.add(db_book)
     if author_id is not None:
-      session.exec(update(DBBookAuthor).where(DBBookAuthor.book_id == id).values(deleted_at = updated_at))
-      db_book_author = DBBookAuthor(
-        book_id = id,
-        author_id = author_id,
-        created_at = updated_at,
-      )
-      session.add(db_book_author)
+      current_author = session.exec(select(DBBookAuthor).where(DBBookAuthor.book_id == id, DBBookAuthor.deleted_at == None)).first()
+      if current_author is None or current_author.author_id != author_id:
+        session.exec(update(DBBookAuthor).where(DBBookAuthor.book_id == id, DBBookAuthor.deleted_at == None).values(deleted_at = updated_at))
+        db_book_author = DBBookAuthor(
+          book_id = id,
+          author_id = author_id,
+          created_at = updated_at,
+        )
+        session.add(db_book_author)
     session.flush()
     return self.get_book(session, id)
 

@@ -66,15 +66,33 @@ class TestBookDal():
     old_author_id = uuid4()
     new_author_id = uuid4()
     db_book = DBBook(id = book_id, title = 'Harry Potter', created_at = now, updated_at = now)
+    db_book_author_current = DBBookAuthor(book_id = book_id, author_id = old_author_id, created_at = now)
     db_book_author_new = DBBookAuthor(book_id = book_id, author_id = new_author_id, created_at = updated_at)
     exec_mock = MagicMock()
-    exec_mock.first.side_effect = [db_book, (db_book, db_book_author_new, None)]
+    exec_mock.first.side_effect = [db_book, db_book_author_current, (db_book, db_book_author_new, None)]
     session_mock.exec.return_value = exec_mock
     instance = BookDAL()
     result = instance.update_book(session_mock, book_id, None, new_author_id, None, None, None, updated_at)
     assert result is not None
     assert result.author_id == new_author_id
-    assert session_mock.exec.call_count >= 2
+    assert session_mock.exec.call_count >= 3
+
+  def test_update_book_success_with_same_author(self):
+    session_mock = MagicMock(spec = Session)
+    now = datetime.now(timezone.utc)
+    updated_at = datetime.now(timezone.utc)
+    book_id = uuid4()
+    author_id = uuid4()
+    db_book = DBBook(id = book_id, title = 'Harry Potter', created_at = now, updated_at = now)
+    db_book_author_current = DBBookAuthor(book_id = book_id, author_id = author_id, created_at = now)
+    exec_mock = MagicMock()
+    exec_mock.first.side_effect = [db_book, db_book_author_current, (db_book, db_book_author_current, None)]
+    session_mock.exec.return_value = exec_mock
+    instance = BookDAL()
+    result = instance.update_book(session_mock, book_id, None, author_id, None, None, None, updated_at)
+    assert result is not None
+    assert result.author_id == author_id
+    assert session_mock.add.call_count == 1
 
   def test_update_book_not_found(self):
     session_mock = MagicMock(spec = Session)
