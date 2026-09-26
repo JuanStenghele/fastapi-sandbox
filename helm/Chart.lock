@@ -1,9 +1,0 @@
-dependencies:
-- name: traefik
-  repository: https://traefik.github.io/charts
-  version: 39.0.8
-- name: external-secrets
-  repository: https://charts.external-secrets.io
-  version: 2.5.0
-digest: sha256:b7515e0edb02135798f10d5774c4f7801acfc0d665185541404f14f90db34b33
-generated: "2026-06-11T23:40:34.8348488-03:00"
