@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: terraform/kubernetes/infrastructure
+        working-directory: terraform/infrastructure
     steps:
       - uses: actions/checkout@v6
 
@@ -31,7 +31,7 @@ jobs:
     environment: aws-infrastructure
     defaults:
       run:
-        working-directory: terraform/kubernetes/infrastructure
+        working-directory: terraform/infrastructure
     steps:
       - uses: actions/checkout@v6
 
