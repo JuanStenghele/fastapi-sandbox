@@ -128,13 +128,13 @@ Generate a machine-to-machine token (`sub` claim will be your application's clie
 Build the AWS infraestructure using Terraform. First, create the `.tfvars` file:
 
 ```bash
-cp terraform/infrastructure/terraform.tfvars.example terraform/infrastructure/terraform.tfvars
+cp terraform/kubernetes/infrastructure/terraform.tfvars.example terraform/kubernetes/infrastructure/terraform.tfvars
 ```
 
 Then populate it with your own AWS credentials and choose a username and password for RDS service DB. Continue by initializing Terraform with: 
 
 ```bash
-cd terraform/infrastructure
+cd terraform/kubernetes/infrastructure
 terraform init
 ```
 
@@ -159,9 +159,9 @@ terraform destroy
 To deploy the post-deployment configuration (DNS, K8s dashboard, ...) and use a custom domain. Run exactly the same but with the `post-deployment` directory:
 
 ```bash
-cp terraform/post-deployment/terraform.tfvars.example terraform/post-deployment/terraform.tfvars
-# Populate terraform/post-deployment/terraform.tfvars here
-cd terraform/post-deployment
+cp terraform/kubernetes/post-deployment/terraform.tfvars.example terraform/kubernetes/post-deployment/terraform.tfvars
+# Populate terraform/kubernetes/post-deployment/terraform.tfvars here
+cd terraform/kubernetes/post-deployment
 terraform init
 terraform plan
 terraform apply
