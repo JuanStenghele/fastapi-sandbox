@@ -23,9 +23,10 @@ from constants import OTEL_METRIC_EXPORT_INTERVAL_MILLIS, OTEL_SERVICE_NAME, LOG
 
 
 class ObservabilityService():
-  def __init__(self, otlp_endpoint: str, env: str, logger: Logger):
+  def __init__(self, otlp_endpoint: str, env: str, logger: Logger, auth: str = None):
     self.service_name = OTEL_SERVICE_NAME
     self.otlp_endpoint = otlp_endpoint
+    self.headers = {"Authorization": auth} if auth else None
     self.env = env
     self.logger = logger
 
@@ -38,7 +39,7 @@ class ObservabilityService():
     self.logger.info("Observability service setup complete")
 
   def setup_logs(self, resource: Resource) -> None:
-    exporter = OTLPLogExporter(endpoint = f"{self.otlp_endpoint}/v1/logs")
+    exporter = OTLPLogExporter(endpoint = f"{self.otlp_endpoint}/v1/logs", headers = self.headers)
     provider = LoggerProvider(resource = resource)
     provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
     set_logger_provider(provider)
@@ -56,14 +57,14 @@ class ObservabilityService():
     self.logger.info("Botocore instrumented with OpenTelemetry")
 
   def setup_traces(self, resource: Resource) -> None:
-    exporter = OTLPSpanExporter(endpoint = f"{self.otlp_endpoint}/v1/traces")
+    exporter = OTLPSpanExporter(endpoint = f"{self.otlp_endpoint}/v1/traces", headers = self.headers)
     provider = TracerProvider(resource = resource)
     provider.add_span_processor(BatchSpanProcessor(exporter))
     trace.set_tracer_provider(provider)
     self.logger.info("OpenTelemetry trace export initialized")
 
   def setup_metrics(self, resource: Resource) -> None:
-    exporter = OTLPMetricExporter(endpoint = f"{self.otlp_endpoint}/v1/metrics")
+    exporter = OTLPMetricExporter(endpoint = f"{self.otlp_endpoint}/v1/metrics", headers = self.headers)
     reader = PeriodicExportingMetricReader(exporter, export_interval_millis = OTEL_METRIC_EXPORT_INTERVAL_MILLIS)
     provider = MeterProvider(resource = resource, metric_readers = [reader])
     metrics.set_meter_provider(provider)
