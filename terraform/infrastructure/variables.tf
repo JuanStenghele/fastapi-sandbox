@@ -23,39 +23,6 @@ variable "s3_bucket_name" {
   default     = "fastapi-sandbox-production"
 }
 
-# RDS
-variable "rds_database_name" {
-  description = "Name of the database to create"
-  type        = string
-  default     = "fastapi_sandbox_db"
-}
-
-variable "rds_username" {
-  description = "Username for RDS"
-  type        = string
-  default     = "dev"
-}
-
-variable "rds_port" {
-  description = "Port for RDS"
-  type        = string
-  default     = "5432"
-}
-
-# Grafana
-variable "grafana_admin_user" {
-  description = "Grafana admin username"
-  type        = string
-  default     = "admin"
-}
-
-# Let's Encrypt
-variable "letsencrypt_email" {
-  description = "Email for Let's Encrypt certificate notifications"
-  type        = string
-  sensitive   = true
-}
-
 # Ingress
 variable "main_domain_name" {
   description = "Main domain name"
@@ -73,16 +40,4 @@ variable "api_subdomain_name" {
   description = "Subdomain for the API service"
   type        = string
   default     = "api"
-}
-
-variable "headlamp_subdomain_name" {
-  description = "Subdomain for the Headlamp service"
-  type        = string
-  default     = "headlamp"
-}
-
-variable "grafana_subdomain_name" {
-  description = "Subdomain for the Grafana service"
-  type        = string
-  default     = "grafana"
 }
