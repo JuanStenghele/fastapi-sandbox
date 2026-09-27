@@ -46,4 +46,8 @@ resource "aws_lambda_function" "example" {
   timeout     = 120
 
   architectures = ["arm64"] # Graviton support for better price/performance
+
+  environment {
+    variables = local.lambda_environment
+  }
 }

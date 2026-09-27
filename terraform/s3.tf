@@ -5,23 +5,26 @@ resource "aws_iam_policy" "s3" {
     Version = "2012-10-17"
     Statement = [
       {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ]
+        Resource = "${aws_s3_bucket.main.arn}/*"
+      },
+      {
         Effect   = "Allow"
-        Action   = ["s3:GetObject", "s3:PutObject"]
-        Resource = "${aws_s3_bucket.main.arn}/public/*"
+        Action   = ["s3:ListBucket"]
+        Resource = aws_s3_bucket.main.arn
       }
     ]
   })
 }
 
-module "irsa_s3" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.39.0"
-
-  create_role                   = true
-  role_name                     = "${var.app_name}-s3-role"
-  provider_url                  = module.eks.oidc_provider
-  role_policy_arns              = [aws_iam_policy.s3.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:default:fastapi-sandbox-sa"]
+resource "aws_iam_role_policy_attachment" "lambda_s3" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = aws_iam_policy.s3.arn
 }
 
 resource "aws_s3_bucket" "main" {

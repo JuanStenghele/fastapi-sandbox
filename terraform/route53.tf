@@ -1,5 +1,6 @@
 locals {
   api_domain = "${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
+  ui_domain  = "ui.${var.main_domain_name}"
 }
 
 resource "aws_route53_zone" "main" {
