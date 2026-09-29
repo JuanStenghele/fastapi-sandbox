@@ -51,12 +51,12 @@ def postgres_instance(request: FixtureRequest, db_name: str, db_user: str, db_pa
 
 
 def minio_instance(request: FixtureRequest, minio_user: str, minio_password: str, minio_bucket: str) -> tuple[str, str]:
-  container = DockerContainer("minio/minio:RELEASE.2025-09-07T16-13-09Z")
+  container = DockerContainer("bitnamilegacy/minio:2025.7.23")
   container.with_name("test-minio")
   container.with_exposed_ports(9000)
   container.with_env("MINIO_ROOT_USER", minio_user)
   container.with_env("MINIO_ROOT_PASSWORD", minio_password)
-  container.with_command("server /data")
+  container.with_command("server /bitnami/minio/data")
   container.start()
 
   def remove_container():
