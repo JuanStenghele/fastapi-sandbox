@@ -28,7 +28,7 @@ jobs:
     name: Apply
     runs-on: ubuntu-latest
     needs: plan
-    environment: aws-post-deployment
+    environment: eks-post-deployment
     defaults:
       run:
         working-directory: terraform/eks/post-deployment
