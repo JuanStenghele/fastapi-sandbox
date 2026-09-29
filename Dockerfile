@@ -1,5 +1,8 @@
 FROM python:3.13
 
+# Add Lambda Web Adapter
+COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.0 /lambda-adapter /opt/extensions/lambda-adapter
+
 WORKDIR /fastapi-sandbox
 
 COPY ./requirements.txt ./

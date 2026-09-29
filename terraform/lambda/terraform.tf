@@ -5,7 +5,7 @@ terraform {
     organization = "fastapi-sandbox"
 
     workspaces {
-      name = "infrastructure"
+      name = "lambda-infrastructure"
     }
   }
 
@@ -13,10 +13,6 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 6.47"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.9.0"
     }
     tls = {
       source  = "hashicorp/tls"
