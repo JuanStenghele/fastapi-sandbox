@@ -1,0 +1,52 @@
+replicaCount:
+  api: 2
+
+image:
+  api:
+    repository: jstenghele/juans-fastapi-sandbox
+    tag: latest
+    pullPolicy: Always
+
+env:
+  ENV: production
+  PORT: "8000"
+  POSTGRES_SSLMODE: prefer
+  STORAGE_PUBLIC_URL: "" # Set dynamically in helm upgrade
+  AUTH_ISSUER: "https://dev-76kf5dzezilav06g.us.auth0.com/"
+  AUTH_AUDIENCE: "https://juans-fastapi-sandbox"
+  AUTH_JWKS_URI: "https://dev-76kf5dzezilav06g.us.auth0.com/.well-known/jwks.json"
+
+externalSecrets:
+  enabled: true
+
+ingress:
+  tls: true
+  domain: "" # Parameter Store
+  cors:
+    enabled: true
+    allowedOrigins: [] # Domain is also allowed
+  subdomains:
+    api: "" # Parameter Store
+    headlamp: "" # Parameter Store
+    grafana: "" # Parameter Store
+
+s3:
+  roleArn: "" # Parameter Store
+
+loki:
+  s3:
+    endpoint: "https://s3.sa-east-1.amazonaws.com"
+    insecure: false
+    s3forcepathstyle: false
+    region: "sa-east-1"
+
+tempo:
+  s3:
+    endpoint: "https://s3.sa-east-1.amazonaws.com"
+    insecure: false
+    forcepathstyle: false
+    region: "sa-east-1"
+
+eso:
+  region: "sa-east-1"
+  parameterStorePrefix: "/juans-fastapi-sandbox"

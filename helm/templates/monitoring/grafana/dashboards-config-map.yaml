@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: default
+data:
+  fastapi-service.json: |
+{{ .Files.Get "files/grafana/dashboards/fastapi-service.json" | indent 4 }}
+  endpoint-overview.json: |
+{{ .Files.Get "files/grafana/dashboards/endpoint-overview.json" | indent 4 }}

@@ -1,0 +1,13 @@
+{{- if eq .Values.env.ENV "local" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mock-oauth2-server
+spec:
+  selector:
+    app: mock-oauth2-server
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+{{- end }}

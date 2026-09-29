@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-provisioning
+  namespace: default
+data:
+  dashboards-provisioning.yaml: |
+{{ .Files.Get "files/grafana/dashboards/dashboards-provisioning.yaml" | indent 4 }}

@@ -1,0 +1,72 @@
+replicaCount:
+  api: 1
+
+image:
+  api:
+    repository: fastapi-sandbox
+    tag: latest
+    pullPolicy: Never
+
+grafana:
+  port: 3000
+
+headlamp:
+  port: 4466
+
+env:
+  ENV: local
+  PORT: "8000"
+  POSTGRES_SSLMODE: disable
+  STORAGE_PUBLIC_URL: "http://api.127.0.0.1.nip.io:8000/storage"
+  STORAGE_SERVICE_URL: "http://minio:9000"
+  AUTH_ISSUER: "http://mock-oauth2-server:8080/fastapi-sandbox"
+  AUTH_AUDIENCE: "default"
+  AUTH_JWKS_URI: "http://mock-oauth2-server:8080/fastapi-sandbox/jwks"
+
+externalSecrets:
+  enabled: false
+
+ingress:
+  tls: false
+  domain: 127.0.0.1.nip.io
+  cors:
+    enabled: true
+    allowedOrigins:
+      - http://localhost:5173
+  subdomains:
+    api: api
+    headlamp: headlamp
+    grafana: grafana
+    minio: minio
+
+s3:
+  roleArn: ""
+
+loki:
+  s3:
+    endpoint: "http://minio:9000"
+    insecure: true
+    s3forcepathstyle: true
+    region: "sa-east-1"
+
+tempo:
+  s3:
+    endpoint: "minio:9000"
+    insecure: true
+    forcepathstyle: true
+    region: "sa-east-1"
+
+secrets:
+  postgresHost: "postgres"
+  postgresPort: "5432"
+  postgresDb: "db"
+  postgresUser: "admin"
+  postgresPassword: "qwerty123"
+  grafanaAdminUser: "admin"
+  storageBucketName: "fastapi-sandbox-local"
+  storageAccessKeyId: "admin"
+  storageSecretAccessKey: "qwerty123"
+  grafanaPassword: "qwerty123"
+  minioRootUser: "admin"
+  minioRootPassword: "qwerty123"
+  observabilityBucketName: "fastapi-sandbox-observability"

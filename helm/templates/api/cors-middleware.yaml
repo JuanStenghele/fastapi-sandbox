@@ -1,0 +1,25 @@
+{{- if and .Values.ingress .Values.ingress.cors .Values.ingress.cors.enabled }}
+{{- $origins := .Values.ingress.cors.allowedOrigins | default list }}
+{{- if .Values.ingress.domain }}
+{{- $scheme := ternary "https" "http" (.Values.ingress.tls | default true) }}
+{{- $origins = prepend $origins (printf "%s://%s" $scheme .Values.ingress.domain) }}
+{{- end }}
+{{- if not $origins }}
+{{- fail "ingress.cors.enabled but no allowedOrigins and no ingress.domain" }}
+{{- end }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: api-cors-middleware
+spec:
+  headers:
+    accessControlAllowOriginList:
+      {{- toYaml $origins | nindent 6 }}
+    accessControlAllowMethods:
+      {{- toYaml .Values.ingress.cors.allowedMethods | nindent 6 }}
+    accessControlAllowHeaders:
+      {{- toYaml .Values.ingress.cors.allowedHeaders | nindent 6 }}
+    accessControlAllowCredentials: true
+    accessControlMaxAge: {{ .Values.ingress.cors.maxAge }}
+    addVaryHeader: true
+{{- end }}
