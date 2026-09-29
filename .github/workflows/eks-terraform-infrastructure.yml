@@ -1,4 +1,4 @@
-name: Terraform Infrastructure
+name: EKS - Terraform Infrastructure
 
 on:
   workflow_dispatch
