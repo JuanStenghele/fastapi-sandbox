@@ -39,7 +39,7 @@ resource "aws_iam_role_policy" "lambda" {
   })
 }
 
-resource "aws_lambda_function" "example" {
+resource "aws_lambda_function" "lambda" {
   function_name = "${var.app_name}-lambda"
   role          = aws_iam_role.lambda.arn
   package_type  = "Image"

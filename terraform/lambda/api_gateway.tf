@@ -8,7 +8,7 @@ resource "aws_apigatewayv2_api" "main" {
 resource "aws_apigatewayv2_integration" "lambda" {
   api_id           = aws_apigatewayv2_api.main.id
   integration_type = "AWS_PROXY"
-  integration_uri  = aws_lambda_function.example.invoke_arn
+  integration_uri  = aws_lambda_function.lambda.invoke_arn
 }
 
 resource "aws_apigatewayv2_route" "default" {
@@ -44,7 +44,7 @@ resource "aws_apigatewayv2_api_mapping" "api" {
 resource "aws_lambda_permission" "apigateway" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.example.function_name
+  function_name = aws_lambda_function.lambda.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
 }
