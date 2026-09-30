@@ -52,10 +52,9 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: juans-fastapi-sandbox
-          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:latest .
+          docker push $REGISTRY/$REPOSITORY:latest
 
   deploy:
     name: Deploy
@@ -77,11 +76,10 @@ jobs:
           REGION: ${{ vars.AWS_REGION }}
           FUNCTION_NAME: juans-fastapi-sandbox
           REPOSITORY: juans-fastapi-sandbox
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           aws lambda update-function-code \
             --function-name $FUNCTION_NAME \
-            --image-uri $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY:$IMAGE_TAG \
+            --image-uri $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY:latest \
             --publish
 
       - name: Wait for function update
