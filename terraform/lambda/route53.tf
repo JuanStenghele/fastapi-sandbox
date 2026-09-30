@@ -5,11 +5,15 @@ locals {
 
 resource "aws_route53_zone" "main" {
   name = var.main_domain_name
+
+  tags = local.app_registry_tags
 }
 
 resource "aws_acm_certificate" "api" {
   domain_name       = local.api_domain
   validation_method = "DNS"
+
+  tags = local.app_registry_tags
 
   lifecycle {
     create_before_destroy = true

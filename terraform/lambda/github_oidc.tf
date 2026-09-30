@@ -8,10 +8,14 @@ resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
+
+  tags = local.app_registry_tags
 }
 
 resource "aws_iam_role" "github_actions" {
   name = "${var.app_name}-github-actions"
+
+  tags = local.app_registry_tags
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

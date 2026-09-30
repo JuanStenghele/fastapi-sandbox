@@ -1,6 +1,8 @@
 resource "aws_apigatewayv2_api" "main" {
   name          = "${var.app_name}-api"
   protocol_type = "HTTP"
+
+  tags = local.app_registry_tags
 }
 
 resource "aws_apigatewayv2_integration" "lambda" {
@@ -23,6 +25,8 @@ resource "aws_apigatewayv2_stage" "default" {
 
 resource "aws_apigatewayv2_domain_name" "api" {
   domain_name = local.api_domain
+
+  tags = local.app_registry_tags
 
   domain_name_configuration {
     certificate_arn = aws_acm_certificate.api.arn

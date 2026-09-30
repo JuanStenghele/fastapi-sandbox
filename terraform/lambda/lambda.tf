@@ -1,6 +1,8 @@
 resource "aws_iam_role" "lambda" {
   name = "${var.app_name}-lambda"
 
+  tags = local.app_registry_tags
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -47,6 +49,8 @@ resource "aws_lambda_function" "example" {
   timeout     = 120
 
   architectures = ["arm64"] # Graviton support for better price/performance
+
+  tags = local.app_registry_tags
 
   environment {
     variables = local.lambda_environment

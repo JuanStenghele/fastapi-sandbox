@@ -1,6 +1,8 @@
 resource "aws_iam_policy" "s3" {
   name = "${var.app_name}-s3-policy"
 
+  tags = local.app_registry_tags
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -30,9 +32,9 @@ resource "aws_iam_role_policy_attachment" "lambda_s3" {
 resource "aws_s3_bucket" "main" {
   bucket = var.s3_bucket_name
 
-  tags = {
+  tags = merge(local.app_registry_tags, {
     Name = var.s3_bucket_name
-  }
+  })
 }
 
 resource "aws_s3_bucket_public_access_block" "main" {
