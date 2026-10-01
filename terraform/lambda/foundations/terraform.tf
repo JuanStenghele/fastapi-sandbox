@@ -5,7 +5,7 @@ terraform {
     organization = "fastapi-sandbox"
 
     workspaces {
-      name = "lambda-foundation"
+      name = "lambda-foundations"
     }
   }
 
