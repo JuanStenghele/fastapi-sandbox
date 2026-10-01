@@ -33,7 +33,7 @@ resource "aws_iam_role_policy" "lambda" {
           "ecr:BatchGetImage",
           "ecr:GetDownloadUrlForLayer"
         ],
-        Resource = aws_ecr_repository.ecr.arn
+        Resource = data.aws_ecr_repository.ecr.arn
       }
     ]
   })
@@ -43,7 +43,7 @@ resource "aws_lambda_function" "lambda" {
   function_name = "${var.app_name}-lambda"
   role          = aws_iam_role.lambda.arn
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.ecr.repository_url}:latest"
+  image_uri     = "${data.aws_ecr_repository.ecr.repository_url}:latest"
 
   memory_size = 512
   timeout     = 120

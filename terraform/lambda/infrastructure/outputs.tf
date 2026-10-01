@@ -17,7 +17,7 @@ output "s3_bucket_region" {
 # Domain
 output "hosted_zone_name_servers" {
   description = "AWS name servers for the domain"
-  value       = aws_route53_zone.main.name_servers
+  value       = data.aws_route53_zone.main.name_servers
 }
 
 output "application_url" {

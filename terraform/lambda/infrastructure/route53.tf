@@ -3,12 +3,6 @@ locals {
   ui_domain  = "ui.${var.main_domain_name}"
 }
 
-resource "aws_route53_zone" "main" {
-  name = var.main_domain_name
-
-  tags = local.app_registry_tags
-}
-
 resource "aws_acm_certificate" "api" {
   domain_name       = local.api_domain
   validation_method = "DNS"
@@ -34,7 +28,7 @@ resource "aws_route53_record" "api_validation" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id         = aws_route53_zone.main.zone_id
+  zone_id         = data.aws_route53_zone.main.zone_id
 }
 
 resource "aws_acm_certificate_validation" "api" {
@@ -43,7 +37,7 @@ resource "aws_acm_certificate_validation" "api" {
 }
 
 resource "aws_route53_record" "api" {
-  zone_id = aws_route53_zone.main.zone_id
+  zone_id = data.aws_route53_zone.main.zone_id
   name    = local.api_domain
   type    = "A"
 
@@ -55,7 +49,7 @@ resource "aws_route53_record" "api" {
 }
 
 resource "aws_route53_record" "api_aaaa" {
-  zone_id = aws_route53_zone.main.zone_id
+  zone_id = data.aws_route53_zone.main.zone_id
   name    = local.api_domain
   type    = "AAAA"
 

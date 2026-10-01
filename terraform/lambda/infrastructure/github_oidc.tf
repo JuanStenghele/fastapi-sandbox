@@ -57,7 +57,7 @@ resource "aws_iam_role_policy" "github_actions" {
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload"
         ],
-        Resource = aws_ecr_repository.ecr.arn
+        Resource = data.aws_ecr_repository.ecr.arn
       },
       {
         Effect   = "Allow",
