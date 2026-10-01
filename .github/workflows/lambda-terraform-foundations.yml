@@ -1,4 +1,4 @@
-name: Lambda - Terraform Infrastructure
+name: Lambda - Terraform Foundations
 
 on:
   workflow_dispatch
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: terraform/lambda/infrastructure
+        working-directory: terraform/lambda/foundations
     steps:
       - uses: actions/checkout@v6
 
@@ -28,10 +28,10 @@ jobs:
     name: Apply
     runs-on: ubuntu-latest
     needs: plan
-    environment: lambda-infrastructure
+    environment: lambda-foundations
     defaults:
       run:
-        working-directory: terraform/lambda/infrastructure
+        working-directory: terraform/lambda/foundations
     steps:
       - uses: actions/checkout@v6
 
