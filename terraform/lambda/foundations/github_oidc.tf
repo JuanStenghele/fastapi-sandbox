@@ -65,6 +65,16 @@ resource "aws_iam_role_policy" "github_actions" {
         Resource = "*"
       },
       {
+        Effect = "Allow",
+        Action = [
+          "lambda:GetFunction",
+          "lambda:GetFunctionConfiguration",
+          "lambda:UpdateFunctionCode",
+          "lambda:GetFunctionUrlConfig"
+        ],
+        Resource = "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:${var.app_name}-lambda"
+      },
+      {
         Effect   = "Allow"
         Action   = ["ssm:GetParameter"]
         Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.app_name}/*"
