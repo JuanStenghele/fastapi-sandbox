@@ -1,0 +1,24 @@
+name: Get SSM Parameter
+description: Fetch a value from AWS Systems Manager Parameter Store
+
+inputs:
+  name:
+    description: Full parameter name (path)
+    required: true
+
+outputs:
+  value:
+    description: The parameter value
+    value: ${{ steps.get.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - id: get
+      shell: bash
+      run: |
+        value=$(aws ssm get-parameter \
+          --name "${{ inputs.name }}" \
+          --query Parameter.Value \
+          --output text)
+        echo "value=$value" >> "$GITHUB_OUTPUT"

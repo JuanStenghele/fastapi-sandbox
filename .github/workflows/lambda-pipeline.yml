@@ -50,14 +50,13 @@ jobs:
 
       - name: Get ECR repository URL
         id: ecr
-        run: |
-          echo "repository_url=$(aws ssm get-parameter \
-            --name "/${{ vars.APP_NAME }}/ecr/repository-url" \
-            --query Parameter.Value --output text)" >> "$GITHUB_OUTPUT"
+        uses: ./.github/actions/get-ssm-parameter
+        with:
+          name: /jstenghele-fastapi-sandbox/ecr/repository-url
 
       - name: Build and push to ECR
         env:
-          REPOSITORY_URL: ${{ steps.ecr.outputs.repository_url }}
+          REPOSITORY_URL: ${{ steps.ecr.outputs.value }}
         run: |
           docker build -t "$REPOSITORY_URL:latest" .
           docker push "$REPOSITORY_URL:latest"
@@ -70,6 +69,8 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - uses: actions/checkout@v6
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -78,28 +79,41 @@ jobs:
 
       - name: Get ECR repository URL
         id: ecr
+        uses: ./.github/actions/get-ssm-parameter
+        with:
+          name: /jstenghele-fastapi-sandbox/ecr/repository-url
+
+      - name: Get Lambda function name
+        id: lambda
+        uses: ./.github/actions/get-ssm-parameter
+        with:
+          name: /jstenghele-fastapi-sandbox/lambda/function-name
+
+      - name: Check Lambda function exists
+        env:
+          FUNCTION_NAME: ${{ steps.lambda.outputs.value }}
         run: |
-          echo "repository_url=$(aws ssm get-parameter \
-            --name "/${{ vars.APP_NAME }}/ecr/repository-url" \
-            --query Parameter.Value --output text)" >> "$GITHUB_OUTPUT"
+          if ! aws lambda get-function-configuration --function-name "$FUNCTION_NAME" >/dev/null 2>&1; then
+            echo "Lambda function '$FUNCTION_NAME' does not exist"
+            exit 1
+          fi
 
       - name: Deploy to Lambda
         env:
-          FUNCTION_NAME: juans-fastapi-sandbox
-          REPOSITORY_URL: ${{ steps.ecr.outputs.repository_url }}
+          FUNCTION_NAME: ${{ steps.lambda.outputs.value }}
+          REPOSITORY_URL: ${{ steps.ecr.outputs.value }}
         run: |
-          aws lambda update-function-code \
-            --function-name $FUNCTION_NAME \
-            --image-uri "$REPOSITORY_URL:latest" \
-            --publish
+          aws lambda update-function-code --function-name "$FUNCTION_NAME" --image-uri "$REPOSITORY_URL:latest" --publish
 
       - name: Wait for function update
+        env:
+          FUNCTION_NAME: ${{ steps.lambda.outputs.value }}
         run: |
-          aws lambda wait function-updated --function-name juans-fastapi-sandbox
+          aws lambda wait function-updated --function-name "$FUNCTION_NAME"
 
       - name: Health check
         env:
-          FUNCTION_NAME: juans-fastapi-sandbox
+          FUNCTION_NAME: ${{ steps.lambda.outputs.value }}
         run: |
-          URL=$(aws lambda get-function-url-config --function-name $FUNCTION_NAME --query FunctionUrl --output text)
+          URL=$(aws lambda get-function-url-config --function-name "$FUNCTION_NAME" --query FunctionUrl --output text)
           curl --fail --retry 10 --retry-delay 5 --retry-connrefused "$URL/v1/health-check"

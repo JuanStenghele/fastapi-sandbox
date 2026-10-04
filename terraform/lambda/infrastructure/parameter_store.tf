@@ -16,6 +16,15 @@ resource "aws_ssm_parameter" "s3_bucket_name" {
   tags = local.app_registry_tags
 }
 
+# Lambda
+resource "aws_ssm_parameter" "lambda_function_name" {
+  name  = "/${var.app_name}/lambda/function-name"
+  type  = "String"
+  value = aws_lambda_function.lambda.function_name
+
+  tags = local.app_registry_tags
+}
+
 # Domain
 resource "aws_ssm_parameter" "domain" {
   name  = "/${var.app_name}/domain"
