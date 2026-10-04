@@ -34,6 +34,15 @@ resource "aws_ssm_parameter" "api_subdomain" {
   tags = local.app_registry_tags
 }
 
+# API
+resource "aws_ssm_parameter" "api_url" {
+  name  = "/${var.app_name}/api/url"
+  type  = "String"
+  value = "https://${local.api_domain}"
+
+  tags = local.app_registry_tags
+}
+
 # Database
 resource "aws_ssm_parameter" "db_host" {
   name  = "/${var.app_name}/db/host"
