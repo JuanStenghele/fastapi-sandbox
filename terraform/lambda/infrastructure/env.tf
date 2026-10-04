@@ -12,7 +12,7 @@ locals {
     POSTGRES_SSLMODE            = "require"
     STORAGE_BUCKET_NAME         = aws_s3_bucket.main.bucket
     STORAGE_REGION              = var.aws_region
-    STORAGE_PUBLIC_URL          = "https://${local.api_domain}"
+    STORAGE_PUBLIC_URL          = "https://${local.api_domain}/storage"
     AUTH_ISSUER                 = aws_ssm_parameter.auth_issuer.value
     AUTH_AUDIENCE               = aws_ssm_parameter.auth_audience.value
     AUTH_JWKS_URI               = aws_ssm_parameter.auth_jwks_uri.value
