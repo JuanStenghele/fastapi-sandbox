@@ -1,12 +1,3 @@
-# GitHub Actions
-resource "aws_ssm_parameter" "github_actions_role_arn" {
-  name  = "/${var.app_name}/github-actions/role-arn"
-  type  = "String"
-  value = aws_iam_role.github_actions.arn
-
-  tags = local.app_registry_tags
-}
-
 # S3
 resource "aws_ssm_parameter" "s3_bucket_name" {
   name  = "/${var.app_name}/s3/bucket_name"

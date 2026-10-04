@@ -10,13 +10,6 @@ variable "aws_region" {
   default     = "sa-east-1"
 }
 
-# GitHub
-variable "github_repo" {
-  description = "GitHub repository in the format owner/repo"
-  type        = string
-  default     = "JuanStenghele/fastapi-sandbox"
-}
-
 # S3
 variable "s3_bucket_name" {
   description = "Name of the S3 bucket for file storage"

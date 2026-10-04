@@ -10,6 +10,12 @@ variable "aws_region" {
   default     = "sa-east-1"
 }
 
+variable "github_repo" {
+  description = "GitHub repository in the format owner/repo"
+  type        = string
+  default     = "JuanStenghele/fastapi-sandbox"
+}
+
 variable "main_domain_name" {
   description = "Main domain name"
   type        = string
