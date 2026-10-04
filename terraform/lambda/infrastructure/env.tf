@@ -4,11 +4,11 @@ locals {
 
   lambda_environment = {
     ENV                         = "production"
-    POSTGRES_HOST               = aws_ssm_parameter.supabase_host.value
-    POSTGRES_PORT               = aws_ssm_parameter.supabase_port.value
-    POSTGRES_DB                 = aws_ssm_parameter.supabase_db.value
-    POSTGRES_USER               = aws_ssm_parameter.supabase_user.value
-    POSTGRES_PASSWORD           = aws_ssm_parameter.supabase_password.value
+    POSTGRES_HOST               = aws_ssm_parameter.db_host.value
+    POSTGRES_PORT               = aws_ssm_parameter.db_port.value
+    POSTGRES_DB                 = aws_ssm_parameter.db_name.value
+    POSTGRES_USER               = aws_ssm_parameter.db_user.value
+    POSTGRES_PASSWORD           = aws_ssm_parameter.db_password.value
     POSTGRES_SSLMODE            = "require"
     STORAGE_BUCKET_NAME         = aws_s3_bucket.main.bucket
     STORAGE_REGION              = var.aws_region

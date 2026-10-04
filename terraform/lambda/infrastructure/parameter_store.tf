@@ -34,43 +34,43 @@ resource "aws_ssm_parameter" "api_subdomain" {
   tags = local.app_registry_tags
 }
 
-# Supabase
-resource "aws_ssm_parameter" "supabase_host" {
-  name  = "/${var.app_name}/supabase/host"
+# Database
+resource "aws_ssm_parameter" "db_host" {
+  name  = "/${var.app_name}/db/host"
   type  = "String"
-  value = var.supabase_host
+  value = var.db_host
 
   tags = local.app_registry_tags
 }
 
-resource "aws_ssm_parameter" "supabase_port" {
-  name  = "/${var.app_name}/supabase/port"
+resource "aws_ssm_parameter" "db_port" {
+  name  = "/${var.app_name}/db/port"
   type  = "String"
-  value = var.supabase_port
+  value = var.db_port
 
   tags = local.app_registry_tags
 }
 
-resource "aws_ssm_parameter" "supabase_db" {
-  name  = "/${var.app_name}/supabase/db"
+resource "aws_ssm_parameter" "db_name" {
+  name  = "/${var.app_name}/db/name"
   type  = "String"
-  value = var.supabase_db
+  value = var.db_name
 
   tags = local.app_registry_tags
 }
 
-resource "aws_ssm_parameter" "supabase_user" {
-  name  = "/${var.app_name}/supabase/user"
+resource "aws_ssm_parameter" "db_user" {
+  name  = "/${var.app_name}/db/user"
   type  = "String"
-  value = var.supabase_user
+  value = var.db_user
 
   tags = local.app_registry_tags
 }
 
-resource "aws_ssm_parameter" "supabase_password" {
-  name  = "/${var.app_name}/supabase/password"
+resource "aws_ssm_parameter" "db_password" {
+  name  = "/${var.app_name}/db/password"
   type  = "SecureString"
-  value = var.supabase_password
+  value = var.db_password
 
   tags = local.app_registry_tags
 }

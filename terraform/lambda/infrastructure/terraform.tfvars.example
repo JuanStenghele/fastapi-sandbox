@@ -2,10 +2,10 @@
 aws_access_key_id     = ""
 aws_secret_access_key = ""
 
-# Supabase
-supabase_host     = ""
-supabase_user     = ""
-supabase_password = ""
+# Database
+db_host     = ""
+db_user     = ""
+db_password = ""
 
 # Auth
 auth_issuer    = ""

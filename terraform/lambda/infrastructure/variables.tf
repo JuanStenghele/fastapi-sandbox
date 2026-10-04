@@ -49,31 +49,31 @@ variable "ui_subdomain_name" {
   default     = "ui"
 }
 
-# Supabase
-variable "supabase_host" {
-  description = "Supabase database host"
+# DB
+variable "db_host" {
+  description = "Database host"
   type        = string
 }
 
-variable "supabase_port" {
-  description = "Supabase database port"
+variable "db_port" {
+  description = "Database port"
   type        = string
   default     = "6543"
 }
 
-variable "supabase_db" {
-  description = "Supabase database name"
+variable "db_name" {
+  description = "Database name"
   type        = string
   default     = "postgres"
 }
 
-variable "supabase_user" {
-  description = "Supabase database user"
+variable "db_user" {
+  description = "Database user"
   type        = string
 }
 
-variable "supabase_password" {
-  description = "Supabase database password"
+variable "db_password" {
+  description = "Database password"
   type        = string
   sensitive   = true
 }
