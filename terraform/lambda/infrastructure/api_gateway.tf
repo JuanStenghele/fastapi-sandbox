@@ -29,7 +29,7 @@ resource "aws_apigatewayv2_domain_name" "api" {
   tags = local.app_registry_tags
 
   domain_name_configuration {
-    certificate_arn = aws_acm_certificate.api.arn
+    certificate_arn = aws_acm_certificate_validation.api.certificate_arn
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
