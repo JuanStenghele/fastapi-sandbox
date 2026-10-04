@@ -1,6 +1,6 @@
 locals {
-  api_domain = "${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
-  ui_domain  = "ui.${var.main_domain_name}"
+  api_domain = "${var.api_subdomain_name}.${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
+  ui_domain  = "${var.ui_subdomain_name}.${var.fastapi_sandbox_subdomain_name}.${var.main_domain_name}"
 }
 
 resource "aws_acm_certificate" "api" {

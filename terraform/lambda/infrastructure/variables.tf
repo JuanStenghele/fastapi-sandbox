@@ -1,19 +1,20 @@
-variable "github_repo" {
-  description = "GitHub repository in the format owner/repo"
-  type        = string
-  default     = "JuanStenghele/fastapi-sandbox"
-}
-
 variable "app_name" {
   description = "Application Name"
   type        = string
-  default     = "juans-fastapi-sandbox"
+  default     = "jstenghele-fastapi-sandbox"
 }
 
 variable "aws_region" {
   description = "AWS Region"
   type        = string
   default     = "sa-east-1"
+}
+
+# GitHub
+variable "github_repo" {
+  description = "GitHub repository in the format owner/repo"
+  type        = string
+  default     = "JuanStenghele/fastapi-sandbox"
 }
 
 # S3
@@ -23,7 +24,7 @@ variable "s3_bucket_name" {
   default     = "fastapi-sandbox-production"
 }
 
-# Ingress
+# DNS
 variable "main_domain_name" {
   description = "Main domain name"
   type        = string
@@ -33,13 +34,19 @@ variable "main_domain_name" {
 variable "fastapi_sandbox_subdomain_name" {
   description = "Subdomain for the fastapi-sandbox service"
   type        = string
-  default     = "juans-fastapi-sandbox"
+  default     = "jstenghele-fastapi-sandbox"
 }
 
 variable "api_subdomain_name" {
   description = "Subdomain for the API service"
   type        = string
   default     = "api"
+}
+
+variable "ui_subdomain_name" {
+  description = "Subdomain for the UI service"
+  type        = string
+  default     = "ui"
 }
 
 # Supabase
