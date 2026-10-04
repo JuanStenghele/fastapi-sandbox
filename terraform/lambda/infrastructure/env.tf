@@ -4,6 +4,7 @@ locals {
 
   lambda_environment = {
     ENV                         = "production"
+    PORT                        = "8000"
     POSTGRES_HOST               = aws_ssm_parameter.db_host.value
     POSTGRES_PORT               = aws_ssm_parameter.db_port.value
     POSTGRES_DB                 = aws_ssm_parameter.db_name.value
