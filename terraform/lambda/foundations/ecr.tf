@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "ecr" {
-  name                 = "${var.app_name}-ecr"
+  name                 = "${var.app_name}-lambda"
   image_tag_mutability = "IMMUTABLE_WITH_EXCLUSION"
 
   tags = local.app_registry_tags

@@ -1,3 +1,18 @@
 # AWS Credentials
 aws_access_key_id     = ""
 aws_secret_access_key = ""
+
+# Supabase
+supabase_host     = ""
+supabase_user     = ""
+supabase_password = ""
+
+# Auth
+auth_issuer    = ""
+auth_audience  = ""
+auth_jwks_uri  = ""
+
+# Observability
+otel_otlp_endpoint    = ""
+otel_otlp_instance_id = ""
+otel_otlp_token       = ""

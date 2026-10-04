@@ -48,13 +48,19 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Get ECR repository URL
+        id: ecr
+        run: |
+          echo "repository_url=$(aws ssm get-parameter \
+            --name "/${{ vars.APP_NAME }}/ecr/repository-url" \
+            --query Parameter.Value --output text)" >> "$GITHUB_OUTPUT"
+
       - name: Build and push to ECR
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: juans-fastapi-sandbox
+          REPOSITORY_URL: ${{ steps.ecr.outputs.repository_url }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:latest .
-          docker push $REGISTRY/$REPOSITORY:latest
+          docker build -t "$REPOSITORY_URL:latest" .
+          docker push "$REPOSITORY_URL:latest"
 
   deploy:
     name: Deploy
@@ -70,16 +76,21 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
+      - name: Get ECR repository URL
+        id: ecr
+        run: |
+          echo "repository_url=$(aws ssm get-parameter \
+            --name "/${{ vars.APP_NAME }}/ecr/repository-url" \
+            --query Parameter.Value --output text)" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to Lambda
         env:
-          ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-          REGION: ${{ vars.AWS_REGION }}
           FUNCTION_NAME: juans-fastapi-sandbox
-          REPOSITORY: juans-fastapi-sandbox
+          REPOSITORY_URL: ${{ steps.ecr.outputs.repository_url }}
         run: |
           aws lambda update-function-code \
             --function-name $FUNCTION_NAME \
-            --image-uri $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY:latest \
+            --image-uri "$REPOSITORY_URL:latest" \
             --publish
 
       - name: Wait for function update
