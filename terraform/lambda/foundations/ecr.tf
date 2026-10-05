@@ -13,3 +13,24 @@ resource "aws_ecr_repository" "ecr" {
     scan_on_push = true
   }
 }
+
+resource "aws_ecr_lifecycle_policy" "ecr" {
+  repository = aws_ecr_repository.ecr.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep only the latest image"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 1
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
