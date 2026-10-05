@@ -39,6 +39,11 @@ resource "aws_iam_role_policy" "lambda" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
 resource "aws_lambda_function" "lambda" {
   function_name = "${var.app_name}-lambda"
   role          = aws_iam_role.lambda.arn
