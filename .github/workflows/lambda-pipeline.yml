@@ -70,6 +70,8 @@ jobs:
           push: true
           platforms: linux/arm64
           tags: ${{ steps.ecr.outputs.value }}:latest
+          provenance: false
+          sbom: false
 
   deploy:
     name: Deploy
