@@ -5,6 +5,10 @@ inputs:
   name:
     description: Full parameter name (path)
     required: true
+  with_decryption:
+    description: Decrypt the value (required for SecureString parameters)
+    required: false
+    default: 'false'
 
 outputs:
   value:
@@ -16,9 +20,10 @@ runs:
   steps:
     - id: get
       shell: bash
+      env:
+        WITH_DECRYPTION: ${{ inputs.with_decryption }}
       run: |
-        value=$(aws ssm get-parameter \
-          --name "${{ inputs.name }}" \
-          --query Parameter.Value \
-          --output text)
+        DECRYPT_FLAG=""
+        [ "$WITH_DECRYPTION" = "true" ] && DECRYPT_FLAG="--with-decryption"
+        value=$(aws ssm get-parameter --name "${{ inputs.name }}" $DECRYPT_FLAG --query Parameter.Value --output text)
         echo "value=$value" >> "$GITHUB_OUTPUT"

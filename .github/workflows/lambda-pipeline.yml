@@ -73,9 +73,74 @@ jobs:
           provenance: false
           sbom: false
 
+  migrate-db:
+    name: Migrate DB
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Get DB host
+        id: db_host
+        uses: ./.github/actions/get-ssm-parameter
+        with:
+          name: /jstenghele-fastapi-sandbox/db/host
+
+      - name: Get DB port
+        id: db_port
+        uses: ./.github/actions/get-ssm-parameter
+        with:
+          name: /jstenghele-fastapi-sandbox/db/port
+
+      - name: Get DB name
+        id: db_name
+        uses: ./.github/actions/get-ssm-parameter
+        with:
+          name: /jstenghele-fastapi-sandbox/db/name
+
+      - name: Get DB user
+        id: db_user
+        uses: ./.github/actions/get-ssm-parameter
+        with:
+          name: /jstenghele-fastapi-sandbox/db/user
+
+      - name: Get DB password
+        id: db_password
+        uses: ./.github/actions/get-ssm-parameter
+        with:
+          name: /jstenghele-fastapi-sandbox/db/password
+          with_decryption: 'true'
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run DB migrations
+        env:
+          POSTGRES_HOST: ${{ steps.db_host.outputs.value }}
+          POSTGRES_PORT: ${{ steps.db_port.outputs.value }}
+          POSTGRES_DB: ${{ steps.db_name.outputs.value }}
+          POSTGRES_USER: ${{ steps.db_user.outputs.value }}
+          POSTGRES_PASSWORD: ${{ steps.db_password.outputs.value }}
+          POSTGRES_SSLMODE: require
+        run: alembic upgrade head
+
   deploy:
     name: Deploy
-    needs: build
+    needs: [build, migrate-db]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
