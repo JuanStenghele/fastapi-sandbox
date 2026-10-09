@@ -4,8 +4,8 @@ on:
   workflow_dispatch
 
 jobs:
-  tests:
-    name: Tests
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -33,7 +33,7 @@ jobs:
 
   build:
     name: Build
-    needs: tests
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
