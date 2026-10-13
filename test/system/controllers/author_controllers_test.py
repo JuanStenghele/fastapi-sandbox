@@ -11,7 +11,7 @@ class TestAuthorController():
   @pytest.fixture(autouse = True)
   def after_each(self, context: Context):
     self.user_auth_token = get_user_auth_token(context.auth_token_url, "test-user")
-    self.admin_auth_token = get_admin_auth_token(context.auth_token_url, "test-admin")
+    self.admin_auth_token = get_admin_auth_token(context.auth_token_url)
     yield
     delete_all_books(context.db_url)
     delete_all_authors(context.db_url)

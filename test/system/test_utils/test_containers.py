@@ -74,7 +74,7 @@ def minio_instance(request: FixtureRequest, minio_user: str, minio_password: str
 
 
 def mock_oauth2_server_instance(request: FixtureRequest) -> tuple[str, str]:
-  container = DockerContainer("ghcr.io/navikt/mock-oauth2-server:3.0.1")
+  container = DockerContainer("ghcr.io/navikt/mock-oauth2-server:6.0.6")
   container.with_name("test-mock-oauth2-server")
   container.with_exposed_ports(8080)
   container.with_env("JSON_CONFIG", get_mock_oauth2_server_config())

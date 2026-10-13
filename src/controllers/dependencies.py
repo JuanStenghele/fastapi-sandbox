@@ -8,19 +8,19 @@ from database import Database
 from services.auth import AuthService
 from objects.auth import AuthClaims
 from objects.error import UnauthenticatedError, UnauthorizedError
-from constants import AUTH_SCOPE_ADMIN
+from constants import AUTH_PERMISSION_ADMIN
 from dependency_injector.wiring import inject, Provide
 
 
 def get_auth_claims(
-  scope: str | None,
+  permission: str | None,
   credentials: HTTPAuthorizationCredentials | None,
   auth_service: AuthService
 ) -> AuthClaims:
   try:
     if credentials is None:
       raise UnauthenticatedError(detail = "MISSING_TOKEN")
-    return auth_service.verify_token(credentials.credentials, scope)
+    return auth_service.verify_token(credentials.credentials, permission)
   except UnauthenticatedError as e:
     raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = e.detail)
   except UnauthorizedError as e:
@@ -40,7 +40,7 @@ def get_admin_auth_claims(
   credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error = False)),
   auth_service: AuthService = Depends(Provide[Container.auth_service])
 ) -> AuthClaims:
-  return get_auth_claims(AUTH_SCOPE_ADMIN, credentials, auth_service)
+  return get_auth_claims(AUTH_PERMISSION_ADMIN, credentials, auth_service)
 
 
 # Using lambdas as it is a generator

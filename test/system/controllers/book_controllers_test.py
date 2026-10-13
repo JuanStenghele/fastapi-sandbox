@@ -11,7 +11,7 @@ class TestBookController():
   @pytest.fixture(autouse = True)
   def after_each(self, context: Context):
     self.auth_token = get_user_auth_token(context.auth_token_url, "test-user")
-    self.admin_auth_token = get_admin_auth_token(context.auth_token_url, "test-user")
+    self.admin_auth_token = get_admin_auth_token(context.auth_token_url)
     yield
     clean_all_tables(context.db_url)
     clean_bucket(context.storage_service_url, context.storage_access_key_id, context.storage_secret_access_key, context.storage_bucket_name)

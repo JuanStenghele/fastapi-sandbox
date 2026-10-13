@@ -13,7 +13,7 @@ class AuthService():
     self.audience = audience
     self.jwks_client = jwks_client
 
-  def verify_token(self, token: str, scope: str | None = None) -> AuthClaims:
+  def verify_token(self, token: str, permission: str | None = None) -> AuthClaims:
     signing_key = self.jwks_client.get_signing_key_from_jwt(token)
     try:
       payload = jwt.decode(
@@ -26,10 +26,10 @@ class AuthService():
     except Exception:
       raise UnauthenticatedError(detail = "INVALID_TOKEN")
     claims = AuthClaims.model_validate(payload)
-    if scope is not None:
-      self.verify_permissions(claims, scope)
+    if permission is not None:
+      self.verify_permission(claims, permission)
     return claims
 
-  def verify_permissions(self, claims: AuthClaims, scope: str) -> None:
-    if claims.scope is None or scope not in claims.scope.split():
+  def verify_permission(self, claims: AuthClaims, permission: str) -> None:
+    if claims.permissions is None or permission not in claims.permissions:
       raise UnauthorizedError(detail = "INSUFFICIENT_PERMISSIONS")

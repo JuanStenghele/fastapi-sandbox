@@ -50,7 +50,7 @@ class TestAuthService():
       instance.verify_token("invalid.token.string")
     assert e.value.detail == "INVALID_TOKEN"
 
-  def test_verify_token_scope_is_none(self):
+  def test_verify_token_permission_is_none(self):
     private_key, public_key = generate_rsa_key_pair()
     token = jwt.encode({"sub": "user1", "iss": issuer, "aud": audience}, private_key, algorithm = "RS256")
     signing_key_mock = MagicMock()
@@ -59,17 +59,28 @@ class TestAuthService():
     jwks_client_mock.get_signing_key_from_jwt.return_value = signing_key_mock
     instance = AuthService(issuer, audience, jwks_client_mock)
     with pytest.raises(UnauthorizedError) as e:
-      instance.verify_token(token, scope = "admin")
+      instance.verify_token(token, permission = "admin")
     assert e.value.detail == "INSUFFICIENT_PERMISSIONS"
 
-  def test_verify_token_scope_not_in_claims(self):
+  def test_verify_token_permission_not_in_claims(self):
     private_key, public_key = generate_rsa_key_pair()
-    token = jwt.encode({"sub": "user1", "iss": issuer, "aud": audience, "scope": "user"}, private_key, algorithm = "RS256")
+    token = jwt.encode({"sub": "user1", "iss": issuer, "aud": audience, "permissions": ["user"]}, private_key, algorithm = "RS256")
     signing_key_mock = MagicMock()
     signing_key_mock.key = public_key
     jwks_client_mock = MagicMock(spec = PyJWKClient)
     jwks_client_mock.get_signing_key_from_jwt.return_value = signing_key_mock
     instance = AuthService(issuer, audience, jwks_client_mock)
     with pytest.raises(UnauthorizedError) as e:
-      instance.verify_token(token, scope = "admin")
+      instance.verify_token(token, permission = "admin")
     assert e.value.detail == "INSUFFICIENT_PERMISSIONS"
+
+  def test_verify_token_permission_present(self):
+    private_key, public_key = generate_rsa_key_pair()
+    token = jwt.encode({"sub": "user1", "iss": issuer, "aud": audience, "permissions": ["admin"]}, private_key, algorithm = "RS256")
+    signing_key_mock = MagicMock()
+    signing_key_mock.key = public_key
+    jwks_client_mock = MagicMock(spec = PyJWKClient)
+    jwks_client_mock.get_signing_key_from_jwt.return_value = signing_key_mock
+    instance = AuthService(issuer, audience, jwks_client_mock)
+    claims = instance.verify_token(token, permission = "admin")
+    assert claims.sub == "user1"

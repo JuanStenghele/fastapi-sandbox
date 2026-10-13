@@ -7,6 +7,7 @@ class AuthClaims(BaseObj):
 
   sub: str
   scope: str | None = None
+  permissions: list[str] | None = None
   iss: str | None = None
   aud: str | list[str] | None = None
   exp: int | None = None
